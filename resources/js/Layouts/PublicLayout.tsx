@@ -35,7 +35,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                     <div className="flex items-center gap-3">
                         {auth.user && (
                             <HudButton
-                                href={route('dashboard')}
+                                href={route('admin.dashboard')}
                                 tone="violet"
                                 className="hidden sm:inline-flex"
                             >
