@@ -99,13 +99,22 @@ export default function Home({ modules, playbooks }: Props) {
                     <div className="mt-36 w-full">
                         <Eyebrow>System Overview</Eyebrow>
                         <GradientHeading className="mx-auto max-w-5xl">
-                            How The Ticker-Tactix System Constrains Decisions
+                            <span className="text-5xl">
+                                How The Ticker-Tactix System Constrains
+                                Decisions
+                            </span>
                         </GradientHeading>
                         <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-white/75">
                             Market analysis flows from directional bias, to
                             participation, to volatility assessment, into
                             structured playbook execution.
                         </p>
+
+                        <img
+                            src="/design/assets/images/system.jpg"
+                            className="mt-5 mix-blend-lighten"
+                            alt=""
+                        />
                     </div>
                 </div>
             </section>
