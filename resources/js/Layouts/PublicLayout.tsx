@@ -158,8 +158,8 @@ function Footer() {
                 </div>
                 <p className="font-heading mt-10 text-xs tracking-[0.35em] text-white/70 uppercase">
                     Trade with{' '}
-                    <span className="text-seafoam-green">structure</span>, not{' '}
-                    <span className="text-violet-light">emotion</span>.
+                    <span className="text-seafoam-green">structure</span>,
+                    not&nbsp;<span className="text-violet-light">emotion</span>.
                 </p>
                 <p className="mt-6 text-xs text-white/50">
                     © 2026 Ticker Tactix Galactic. All rights reserved.
