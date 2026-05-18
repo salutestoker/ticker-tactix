@@ -1,7 +1,12 @@
 import { HudButton } from '@/Components/UI/Hud';
 import type { PageProps } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { useState, type PropsWithChildren } from 'react';
+import {
+    useEffect,
+    useRef,
+    useState,
+    type PropsWithChildren,
+} from 'react';
 
 const nav = [
     ['Modules', 'modules.index'],
@@ -13,9 +18,36 @@ const nav = [
 export default function PublicLayout({ children }: PropsWithChildren) {
     const { auth, flash } = usePage<PageProps>().props;
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const menuRef = useRef<HTMLDivElement>(null);
+    const menuButtonRef = useRef<HTMLButtonElement>(null);
 
     const accountHref = auth.user ? route('dashboard') : route('login');
     const accountLabel = auth.user ? 'Dashboard' : 'Login';
+
+    useEffect(() => {
+        if (!isMenuOpen) {
+            return;
+        }
+
+        function closeOnOutsidePointer(event: PointerEvent) {
+            const target = event.target as Node;
+
+            if (
+                menuRef.current?.contains(target) ||
+                menuButtonRef.current?.contains(target)
+            ) {
+                return;
+            }
+
+            setIsMenuOpen(false);
+        }
+
+        document.addEventListener('pointerdown', closeOnOutsidePointer);
+
+        return () => {
+            document.removeEventListener('pointerdown', closeOnOutsidePointer);
+        };
+    }, [isMenuOpen]);
 
     return (
         <div className="bg-midnight-blue min-h-screen overflow-hidden text-white">
@@ -43,6 +75,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                             </HudButton>
                         )}
                         <button
+                            ref={menuButtonRef}
                             className="border-violet-light/20 text-violet-light hover:border-violet-light/50 focus-visible:ring-violet-light focus-visible:ring-offset-midnight-blue flex h-10 w-10 items-center justify-center rounded-full border bg-black/50 transition focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
                             type="button"
                             aria-controls="site-menu"
@@ -66,6 +99,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                 </div>
                 {isMenuOpen ? (
                     <div
+                        ref={menuRef}
                         id="site-menu"
                         className="border-main-blue/35 bg-panel/95 absolute top-24 right-4 w-[min(calc(100vw-2rem),26rem)] rounded-md border p-3 shadow-[0_0_40px_rgba(55,100,245,0.22)] backdrop-blur sm:right-6"
                     >
