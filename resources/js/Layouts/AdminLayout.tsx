@@ -1,6 +1,6 @@
 import { HudButton } from '@/Components/UI/Hud';
 import type { PageProps } from '@/types';
-import { Link, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import type { PropsWithChildren } from 'react';
 
 const nav = [
@@ -50,13 +50,23 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                     <p className="mb-3 text-center text-xs text-white/45">
                         Signed in as {auth.user?.name}
                     </p>
-                    <HudButton
-                        href={route('home')}
-                        tone="blue"
-                        className="w-full"
-                    >
-                        Public Site
-                    </HudButton>
+                    <div className="grid grid-cols-1 gap-2">
+                        <HudButton
+                            href={route('home')}
+                            tone="blue"
+                            className="w-full px-3"
+                        >
+                            Public Site
+                        </HudButton>
+                        <HudButton
+                            type="button"
+                            tone="violet"
+                            className="w-full px-3"
+                            onClick={() => router.post(route('logout'))}
+                        >
+                            Logout
+                        </HudButton>
+                    </div>
                 </div>
             </aside>
             <div className="lg:pl-72">

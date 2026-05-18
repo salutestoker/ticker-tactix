@@ -6,6 +6,13 @@
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
+        <link rel="icon" type="image/png" href="/design/assets/favicons/favicon-96x96.png" sizes="96x96" />
+        <link rel="icon" type="image/svg+xml" href="/design/assets/favicons/favicon.svg" />
+        <link rel="shortcut icon" href="/design/assets/favicons/favicon.ico" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/design/assets/favicons/apple-touch-icon.png" />
+        <meta name="apple-mobile-web-app-title" content="Ticker-Tactix" />
+        <link rel="manifest" href="/design/assets/favicons/site.webmanifest" />
+
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=orbitron:400,500,600,700|source-code-pro:400,500,600,700&display=swap" rel="stylesheet" />
