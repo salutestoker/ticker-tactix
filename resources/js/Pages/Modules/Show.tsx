@@ -69,7 +69,7 @@ export default function ModulesShow({
                 {relatedModules.length ? (
                     <div className="mx-auto mt-16 max-w-6xl">
                         <h2 className="font-heading text-xl tracking-[0.16em] text-white uppercase">
-                            Related Modules
+                            Trader's also purchased
                         </h2>
                         <div className="mt-5 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
                             {relatedModules.map((item) => (

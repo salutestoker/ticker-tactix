@@ -26,7 +26,7 @@ Always-loaded instructions for Codex agents working in this repository. Keep thi
 - Visual system, assets, components, responsive behavior: `.codex/context/design-system.md`.
 - Discord auth implementation: `.codex/context/authentication-discord-laravel.md`.
 - QA and release checks: `.codex/checklists/`.
-- Project skills live in `.codex/skills/`; use the matching skill for Laravel, Inertia React, Tailwind v4 design systems, or advanced TypeScript work.
+- Project-local skills live in `.codex/skills`. When a task matches one of those skill areas, inspect `.codex/skills/README.md` first, then load only the relevant `SKILL.md`. Do not bulk-load all skill files into context.
 
 ## Core Domain
 
