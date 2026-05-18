@@ -99,7 +99,7 @@ export default function Home({ modules, playbooks }: Props) {
                     <div className="mt-36 w-full">
                         <Eyebrow>System Overview</Eyebrow>
                         <GradientHeading className="mx-auto max-w-5xl">
-                            <span className="text-5xl">
+                            <span className="text-3xl sm:text-5xl">
                                 How The Ticker-Tactix System Constrains
                                 Decisions
                             </span>
