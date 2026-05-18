@@ -1,0 +1,23 @@
+import type { SVGProps } from 'react';
+
+export function DataPipeline(props: SVGProps<SVGSVGElement>) {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.75}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            {...props}
+        >
+            <ellipse cx="12" cy="6" rx="6" ry="3" />
+            <path d="M6 6v6c0 1.7 2.7 3 6 3s6-1.3 6-3V6" />
+            <path d="M6 12v6c0 1.7 2.7 3 6 3s6-1.3 6-3v-6" />
+        </svg>
+    );
+}

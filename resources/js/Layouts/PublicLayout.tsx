@@ -1,0 +1,185 @@
+import { HudButton } from '@/Components/UI/Hud';
+import type { PageProps } from '@/types';
+import { Link, usePage } from '@inertiajs/react';
+import { useState, type PropsWithChildren } from 'react';
+
+const nav = [
+    ['Modules', 'modules.index'],
+    ['Playbooks', 'playbooks.index'],
+    ['Methodology', 'about'],
+    ['Contact', 'contact'],
+] as const;
+
+export default function PublicLayout({ children }: PropsWithChildren) {
+    const { auth, flash } = usePage<PageProps>().props;
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    const accountHref = auth.user ? route('dashboard') : route('login');
+    const accountLabel = auth.user ? 'Dashboard' : 'Login';
+
+    return (
+        <div className="bg-midnight-blue min-h-screen overflow-hidden text-white">
+            <header className="fixed top-0 right-0 left-0 z-40 px-4 py-5 sm:px-6">
+                <div className="mx-auto flex items-center justify-between">
+                    <Link
+                        className="group border-seafoam-green/20 hover:border-seafoam-green text-seafoam-green flex h-10 w-10 items-center justify-center rounded-full border bg-black/50"
+                        href={route('home')}
+                        aria-label="Ticker Tactix home"
+                    >
+                        <img
+                            className="h-auto w-1/2 object-contain transition group-hover:scale-105"
+                            src="/design/assets/images/logo-ticker-tactix-alien.png"
+                            alt=""
+                        />
+                    </Link>
+                    <div className="flex items-center gap-3">
+                        {auth.user && (
+                            <HudButton
+                                href={route('dashboard')}
+                                tone="violet"
+                                className="hidden sm:inline-flex"
+                            >
+                                Dashboard
+                            </HudButton>
+                        )}
+                        <button
+                            className="border-violet-light/20 text-violet-light hover:border-violet-light/50 focus-visible:ring-violet-light focus-visible:ring-offset-midnight-blue flex h-10 w-10 items-center justify-center rounded-full border bg-black/50 transition focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+                            type="button"
+                            aria-controls="site-menu"
+                            aria-expanded={isMenuOpen}
+                            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+                            onClick={() => setIsMenuOpen((open) => !open)}
+                        >
+                            <span className="relative h-3 w-4">
+                                <span
+                                    className={`absolute left-0 h-px w-4 rounded-full bg-current transition ${isMenuOpen ? 'top-1/2 -translate-y-1/2 rotate-45' : 'top-0'}`}
+                                />
+                                <span
+                                    className={`absolute top-1/2 left-0 h-px w-4 -translate-y-1/2 rounded-full bg-current transition ${isMenuOpen ? 'opacity-0' : 'opacity-100'}`}
+                                />
+                                <span
+                                    className={`absolute left-0 h-px w-4 rounded-full bg-current transition ${isMenuOpen ? 'top-1/2 -translate-y-1/2 -rotate-45' : 'bottom-0'}`}
+                                />
+                            </span>
+                        </button>
+                    </div>
+                </div>
+                {isMenuOpen ? (
+                    <div
+                        id="site-menu"
+                        className="border-main-blue/35 bg-panel/95 absolute top-24 right-4 w-[min(calc(100vw-2rem),26rem)] rounded-md border p-3 shadow-[0_0_40px_rgba(55,100,245,0.22)] backdrop-blur sm:right-6"
+                    >
+                        <nav className="grid gap-2">
+                            {nav.map(([label, name]) => (
+                                <Link
+                                    key={name}
+                                    href={route(name)}
+                                    className="font-heading hover:border-main-blue/35 hover:bg-main-blue/10 hover:text-seafoam-green rounded-sm border border-transparent px-4 py-3 text-xs font-semibold tracking-[0.18em] text-white/70 uppercase transition"
+                                    onClick={() => setIsMenuOpen(false)}
+                                >
+                                    {label}
+                                </Link>
+                            ))}
+                            <Link
+                                href={accountHref}
+                                className="font-heading hover:border-violet-light/35 hover:bg-violet-light/10 hover:text-violet-light rounded-sm border border-transparent px-4 py-3 text-xs font-semibold tracking-[0.18em] text-white/70 uppercase transition"
+                                onClick={() => setIsMenuOpen(false)}
+                            >
+                                {accountLabel}
+                            </Link>
+                            {auth.user?.is_admin ? (
+                                <Link
+                                    href={route('admin.dashboard')}
+                                    className="font-heading hover:border-main-blue/35 hover:bg-main-blue/10 rounded-sm border border-transparent px-4 py-3 text-xs font-semibold tracking-[0.18em] text-white/70 uppercase transition hover:text-sky-300"
+                                    onClick={() => setIsMenuOpen(false)}
+                                >
+                                    Admin
+                                </Link>
+                            ) : null}
+                        </nav>
+                    </div>
+                ) : null}
+            </header>
+
+            {flash?.success || flash?.error ? (
+                <div className="border-seafoam-green/40 bg-panel/95 fixed top-24 right-4 z-50 max-w-sm rounded-sm border px-4 py-3 text-sm text-white shadow-[0_0_24px_rgba(0,250,146,0.18)]">
+                    {flash.success || flash.error}
+                </div>
+            ) : null}
+
+            <main>{children}</main>
+            <Footer />
+        </div>
+    );
+}
+
+function Footer() {
+    return (
+        <footer className="bg-main-blue-bright relative overflow-hidden text-white">
+            <div className="absolute inset-0 bg-[url('/design/assets/images/bg-footer.jpg')] bg-cover bg-center opacity-90" />
+            <div className="from-midnight-blue via-main-blue-bright/30 to-main-blue-bright/20 absolute inset-0 bg-gradient-to-b" />
+            <div className="relative mx-auto max-w-6xl px-6 py-28 text-center">
+                <img
+                    className="mx-auto mb-12 h-28 w-auto object-contain"
+                    src="/design/assets/images/logo-ticker-tactix-2026.png"
+                    alt="Ticker Tactix"
+                />
+                <div className="grid gap-10 border-y border-white/15 py-10 text-sm text-white/75 md:grid-cols-4">
+                    <FooterColumn
+                        title="System"
+                        links={['Modules', 'Playbooks', 'Methodology', 'About']}
+                    />
+                    <FooterColumn
+                        title="Resources"
+                        links={[
+                            'Documentation',
+                            'Backtesting Lab',
+                            'Blog',
+                            'Support',
+                        ]}
+                    />
+                    <FooterColumn
+                        title="Community"
+                        links={[
+                            'Discord',
+                            'X (Twitter)',
+                            'YouTube',
+                            'Partner Access',
+                        ]}
+                    />
+                    <FooterColumn
+                        title="Legal"
+                        links={[
+                            'Terms of Service',
+                            'Privacy Policy',
+                            'Risk Disclaimer',
+                        ]}
+                    />
+                </div>
+                <p className="font-heading mt-10 text-xs tracking-[0.35em] text-white/70 uppercase">
+                    Trade with{' '}
+                    <span className="text-seafoam-green">structure</span>, not{' '}
+                    <span className="text-violet-light">emotion</span>.
+                </p>
+                <p className="mt-6 text-xs text-white/50">
+                    © 2026 Ticker Tactix Galactic. All rights reserved.
+                </p>
+            </div>
+        </footer>
+    );
+}
+
+function FooterColumn({ title, links }: { title: string; links: string[] }) {
+    return (
+        <div>
+            <h3 className="font-heading text-seafoam-green text-xs tracking-[0.22em] uppercase">
+                {title}
+            </h3>
+            <div className="mt-4 space-y-2">
+                {links.map((link) => (
+                    <div key={link}>{link}</div>
+                ))}
+            </div>
+        </div>
+    );
+}

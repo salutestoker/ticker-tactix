@@ -1,0 +1,27 @@
+import type { SVGProps } from 'react';
+
+export function ExecutionOptimizer(props: SVGProps<SVGSVGElement>) {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.75}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            {...props}
+        >
+            <rect x="5" y="7" width="14" height="12" rx="2" />
+            <path d="M9 7V4h6v3" />
+            <path d="M8 12h3" />
+            <path d="M13 12h3" />
+            <path d="M12 15v1" />
+            <path d="M4 11h1" />
+            <path d="M19 11h1" />
+        </svg>
+    );
+}

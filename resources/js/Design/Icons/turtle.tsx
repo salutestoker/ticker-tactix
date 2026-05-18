@@ -1,0 +1,28 @@
+import type { SVGProps } from 'react';
+
+export function Turtle(props: SVGProps<SVGSVGElement>) {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.75}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            {...props}
+        >
+            <path d="M7 14c0-3.3 2.7-6 6-6h1c2.8 0 5 2.2 5 5v1H7Z" />
+            <path d="M7 14l-2 2" />
+            <path d="M19 13h2" />
+            <path d="M9 14v3" />
+            <path d="M15 14v3" />
+            <path d="M11 8 9 6" />
+            <path d="M15 8l2-2" />
+            <circle cx="20.5" cy="12.5" r=".5" />
+        </svg>
+    );
+}

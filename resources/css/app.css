@@ -1,0 +1,145 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../views/**/*.blade.php';
+@source '../js/**/*.{ts,tsx}';
+
+@theme {
+    --font-body: Corbel, "Segoe UI", Arial, sans-serif;
+    --font-heading: Orbitron, sans-serif;
+    --font-mono-display: "Source Code Pro", monospace;
+
+    --color-midnight-blue: #010929;
+    --color-seafoam-green: #00fa92;
+    --color-main-blue: #3764f5;
+    --color-main-blue-bright: #0012cb;
+    --color-violet: #8e35a9;
+    --color-violet-light: #b543d7;
+    --color-gold: #f3bf38;
+    --color-panel: #050b2f;
+    --color-panel-deep: #030720;
+
+    --radius-sm: 14px;
+    --radius-md: 14px;
+    --radius-lg: 14px;
+    --radius-xl: 14px;
+}
+
+:root {
+    color-scheme: dark;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: #010929;
+    font-family: var(--font-body);
+    color: rgb(255 255 255 / 0.88);
+}
+
+button,
+a,
+input,
+textarea,
+select {
+    font-family: inherit;
+}
+
+input,
+select,
+textarea {
+    font-family: var(--font-body);
+    letter-spacing: 0;
+}
+
+:where(button, [type='button'], [type='submit'], [type='reset'], a[href], [role='button']) {
+    cursor: pointer;
+}
+
+::selection {
+    background: rgb(0 250 146 / 0.32);
+    color: #ffffff;
+}
+
+:where(
+    .brand-gradient-text,
+    .brand-gradient-text-reverse,
+    .brand-gradient-text-vertical,
+    .text-gradient-violet-blue-green,
+    .text-gradient-green-blue-violet,
+    .text-gradient-bright-blue-midnight,
+    .text-gradient-green-cyan-violet-vertical,
+    .text-gradient-seafoam-blue,
+    .text-gradient-blue-seafoam,
+    .text-gradient-violet-blue,
+    .text-gradient-blue-violet,
+    .text-gradient-gold-seafoam,
+    .text-gradient-seafoam-gold,
+    .text-gradient-violet-gold,
+    .text-gradient-gold-violet
+) {
+    background-image: var(--text-gradient);
+    background-clip: text;
+    color: transparent;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.brand-gradient-text,
+.text-gradient-violet-blue-green {
+    --text-gradient: linear-gradient(90deg, #b543d7 0%, #3764f5 50%, #00fa92 100%);
+}
+
+.brand-gradient-text-reverse,
+.text-gradient-green-blue-violet {
+    --text-gradient: linear-gradient(90deg, #00fa92 0%, #3764f5 50%, #b543d7 100%);
+}
+
+.text-gradient-bright-blue-midnight {
+    --text-gradient: linear-gradient(180deg, #0012cb 0%, #010929 100%);
+}
+
+.brand-gradient-text-vertical {
+    --text-gradient: linear-gradient(180deg, #00fa92 0%, #00d5ff 50%, #b543d7 100%);
+}
+
+.text-gradient-green-cyan-violet-vertical {
+    --text-gradient: linear-gradient(180deg, #00fa92 0%, #00d5ff 50%, #b543d7 100%);
+}
+
+.text-gradient-seafoam-blue {
+    --text-gradient: linear-gradient(90deg, #00fa92 0%, #3764f5 100%);
+}
+
+.text-gradient-blue-seafoam {
+    --text-gradient: linear-gradient(90deg, #3764f5 0%, #00fa92 100%);
+}
+
+.text-gradient-violet-blue {
+    --text-gradient: linear-gradient(90deg, #b543d7 0%, #3764f5 100%);
+}
+
+.text-gradient-blue-violet {
+    --text-gradient: linear-gradient(90deg, #3764f5 0%, #b543d7 100%);
+}
+
+.text-gradient-gold-seafoam {
+    --text-gradient: linear-gradient(90deg, #f3bf38 0%, #00fa92 100%);
+}
+
+.text-gradient-seafoam-gold {
+    --text-gradient: linear-gradient(90deg, #00fa92 0%, #f3bf38 100%);
+}
+
+.text-gradient-violet-gold {
+    --text-gradient: linear-gradient(90deg, #b543d7 0%, #f3bf38 100%);
+}
+
+.text-gradient-gold-violet {
+    --text-gradient: linear-gradient(90deg, #f3bf38 0%, #b543d7 100%);
+}
