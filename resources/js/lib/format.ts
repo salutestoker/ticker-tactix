@@ -1,34 +1,29 @@
-export function formatPrice(cents?: number | null, currency = 'USD') {
-    if (cents === null || cents === undefined) {
-        return 'TBD';
-    }
-
-    return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency,
-        maximumFractionDigits: 0,
-    }).format(cents / 100);
-}
-
 export function accessLabel(access: string) {
-    return access
-        .split('_')
-        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-        .join(' ');
+    return access;
 }
 
 export function accessTone(access: string) {
-    if (access.includes('pro')) {
+    if (access === 'Alerts + Guided Discord') {
         return 'violet';
     }
 
-    if (access.includes('licensed')) {
+    if (access === 'Partner Community Access') {
         return 'gold';
     }
 
-    if (access.includes('base')) {
+    if (access === 'Daily Newsletter + Discord') {
         return 'blue';
     }
 
     return 'green';
+}
+
+export function formatVersion(version?: number | string | null) {
+    if (version === null || version === undefined || version === '') {
+        return '—';
+    }
+
+    return `v${String(version)
+        .replace(/(\.\d*?)0+$/, '$1')
+        .replace(/\.$/, '')}`;
 }

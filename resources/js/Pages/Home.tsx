@@ -5,10 +5,11 @@ import {
     GradientHeading,
     HudButton,
     HudPanel,
+    TaxonomyBadge,
 } from '@/Components/UI/Hud';
 import PublicLayout from '@/Layouts/PublicLayout';
-import { formatPrice } from '@/lib/format';
-import type { Module, PageProps, Playbook } from '@/types';
+import { formatVersion } from '@/lib/format';
+import type { Module, PageProps, Playbook, TraderType } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 
 interface Props extends PageProps {
@@ -141,15 +142,16 @@ export default function Home({ modules, playbooks }: Props) {
                                 <thead className="font-heading text-seafoam-green text-xs tracking-[0.14em] uppercase">
                                     <tr>
                                         <th className="px-6 py-5">Module</th>
-                                        <th className="px-6 py-5">Purpose</th>
                                         <th className="px-6 py-5">
                                             What It Does
                                         </th>
                                         <th className="px-6 py-5">
-                                            Key Output
+                                            Trader Type
                                         </th>
+                                        <th className="px-6 py-5">Market</th>
                                         <th className="px-6 py-5">Version</th>
                                         <th className="px-6 py-5">Access</th>
+                                        <th className="px-6 py-5">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -176,21 +178,52 @@ export default function Home({ modules, playbooks }: Props) {
                                                 </Link>
                                             </td>
                                             <td className="px-6 py-5 text-white/75">
-                                                {module.purpose}
+                                                {module.description}
                                             </td>
-                                            <td className="px-6 py-5 text-white/65">
-                                                {module.what_it_does}
+                                            <td className="px-6 py-5">
+                                                <TaxonomyList
+                                                    types={
+                                                        module.trader_types ??
+                                                        module.traderTypes ??
+                                                        []
+                                                    }
+                                                />
                                             </td>
-                                            <td className="text-violet-light px-6 py-5">
-                                                {module.key_output}
+                                            <td className="px-6 py-5">
+                                                {module.market ? (
+                                                    <TaxonomyBadge
+                                                        label={
+                                                            module.market.name
+                                                        }
+                                                        color={
+                                                            module.market.color
+                                                        }
+                                                    />
+                                                ) : (
+                                                    <span className="text-white/45">
+                                                        —
+                                                    </span>
+                                                )}
                                             </td>
                                             <td className="text-seafoam-green px-6 py-5">
-                                                {module.version}
+                                                {formatVersion(module.version)}
                                             </td>
                                             <td className="px-6 py-5">
                                                 <AccessBadge
                                                     access={module.access}
                                                 />
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <HudButton
+                                                    href={route(
+                                                        'modules.show',
+                                                        module.slug,
+                                                    )}
+                                                    tone="violet"
+                                                >
+                                                    {module.action_label ||
+                                                        'Inspect'}
+                                                </HudButton>
                                             </td>
                                         </tr>
                                     ))}
@@ -208,7 +241,7 @@ export default function Home({ modules, playbooks }: Props) {
                         Deployment Matrix
                     </GradientHeading>
                     <p className="mx-auto mt-5 max-w-2xl text-center text-lg text-white/75">
-                        Choose the framework that matches your market, holding
+                        Choose the playbook that matches your market, holding
                         period, and execution speed.
                     </p>
                     <HudPanel className="mt-12 overflow-hidden">
@@ -216,12 +249,13 @@ export default function Home({ modules, playbooks }: Props) {
                             <table className="min-w-full text-left text-sm">
                                 <thead className="font-heading text-xs tracking-[0.14em] text-white/60 uppercase">
                                     <tr>
-                                        <th className="px-6 py-5">Category</th>
+                                        <th className="px-6 py-5">Playbook</th>
                                         <th className="px-6 py-5">
-                                            Playbook / Framework
+                                            Trader Type
                                         </th>
-                                        <th className="px-6 py-5">Access</th>
                                         <th className="px-6 py-5">Market</th>
+                                        <th className="px-6 py-5">Access</th>
+                                        <th className="px-6 py-5">Pace</th>
                                         <th className="px-6 py-5">Best For</th>
                                         <th className="px-6 py-5">Avg Hold</th>
                                         <th className="px-6 py-5">Price</th>
@@ -234,9 +268,6 @@ export default function Home({ modules, playbooks }: Props) {
                                             key={playbook.id}
                                             className="border-main-blue/20 border-t"
                                         >
-                                            <td className="text-seafoam-green px-6 py-5">
-                                                {playbook.category?.name}
-                                            </td>
                                             <td className="px-6 py-5 font-medium text-white">
                                                 <Link
                                                     href={route(
@@ -244,8 +275,34 @@ export default function Home({ modules, playbooks }: Props) {
                                                         playbook.slug,
                                                     )}
                                                 >
-                                                    {playbook.framework}
+                                                    {playbook.title}
                                                 </Link>
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <TaxonomyList
+                                                    types={
+                                                        playbook.trader_types ??
+                                                        playbook.traderTypes ??
+                                                        []
+                                                    }
+                                                />
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                {playbook.market ? (
+                                                    <TaxonomyBadge
+                                                        label={
+                                                            playbook.market.name
+                                                        }
+                                                        color={
+                                                            playbook.market
+                                                                .color
+                                                        }
+                                                    />
+                                                ) : (
+                                                    <span className="text-white/45">
+                                                        —
+                                                    </span>
+                                                )}
                                             </td>
                                             <td className="px-6 py-5">
                                                 <AccessBadge
@@ -253,7 +310,7 @@ export default function Home({ modules, playbooks }: Props) {
                                                 />
                                             </td>
                                             <td className="px-6 py-5 text-white/70">
-                                                {playbook.market}
+                                                {playbook.trading_pace || '—'}
                                             </td>
                                             <td className="px-6 py-5 text-white/65">
                                                 {playbook.best_for}
@@ -263,32 +320,18 @@ export default function Home({ modules, playbooks }: Props) {
                                                     '—'}
                                             </td>
                                             <td className="font-heading text-seafoam-green px-6 py-5">
-                                                {formatPrice(
-                                                    playbook.price_cents,
-                                                    playbook.currency,
-                                                )}
+                                                {playbook.price || '—'}
                                             </td>
                                             <td className="px-6 py-5">
                                                 <HudButton
-                                                    href={
-                                                        playbook.payment_url ||
-                                                        route(
-                                                            'playbooks.show',
-                                                            playbook.slug,
-                                                        )
-                                                    }
-                                                    external={Boolean(
-                                                        playbook.payment_url,
+                                                    href={route(
+                                                        'playbooks.show',
+                                                        playbook.slug,
                                                     )}
-                                                    tone={
-                                                        playbook.payment_url
-                                                            ? 'green'
-                                                            : 'violet'
-                                                    }
+                                                    tone="violet"
                                                 >
-                                                    {playbook.payment_url
-                                                        ? 'Unlock'
-                                                        : 'Coming Soon'}
+                                                    {playbook.action_label ||
+                                                        'Inspect'}
                                                 </HudButton>
                                             </td>
                                         </tr>
@@ -300,6 +343,24 @@ export default function Home({ modules, playbooks }: Props) {
                 </div>
             </section>
         </PublicLayout>
+    );
+}
+
+function TaxonomyList({ types }: { types: TraderType[] }) {
+    if (!types.length) {
+        return <span className="text-white/45">—</span>;
+    }
+
+    return (
+        <div className="flex flex-wrap gap-2">
+            {types.map((type) => (
+                <TaxonomyBadge
+                    key={type.id}
+                    label={type.name}
+                    color={type.color}
+                />
+            ))}
+        </div>
     );
 }
 

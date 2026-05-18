@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\AccessLevel;
 use App\Http\Controllers\Controller;
+use App\Models\Market;
 use App\Models\Module;
-use App\Models\PlaybookCategory;
+use App\Models\TraderType;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
@@ -17,7 +20,7 @@ class ModuleController extends Controller
     public function index(): Response
     {
         return Inertia::render('Admin/Modules/Index', [
-            'modules' => Module::with('category')->ordered()->get(),
+            'modules' => Module::with(['market', 'traderTypes'])->ordered()->get(),
         ]);
     }
 
@@ -25,13 +28,20 @@ class ModuleController extends Controller
     {
         return Inertia::render('Admin/Modules/Form', [
             'module' => null,
-            'categories' => PlaybookCategory::ordered()->get(),
+            'markets' => Market::active()->ordered()->get(),
+            'traderTypes' => TraderType::active()->ordered()->get(),
+            'modules' => Module::ordered()->get(['id', 'title', 'slug']),
+            'accessOptions' => AccessLevel::options(),
         ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
-        Module::create($this->validated($request));
+        $data = $this->validated($request);
+        $module = Module::create(Arr::except($data, ['trader_type_ids', 'related_module_ids']));
+
+        $module->traderTypes()->sync($data['trader_type_ids']);
+        $module->relatedModules()->sync($data['related_module_ids'] ?? []);
 
         return redirect()->route('admin.modules.index')->with('success', 'Module created.');
     }
@@ -39,14 +49,21 @@ class ModuleController extends Controller
     public function edit(Module $module): Response
     {
         return Inertia::render('Admin/Modules/Form', [
-            'module' => $module->load('category'),
-            'categories' => PlaybookCategory::ordered()->get(),
+            'module' => $module->load(['market', 'traderTypes', 'relatedModules']),
+            'markets' => Market::active()->ordered()->get(),
+            'traderTypes' => TraderType::active()->ordered()->get(),
+            'modules' => Module::whereKeyNot($module->id)->ordered()->get(['id', 'title', 'slug']),
+            'accessOptions' => AccessLevel::options(),
         ]);
     }
 
     public function update(Request $request, Module $module): RedirectResponse
     {
-        $module->update($this->validated($request, $module));
+        $data = $this->validated($request, $module);
+
+        $module->update(Arr::except($data, ['trader_type_ids', 'related_module_ids']));
+        $module->traderTypes()->sync($data['trader_type_ids']);
+        $module->relatedModules()->sync($data['related_module_ids'] ?? []);
 
         return redirect()->route('admin.modules.index')->with('success', 'Module updated.');
     }
@@ -61,17 +78,22 @@ class ModuleController extends Controller
     private function validated(Request $request, ?Module $module = null): array
     {
         $data = $request->validate([
-            'playbook_category_id' => ['nullable', 'exists:playbook_categories,id'],
+            'market_id' => ['required', 'exists:markets,id'],
+            'trader_type_ids' => ['required', 'array', 'min:1'],
+            'trader_type_ids.*' => ['integer', 'exists:trader_types,id'],
+            'related_module_ids' => ['nullable', 'array'],
+            'related_module_ids.*' => [
+                'integer',
+                'exists:modules,id',
+                $module ? Rule::notIn([$module->id]) : 'integer',
+            ],
             'icon' => ['nullable', 'string', 'max:255'],
             'title' => ['required', 'string', 'max:255'],
             'slug' => ['nullable', 'string', 'max:255', Rule::unique('modules', 'slug')->ignore($module)],
-            'purpose' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'what_it_does' => ['nullable', 'string'],
-            'key_output' => ['nullable', 'string', 'max:255'],
-            'version' => ['nullable', 'string', 'max:255'],
-            'access' => ['required', 'string', 'max:255'],
-            'payment_url' => ['nullable', 'url', 'max:255'],
+            'version' => ['nullable', 'numeric', 'min:0'],
+            'access' => ['required', Rule::enum(AccessLevel::class)],
+            'action_label' => ['nullable', 'string', 'max:255'],
             'sort_order' => ['required', 'integer', 'min:0'],
             'is_featured' => ['required', 'boolean'],
             'is_active' => ['required', 'boolean'],
@@ -81,6 +103,7 @@ class ModuleController extends Controller
         ]);
 
         $data['slug'] = $data['slug'] ?: Str::slug($data['title']);
+        $data['related_module_ids'] = array_values(array_unique($data['related_module_ids'] ?? []));
 
         return $data;
     }

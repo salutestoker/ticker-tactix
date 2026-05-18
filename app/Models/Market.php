@@ -2,24 +2,20 @@
 
 namespace App\Models;
 
-use Database\Factories\PlaybookCategoryFactory;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class PlaybookCategory extends Model
+class Market extends Model
 {
-    /** @use HasFactory<PlaybookCategoryFactory> */
-    use HasFactory, SoftDeletes;
+    use SoftDeletes;
 
     protected $fillable = [
         'name',
         'slug',
         'description',
-        'icon',
         'color',
         'sort_order',
         'is_active',

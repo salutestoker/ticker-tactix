@@ -2,9 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Enums\AccessLevel;
+use App\Models\Market;
 use App\Models\Module;
 use App\Models\Playbook;
-use App\Models\PlaybookCategory;
+use App\Models\TraderType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
@@ -15,53 +17,53 @@ class PublicCatalogTest extends TestCase
 
     public function test_home_and_catalog_pages_render_public_records(): void
     {
-        $category = PlaybookCategory::create([
-            'name' => 'Market Data',
-            'slug' => 'market-data',
-            'sort_order' => 10,
-            'is_active' => true,
-        ]);
+        [$market, $traderType] = $this->catalogTaxonomies();
 
-        Module::create([
-            'playbook_category_id' => $category->id,
+        $module = Module::create([
+            'market_id' => $market->id,
             'title' => 'Momentum Cycles',
             'slug' => 'momentum-cycles',
-            'access' => 'core',
+            'description' => 'Identify momentum phase and trend strength.',
+            'version' => 1.0,
+            'access' => AccessLevel::InviteOnlyIndicatorDiscord,
             'sort_order' => 10,
             'is_featured' => true,
             'is_active' => true,
             'published_at' => now(),
         ]);
+        $module->traderTypes()->attach($traderType);
 
         Module::create([
-            'playbook_category_id' => $category->id,
+            'market_id' => $market->id,
             'title' => 'Draft Module',
             'slug' => 'draft-module',
-            'access' => 'core',
+            'access' => AccessLevel::InviteOnlyIndicatorDiscord,
             'sort_order' => 20,
             'is_featured' => false,
             'is_active' => true,
             'published_at' => null,
         ]);
 
-        Playbook::create([
-            'playbook_category_id' => $category->id,
-            'framework' => 'Market Environment',
+        $playbook = Playbook::create([
+            'market_id' => $market->id,
+            'title' => 'Market Environment',
             'slug' => 'market-environment',
-            'access' => 'base_access',
-            'currency' => 'USD',
+            'access' => AccessLevel::DailyNewsletterDiscord,
+            'best_for' => 'Context before execution.',
+            'price' => '$70/mo',
             'sort_order' => 10,
             'is_featured' => true,
             'is_active' => true,
             'published_at' => now(),
         ]);
+        $playbook->traderTypes()->attach($traderType);
 
         $this->get('/')
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Home')
                 ->where('modules.0.title', 'Momentum Cycles')
-                ->where('playbooks.0.framework', 'Market Environment'));
+                ->where('playbooks.0.title', 'Market Environment'));
 
         $this->get('/modules')
             ->assertOk()
@@ -80,46 +82,44 @@ class PublicCatalogTest extends TestCase
 
     public function test_public_detail_pages_respect_publish_state(): void
     {
-        $category = PlaybookCategory::create([
-            'name' => 'Playbooks',
-            'slug' => 'playbooks',
-            'sort_order' => 10,
-            'is_active' => true,
-        ]);
+        [$market, $traderType] = $this->catalogTaxonomies();
 
-        Module::create([
-            'playbook_category_id' => $category->id,
+        $module = Module::create([
+            'market_id' => $market->id,
             'title' => 'Momentum Cycles',
             'slug' => 'momentum-cycles',
-            'access' => 'core',
+            'description' => 'Identify momentum phase and trend strength.',
+            'access' => AccessLevel::InviteOnlyIndicatorDiscord,
             'sort_order' => 10,
             'is_featured' => true,
             'is_active' => true,
             'published_at' => now(),
         ]);
+        $module->traderTypes()->attach($traderType);
 
         Module::create([
-            'playbook_category_id' => $category->id,
+            'market_id' => $market->id,
             'title' => 'Private Module',
             'slug' => 'private-module',
-            'access' => 'core',
+            'access' => AccessLevel::InviteOnlyIndicatorDiscord,
             'sort_order' => 20,
             'is_featured' => false,
             'is_active' => false,
             'published_at' => now(),
         ]);
 
-        Playbook::create([
-            'playbook_category_id' => $category->id,
-            'framework' => 'Market Environment',
+        $playbook = Playbook::create([
+            'market_id' => $market->id,
+            'title' => 'Market Environment',
             'slug' => 'market-environment',
-            'access' => 'base_access',
-            'currency' => 'USD',
+            'access' => AccessLevel::DailyNewsletterDiscord,
+            'price' => '$70/mo',
             'sort_order' => 10,
             'is_featured' => true,
             'is_active' => true,
             'published_at' => now(),
         ]);
+        $playbook->traderTypes()->attach($traderType);
 
         $this->get('/modules/momentum-cycles')
             ->assertOk()
@@ -134,5 +134,32 @@ class PublicCatalogTest extends TestCase
                 ->where('playbook.slug', 'market-environment'));
 
         $this->get('/modules/private-module')->assertNotFound();
+    }
+
+    /**
+     * @return array{Market, TraderType}
+     */
+    private function catalogTaxonomies(): array
+    {
+        $market = Market::create([
+            'name' => 'NYSE',
+            'slug' => 'nyse',
+            'description' => 'NYSE market products and playbooks.',
+            'color' => 'seafoam-green',
+            'sort_order' => 10,
+            'is_active' => true,
+        ]);
+
+        $traderType = TraderType::create([
+            'name' => 'NYSE CORE',
+            'slug' => 'nyse-core',
+            'description' => 'Core-level trader type for NYSE market products.',
+            'color' => 'seafoam-green',
+            'icon' => 'turtle',
+            'sort_order' => 10,
+            'is_active' => true,
+        ]);
+
+        return [$market, $traderType];
     }
 }

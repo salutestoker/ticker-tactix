@@ -4,10 +4,12 @@ import {
     Eyebrow,
     GradientHeading,
     HudPanel,
+    TaxonomyBadge,
 } from '@/Components/UI/Hud';
 import { PublicHeroFrame } from '@/Components/UI/PublicHero';
 import PublicLayout from '@/Layouts/PublicLayout';
-import type { Module, PageProps } from '@/types';
+import { formatVersion } from '@/lib/format';
+import type { Module, PageProps, TraderType } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 
 export default function ModulesIndex({
@@ -41,16 +43,30 @@ export default function ModulesIndex({
                                                 {module.title}
                                             </h2>
                                             <p className="mt-2 text-sm text-white/55">
-                                                {module.category?.name}
+                                                {module.market?.name ||
+                                                    'No market assigned'}
                                             </p>
                                         </div>
                                     </div>
                                     <p className="mt-5 leading-7 text-white/68">
-                                        {module.purpose}
+                                        {module.description}
                                     </p>
+                                    <div className="mt-5 flex flex-wrap gap-2">
+                                        {(
+                                            module.trader_types ??
+                                            module.traderTypes ??
+                                            []
+                                        ).map((type: TraderType) => (
+                                            <TaxonomyBadge
+                                                key={type.id}
+                                                label={type.name}
+                                                color={type.color}
+                                            />
+                                        ))}
+                                    </div>
                                     <div className="mt-6 flex items-center justify-between">
                                         <span className="font-heading text-violet-light text-sm">
-                                            {module.version}
+                                            {formatVersion(module.version)}
                                         </span>
                                         <AccessBadge access={module.access} />
                                     </div>

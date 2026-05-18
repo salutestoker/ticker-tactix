@@ -2,9 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Enums\AccessLevel;
+use App\Models\Market;
 use App\Models\Module;
 use App\Models\Playbook;
-use App\Models\PlaybookCategory;
+use App\Models\TraderType;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -25,27 +27,20 @@ class AdminCatalogTest extends TestCase
     public function test_admin_can_create_catalog_records(): void
     {
         $admin = User::factory()->create(['is_admin' => true]);
-
-        $category = PlaybookCategory::create([
-            'name' => 'Market Data',
-            'slug' => 'market-data',
-            'sort_order' => 10,
-            'is_active' => true,
-        ]);
+        [$market, $traderType] = $this->catalogTaxonomies();
 
         $this->actingAs($admin)
             ->post(route('admin.modules.store'), [
-                'playbook_category_id' => $category->id,
+                'market_id' => $market->id,
+                'trader_type_ids' => [$traderType->id],
+                'related_module_ids' => [],
                 'icon' => 'momentum-cycles',
                 'title' => 'Momentum Cycles',
                 'slug' => '',
-                'purpose' => 'Identify momentum phase and trend strength.',
-                'description' => null,
-                'what_it_does' => null,
-                'key_output' => 'Momentum Phase',
-                'version' => 'v1.0',
-                'access' => 'core',
-                'payment_url' => null,
+                'description' => 'Identify momentum phase and trend strength.',
+                'version' => '1.0',
+                'access' => AccessLevel::InviteOnlyIndicatorDiscord->value,
+                'action_label' => 'Explore Module',
                 'sort_order' => 10,
                 'is_featured' => true,
                 'is_active' => true,
@@ -55,23 +50,32 @@ class AdminCatalogTest extends TestCase
             ])
             ->assertRedirect(route('admin.modules.index'));
 
+        $module = Module::where('slug', 'momentum-cycles')->firstOrFail();
+
         $this->assertDatabaseHas(Module::class, [
             'title' => 'Momentum Cycles',
             'slug' => 'momentum-cycles',
+            'market_id' => $market->id,
+            'access' => AccessLevel::InviteOnlyIndicatorDiscord->value,
+        ]);
+        $this->assertDatabaseHas('module_trader_type', [
+            'module_id' => $module->id,
+            'trader_type_id' => $traderType->id,
         ]);
 
         $this->actingAs($admin)
             ->post(route('admin.playbooks.store'), [
-                'playbook_category_id' => $category->id,
-                'framework' => 'Market Environment',
+                'market_id' => $market->id,
+                'trader_type_ids' => [$traderType->id],
+                'icon' => 'market-data-bars',
+                'title' => 'Market Environment',
                 'slug' => '',
-                'access' => 'base_access',
-                'market' => 'Broad Market',
+                'access' => AccessLevel::DailyNewsletterDiscord->value,
                 'best_for' => 'Context before execution.',
-                'average_hold_time' => null,
-                'price_cents' => 7000,
-                'currency' => 'USD',
-                'payment_url' => null,
+                'trading_pace' => 'Daily',
+                'average_hold_time' => '1-3 days',
+                'price' => '$70/mo',
+                'action_label' => 'Join Newsletter',
                 'sort_order' => 20,
                 'is_featured' => true,
                 'is_active' => true,
@@ -81,32 +85,84 @@ class AdminCatalogTest extends TestCase
             ])
             ->assertRedirect(route('admin.playbooks.index'));
 
+        $playbook = Playbook::where('slug', 'market-environment')->firstOrFail();
+
         $this->assertDatabaseHas(Playbook::class, [
-            'framework' => 'Market Environment',
+            'title' => 'Market Environment',
             'slug' => 'market-environment',
-            'price_cents' => 7000,
+            'market_id' => $market->id,
+            'price' => '$70/mo',
+        ]);
+        $this->assertDatabaseHas('playbook_trader_type', [
+            'playbook_id' => $playbook->id,
+            'trader_type_id' => $traderType->id,
         ]);
     }
 
-    public function test_admin_can_create_playbook_categories(): void
+    public function test_admin_can_create_taxonomies(): void
     {
         $admin = User::factory()->create(['is_admin' => true]);
 
         $this->actingAs($admin)
-            ->post(route('admin.playbook-categories.store'), [
-                'name' => 'Volatility & Structure',
+            ->post(route('admin.markets.store'), [
+                'name' => 'All',
                 'slug' => '',
-                'description' => 'Targets and structural confirmation.',
-                'icon' => 'volatility-pulse',
+                'description' => 'Products and playbooks that apply across all supported markets.',
                 'color' => 'gold',
                 'sort_order' => 30,
                 'is_active' => true,
             ])
-            ->assertRedirect(route('admin.playbook-categories.index'));
+            ->assertRedirect(route('admin.markets.index'));
 
-        $this->assertDatabaseHas(PlaybookCategory::class, [
-            'name' => 'Volatility & Structure',
-            'slug' => 'volatility-structure',
+        $this->assertDatabaseHas(Market::class, [
+            'name' => 'All',
+            'slug' => 'all',
+            'color' => 'gold',
         ]);
+
+        $this->actingAs($admin)
+            ->post(route('admin.trader-types.store'), [
+                'name' => 'NYSE CORE',
+                'slug' => '',
+                'description' => 'Core-level trader type for NYSE market products.',
+                'color' => 'seafoam-green',
+                'icon' => 'turtle',
+                'sort_order' => 10,
+                'is_active' => true,
+            ])
+            ->assertRedirect(route('admin.trader-types.index'));
+
+        $this->assertDatabaseHas(TraderType::class, [
+            'name' => 'NYSE CORE',
+            'slug' => 'nyse-core',
+            'icon' => 'turtle',
+        ]);
+    }
+
+    /**
+     * @return array{Market, TraderType}
+     */
+    private function catalogTaxonomies(): array
+    {
+        $market = Market::create([
+            'name' => 'NYSE',
+            'slug' => 'nyse',
+            'description' => 'NYSE market products and playbooks.',
+            'color' => 'seafoam-green',
+            'sort_order' => 10,
+            'is_active' => true,
+        ]);
+
+        $traderType = TraderType::create([
+            'name' => 'NYSE CORE',
+            'slug' => 'nyse-core',
+            'description' => 'Core-level trader type for NYSE market products.',
+            'color' => 'seafoam-green',
+            'icon' => 'turtle',
+            'sort_order' => 10,
+            'is_active' => true,
+        ]);
+
+        return [$market, $traderType];
     }
 }

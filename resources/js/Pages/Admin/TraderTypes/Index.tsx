@@ -1,55 +1,62 @@
+import { IconRenderer } from '@/Components/Icons/IconRenderer';
 import {
-    AccessBadge,
     HudButton,
     HudPanel,
     StatusBadge,
     TaxonomyBadge,
 } from '@/Components/UI/Hud';
 import AdminLayout from '@/Layouts/AdminLayout';
-import { formatVersion } from '@/lib/format';
-import type { Module } from '@/types';
+import type { TraderType } from '@/types';
 import { Head, router } from '@inertiajs/react';
 
-export default function AdminModulesIndex({ modules }: { modules: Module[] }) {
+export default function AdminTraderTypesIndex({
+    traderTypes,
+}: {
+    traderTypes: TraderType[];
+}) {
     return (
         <AdminLayout>
-            <Head title="Manage Modules" />
+            <Head title="Manage Trader Types" />
             <HudPanel className="overflow-hidden">
                 <div className="border-main-blue/25 flex items-center justify-between border-b p-5">
                     <h2 className="font-heading text-sm tracking-[0.16em] text-white uppercase">
-                        Modules
+                        Trader Types
                     </h2>
-                    <HudButton href={route('admin.modules.create')}>
-                        Create Module
+                    <HudButton href={route('admin.trader-types.create')}>
+                        Create Trader Type
                     </HudButton>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="min-w-full text-left text-sm">
                         <thead className="font-heading text-seafoam-green text-xs tracking-[0.14em] uppercase">
                             <tr>
-                                <th className="px-5 py-4">Title</th>
-                                <th className="px-5 py-4">Market</th>
-                                <th className="px-5 py-4">Trader Types</th>
-                                <th className="px-5 py-4">Version</th>
-                                <th className="px-5 py-4">Access</th>
+                                <th className="px-5 py-4">Name</th>
+                                <th className="px-5 py-4">Slug</th>
+                                <th className="px-5 py-4">Icon</th>
+                                <th className="px-5 py-4">Color</th>
+                                <th className="px-5 py-4">Modules</th>
+                                <th className="px-5 py-4">Playbooks</th>
                                 <th className="px-5 py-4">Status</th>
                                 <th className="px-5 py-4">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {modules.map((module) => (
+                            {traderTypes.map((traderType) => (
                                 <tr
-                                    key={module.id}
+                                    key={traderType.id}
                                     className="border-main-blue/20 border-t"
                                 >
                                     <td className="px-5 py-4 text-white">
-                                        {module.title}
+                                        {traderType.name}
+                                    </td>
+                                    <td className="px-5 py-4 text-white/60">
+                                        {traderType.slug}
                                     </td>
                                     <td className="px-5 py-4">
-                                        {module.market ? (
-                                            <TaxonomyBadge
-                                                label={module.market.name}
-                                                color={module.market.color}
+                                        {traderType.icon ? (
+                                            <IconRenderer
+                                                name={traderType.icon}
+                                                className="text-seafoam-green h-6 w-6"
                                             />
                                         ) : (
                                             <span className="text-white/45">
@@ -58,38 +65,31 @@ export default function AdminModulesIndex({ modules }: { modules: Module[] }) {
                                         )}
                                     </td>
                                     <td className="px-5 py-4">
-                                        <div className="flex flex-wrap gap-2">
-                                            {(
-                                                module.trader_types ??
-                                                module.traderTypes ??
-                                                []
-                                            ).map((type) => (
-                                                <TaxonomyBadge
-                                                    key={type.id}
-                                                    label={type.name}
-                                                    color={type.color}
-                                                />
-                                            ))}
-                                        </div>
+                                        <TaxonomyBadge
+                                            label={
+                                                traderType.color || 'default'
+                                            }
+                                            color={traderType.color}
+                                        />
                                     </td>
-                                    <td className="text-violet-light px-5 py-4">
-                                        {formatVersion(module.version)}
+                                    <td className="px-5 py-4 text-white/70">
+                                        {traderType.modules_count ?? 0}
                                     </td>
-                                    <td className="px-5 py-4">
-                                        <AccessBadge access={module.access} />
+                                    <td className="px-5 py-4 text-white/70">
+                                        {traderType.playbooks_count ?? 0}
                                     </td>
                                     <td className="px-5 py-4">
                                         <StatusBadge
-                                            active={module.is_active}
-                                            published={module.published_at}
+                                            active={traderType.is_active}
+                                            published="published"
                                         />
                                     </td>
                                     <td className="px-5 py-4">
                                         <div className="flex gap-2">
                                             <HudButton
                                                 href={route(
-                                                    'admin.modules.edit',
-                                                    module.id,
+                                                    'admin.trader-types.edit',
+                                                    traderType.id,
                                                 )}
                                                 tone="blue"
                                             >
@@ -101,8 +101,8 @@ export default function AdminModulesIndex({ modules }: { modules: Module[] }) {
                                                 onClick={() =>
                                                     router.delete(
                                                         route(
-                                                            'admin.modules.destroy',
-                                                            module.id,
+                                                            'admin.trader-types.destroy',
+                                                            traderType.id,
                                                         ),
                                                     )
                                                 }

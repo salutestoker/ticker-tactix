@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\AccessLevel;
 use App\Http\Controllers\Controller;
+use App\Models\Market;
 use App\Models\Playbook;
-use App\Models\PlaybookCategory;
+use App\Models\TraderType;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
@@ -17,7 +20,7 @@ class PlaybookController extends Controller
     public function index(): Response
     {
         return Inertia::render('Admin/Playbooks/Index', [
-            'playbooks' => Playbook::with('category')->ordered()->get(),
+            'playbooks' => Playbook::with(['market', 'traderTypes'])->ordered()->get(),
         ]);
     }
 
@@ -25,13 +28,18 @@ class PlaybookController extends Controller
     {
         return Inertia::render('Admin/Playbooks/Form', [
             'playbook' => null,
-            'categories' => PlaybookCategory::ordered()->get(),
+            'markets' => Market::active()->ordered()->get(),
+            'traderTypes' => TraderType::active()->ordered()->get(),
+            'accessOptions' => AccessLevel::options(),
         ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
-        Playbook::create($this->validated($request));
+        $data = $this->validated($request);
+        $playbook = Playbook::create(Arr::except($data, ['trader_type_ids']));
+
+        $playbook->traderTypes()->sync($data['trader_type_ids']);
 
         return redirect()->route('admin.playbooks.index')->with('success', 'Playbook created.');
     }
@@ -39,14 +47,19 @@ class PlaybookController extends Controller
     public function edit(Playbook $playbook): Response
     {
         return Inertia::render('Admin/Playbooks/Form', [
-            'playbook' => $playbook->load('category'),
-            'categories' => PlaybookCategory::ordered()->get(),
+            'playbook' => $playbook->load(['market', 'traderTypes']),
+            'markets' => Market::active()->ordered()->get(),
+            'traderTypes' => TraderType::active()->ordered()->get(),
+            'accessOptions' => AccessLevel::options(),
         ]);
     }
 
     public function update(Request $request, Playbook $playbook): RedirectResponse
     {
-        $playbook->update($this->validated($request, $playbook));
+        $data = $this->validated($request, $playbook);
+
+        $playbook->update(Arr::except($data, ['trader_type_ids']));
+        $playbook->traderTypes()->sync($data['trader_type_ids']);
 
         return redirect()->route('admin.playbooks.index')->with('success', 'Playbook updated.');
     }
@@ -61,16 +74,18 @@ class PlaybookController extends Controller
     private function validated(Request $request, ?Playbook $playbook = null): array
     {
         $data = $request->validate([
-            'playbook_category_id' => ['required', 'exists:playbook_categories,id'],
-            'framework' => ['required', 'string', 'max:255'],
+            'market_id' => ['required', 'exists:markets,id'],
+            'trader_type_ids' => ['required', 'array', 'min:1'],
+            'trader_type_ids.*' => ['integer', 'exists:trader_types,id'],
+            'icon' => ['nullable', 'string', 'max:255'],
+            'title' => ['required', 'string', 'max:255'],
             'slug' => ['nullable', 'string', 'max:255', Rule::unique('playbooks', 'slug')->ignore($playbook)],
-            'access' => ['required', 'string', 'max:255'],
-            'market' => ['nullable', 'string', 'max:255'],
+            'access' => ['required', Rule::enum(AccessLevel::class)],
             'best_for' => ['nullable', 'string'],
+            'trading_pace' => ['nullable', 'string', 'max:255'],
             'average_hold_time' => ['nullable', 'string', 'max:255'],
-            'price_cents' => ['nullable', 'integer', 'min:0'],
-            'currency' => ['required', 'string', 'size:3'],
-            'payment_url' => ['nullable', 'url', 'max:255'],
+            'price' => ['nullable', 'string', 'max:255'],
+            'action_label' => ['nullable', 'string', 'max:255'],
             'sort_order' => ['required', 'integer', 'min:0'],
             'is_featured' => ['required', 'boolean'],
             'is_active' => ['required', 'boolean'],
@@ -79,7 +94,7 @@ class PlaybookController extends Controller
             'meta_description' => ['nullable', 'string'],
         ]);
 
-        $data['slug'] = $data['slug'] ?: Str::slug($data['framework']);
+        $data['slug'] = $data['slug'] ?: Str::slug($data['title']);
 
         return $data;
     }

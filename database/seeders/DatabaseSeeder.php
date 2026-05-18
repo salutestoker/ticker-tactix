@@ -2,13 +2,18 @@
 
 namespace Database\Seeders;
 
+use App\Enums\AccessLevel;
+use App\Models\Market;
 use App\Models\Module;
 use App\Models\Playbook;
-use App\Models\PlaybookCategory;
+use App\Models\TraderType;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -29,133 +34,118 @@ class DatabaseSeeder extends Seeder
             ],
         );
 
-        $categories = collect([
-            [
-                'name' => 'Market Data',
-                'slug' => 'market-data',
-                'description' => 'Price, volume, breadth, and volatility inputs.',
-                'icon' => 'market-data-bars',
-                'color' => 'main-blue',
-                'sort_order' => 10,
-            ],
-            [
-                'name' => 'Direction',
-                'slug' => 'direction',
-                'description' => 'Bias, cycle, pressure, and trend direction tools.',
-                'icon' => 'direction-target',
-                'color' => 'violet-light',
-                'sort_order' => 20,
-            ],
-            [
-                'name' => 'Participation',
-                'slug' => 'participation',
-                'description' => 'Breadth, pulse, and crowd participation signals.',
-                'icon' => 'participation-network',
-                'color' => 'seafoam-green',
-                'sort_order' => 30,
-            ],
-            [
-                'name' => 'Volatility & Structure',
-                'slug' => 'volatility-structure',
-                'description' => 'Targets, anchored levels, trend alignment, and confirmation.',
-                'icon' => 'volatility-pulse',
-                'color' => 'gold',
-                'sort_order' => 40,
-            ],
-            [
-                'name' => 'Playbooks',
-                'slug' => 'playbooks',
-                'description' => 'Deployable trading frameworks connected to the module system.',
-                'icon' => 'playbooks-book-open',
-                'color' => 'seafoam-green',
-                'sort_order' => 50,
-            ],
-            [
-                'name' => 'Joint Community Deployments',
-                'slug' => 'joint-community-deployments',
-                'description' => 'Partner and licensed access deployments.',
-                'icon' => 'participation-network',
-                'color' => 'gold',
-                'sort_order' => 60,
-            ],
-        ])->mapWithKeys(fn (array $category) => [
-            $category['slug'] => PlaybookCategory::updateOrCreate(
-                ['slug' => $category['slug']],
-                [...$category, 'is_active' => true],
+        DB::table('module_related_modules')->delete();
+        DB::table('module_trader_type')->delete();
+        DB::table('playbook_trader_type')->delete();
+        Module::withTrashed()->forceDelete();
+        Playbook::withTrashed()->forceDelete();
+
+        $markets = collect([
+            ['name' => 'Crypto', 'description' => 'Crypto market products and playbooks.', 'color' => 'violet-light', 'sort_order' => 10],
+            ['name' => 'NYSE', 'description' => 'NYSE market products and playbooks.', 'color' => 'seafoam-green', 'sort_order' => 20],
+            ['name' => 'All', 'description' => 'Products and playbooks that apply across all supported markets.', 'color' => 'gold', 'sort_order' => 30],
+        ])->mapWithKeys(fn (array $market) => [
+            $market['name'] => Market::updateOrCreate(
+                ['slug' => Str::slug($market['name'])],
+                [...$market, 'slug' => Str::slug($market['name']), 'is_active' => true],
             ),
         ]);
 
-        $modules = [
-            ['market-data', 'momentum-cycles', 'Momentum Cycles', 'Identify momentum phase and trend strength.', 'Measures trend direction, strength, and trending vs. mean-reverting conditions.', 'Momentum Phase', 'v4.2', 'core', 10],
-            ['market-data', 'volatility-regime', 'Volatility Regime', 'Detect volatility state and regime transitions.', 'Identifies compression, expansion, and volatility regime shifts.', 'Volatility State', 'v3.1', 'core', 20],
-            ['market-data', 'structure-mapping', 'Structure Mapping', 'Map key levels and market structure.', 'Detects support, resistance, breaks, and retests.', 'Structure Levels', 'v5.0', 'core', 30],
-            ['participation', 'participation-metrics', 'Participation Metrics', 'Measure market participation and breadth.', 'Evaluates volume, breadth, and market participation quality.', 'Participation Score', 'v2.3', 'core', 40],
-            ['direction', 'sentiment-scanner', 'Sentiment Scanner', 'Track market sentiment and crowd behavior.', 'Aggregates sentiment data to gauge optimism or fear.', 'Sentiment Score', 'v3.0', 'core', 50],
-            ['direction', 'liquidity-scanner', 'Liquidity Scanner', 'Find liquidity pools and high-probability trade targets.', 'Maps high-interest liquidity zones and tactical target areas.', 'Liquidity Map', 'v2.8', 'core', 60],
-            ['direction', 'execution-optimizer', 'Execution Optimizer', 'Refine entries, exits, and trade management.', 'Transforms framework context into cleaner execution decisions.', 'Execution Plan', 'v2.1', 'pro', 70],
-            ['direction', 'backtest-validator', 'Backtest Validator', 'Validate strategies with historical data and performance metrics.', 'Checks signal history, win rate, expectancy, and drawdown behavior.', 'Performance Report', 'v2.0', 'pro', 80],
-            ['participation', 'pulse', 'Pulse', 'Read real-time participation momentum.', 'Measures real-time participation momentum and confirmation.', 'Pulse State', 'v2.6', 'core', 90],
-            ['participation', 'breadth-cue', 'Breadth Cue', 'Confirm signal quality with market breadth.', 'Measures market breadth and participation confirmation.', 'Breadth Signal', 'v2.3', 'core', 100],
-            ['participation', 'info-box-info-line', 'Info Box / Info Line', 'Surface contextual insights and participation signals.', 'Displays concise contextual signal summaries.', 'Context Feed', 'v1.8', 'core', 110],
-            ['volatility-structure', 'goal-posts', 'Goal Posts', 'Define dynamic target levels based on structure and volatility.', 'Projects decision zones from market structure and volatility.', 'Target Zones', 'v3.4', 'core', 120],
-            ['volatility-structure', 'avwap', 'AVWAP', 'Anchor volume-weighted average price for precision.', 'Maps anchored volume-weighted average price for precision.', 'Anchored VWAP', 'v4.1', 'core', 130],
-            ['volatility-structure', 'long-vwap', 'Long VWAP', 'Track higher-timeframe VWAP for trend alignment.', 'Highlights longer horizon VWAP alignment for trend context.', 'Trend Alignment', 'v3.9', 'core', 140],
-            ['volatility-structure', 'candle-color', 'Candle Color', 'Confirm candle state and strength visually.', 'Transforms candle state into fast visual confirmation.', 'Candle State', 'v1.7', 'core', 150],
-            ['market-data', 'data-pipeline', 'Data Pipeline', 'Ingest, clean, and normalize data.', 'Handles real-time and historical data processing.', 'Clean Data Feed', 'v1.8', 'pro', 160],
-            ['market-data', 'composite-engine', 'Composite Engine', 'Combine multiple modules into one unified market view.', 'Aggregates module outputs into a structured command feed.', 'Composite Score', 'v1.5', 'pro', 170],
+        $traderTypes = collect([
+            ['name' => 'NYSE BASE', 'description' => 'Base-level trader type for NYSE market products.', 'color' => 'violet-light', 'icon' => null, 'sort_order' => 10],
+            ['name' => 'CRYPTO BASE', 'description' => 'Base-level trader type for crypto market products.', 'color' => 'violet-light', 'icon' => null, 'sort_order' => 20],
+            ['name' => 'NYSE CORE', 'description' => 'Core-level trader type for NYSE market products.', 'color' => 'seafoam-green', 'icon' => 'turtle', 'sort_order' => 30],
+            ['name' => 'CRYPTO CORE', 'description' => 'Core-level trader type for crypto market products.', 'color' => 'seafoam-green', 'icon' => 'turtle', 'sort_order' => 40],
+            ['name' => 'NYSE PRO', 'description' => 'Pro-level trader type for NYSE market products.', 'color' => 'gold', 'icon' => 'bunny', 'sort_order' => 50],
+            ['name' => 'CRYPTO PRO', 'description' => 'Pro-level trader type for crypto market products.', 'color' => 'gold', 'icon' => 'bunny', 'sort_order' => 60],
+        ])->mapWithKeys(fn (array $traderType) => [
+            $traderType['name'] => TraderType::updateOrCreate(
+                ['slug' => Str::slug($traderType['name'])],
+                [...$traderType, 'slug' => Str::slug($traderType['name']), 'is_active' => true],
+            ),
+        ]);
+
+        $moduleRows = [
+            ['Momentum Cycles', 'Measures directional momentum phase and trend strength, helping identify when conditions are aligned bullish or bearish.', 'NYSE BASE; NYSE CORE; NYSE PRO; CRYPTO CORE; CRYPTO PRO', 'All', AccessLevel::InviteOnlyIndicatorDiscord->value, 'v1.33', 'Explore Module', 'momentum-cycles'],
+            ['Sequence Pressure', 'Tracks directional exhaustion and pressure buildup to help identify when a move may be weakening or becoming vulnerable to recoil.', 'NYSE BASE; NYSE CORE; NYSE PRO; CRYPTO CORE; CRYPTO PRO', 'All', AccessLevel::InviteOnlyIndicatorDiscord->value, 'v1.44', 'Explore Module', 'sequence-pressure'],
+            ['Trend Tracer', 'Maps broader directional flow and trend posture to help determine whether market structure is supporting continuation or deterioration.', 'NYSE PRO', 'NYSE', AccessLevel::InviteOnlyIndicatorDiscord->value, 'v1.2', 'Explore Module', 'trend-tracer'],
+            ['Crypto Velocity Stats', 'Measures short-term crypto momentum statistics and directional acceleration across the selected asset and timeframe.', 'CRYPTO PRO', 'Crypto', AccessLevel::InviteOnlyIndicatorDiscord->value, 'v1.5', 'Explore Module', 'volatility-pulse'],
+            ['Info Box', 'Displays a compact market HUD with key breadth, futures, ticker, range, and volume context for fast decision support.', 'NYSE PRO', 'NYSE', AccessLevel::InviteOnlyIndicatorDiscord->value, 'v1.28', 'Explore Module', 'info-box'],
+            ['Info Line', 'Displays the same decision-support context as Info Box in a condensed horizontal format for users who prefer a streamlined HUD.', 'NYSE PRO', 'NYSE', AccessLevel::InviteOnlyIndicatorDiscord->value, 'v1.28', 'Explore Module', 'info-box'],
+            ['Crypto Info Box', 'Displays a crypto-specific HUD with market-cap, BTC futures, stablecoin dominance, ticker, range, and volume context.', 'CRYPTO PRO', 'Crypto', AccessLevel::InviteOnlyIndicatorDiscord->value, 'v1.49', 'Explore Module', 'crypto-info-box'],
+            ['Crypto Info Line', 'Displays the same crypto-specific context as Crypto Info Box in a compressed horizontal format for streamlined chart viewing.', 'CRYPTO PRO', 'Crypto', AccessLevel::InviteOnlyIndicatorDiscord->value, 'v1.49', 'Explore Module', 'crypto-info-box'],
+            ['Pulse', 'Measures participation quality and internal market flow to help confirm whether price movement is being supported by real engagement.', 'NYSE PRO; CRYPTO PRO', 'All', AccessLevel::InviteOnlyIndicatorDiscord->value, 'v1.32', 'Explore Module', 'pulse'],
+            ['Tide', 'Tracks broader market current and directional flow to help determine whether participation is supportive, fading, or shifting.', 'NYSE PRO; CRYPTO PRO', 'All', AccessLevel::InviteOnlyIndicatorDiscord->value, 'v1.6', 'Explore Module', 'participation-network'],
+            ['Range Rails', 'Maps expected range structure and buy/sell rails to help identify where price is stretched, reactive, or positioned for expansion.', 'NYSE PRO; CRYPTO PRO', 'All', AccessLevel::InviteOnlyIndicatorDiscord->value, 'v1.20', 'Explore Module', 'range-rails'],
+            ['AAVWAP', 'Anchors price to a meaningful reference point to show whether price is holding above or below an important value area.', 'NYSE PRO; CRYPTO PRO', 'All', AccessLevel::InviteOnlyIndicatorDiscord->value, 'v1.143', 'Explore Module', 'avwap-doc'],
+            ['Long WAP', 'Tracks longer-duration value positioning to help identify broader support, resistance, and higher-timeframe control.', 'NYSE BASE; NYSE CORE; CRYPTO CORE', 'All', AccessLevel::InviteOnlyIndicatorDiscord->value, 'v1.0', 'Explore Module', 'long-vwap-wave'],
+            ['Candle Color', 'Simplifies candle-state interpretation by visually classifying bar behavior based on the module’s directional logic.', 'NYSE PRO; CRYPTO PRO', 'All', AccessLevel::InviteOnlyIndicatorDiscord->value, 'v1.11', 'Explore Module', 'candle-color'],
         ];
 
-        foreach ($modules as [$categorySlug, $slug, $title, $purpose, $whatItDoes, $keyOutput, $version, $access, $sortOrder]) {
-            Module::updateOrCreate(
-                ['slug' => $slug],
-                [
-                    'playbook_category_id' => $categories[$categorySlug]->id,
-                    'icon' => $slug,
-                    'title' => $title,
-                    'purpose' => $purpose,
-                    'description' => $purpose,
-                    'what_it_does' => $whatItDoes,
-                    'key_output' => $keyOutput,
-                    'version' => $version,
-                    'access' => $access,
-                    'sort_order' => $sortOrder,
-                    'is_featured' => $sortOrder <= 30,
-                    'is_active' => true,
-                    'published_at' => now(),
-                ],
-            );
+        foreach ($moduleRows as $index => [$title, $description, $traderTypeList, $marketName, $access, $version, $actionLabel, $icon]) {
+            $module = Module::create([
+                'market_id' => $markets[$marketName]->id,
+                'icon' => $icon,
+                'title' => $title,
+                'slug' => Str::slug($title),
+                'description' => $description,
+                'version' => ltrim($version, 'v'),
+                'access' => $access,
+                'action_label' => $actionLabel,
+                'sort_order' => ($index + 1) * 10,
+                'is_featured' => $index < 3,
+                'is_active' => true,
+                'published_at' => now(),
+            ]);
+
+            $module->traderTypes()->sync($this->traderTypeIds($traderTypes, $traderTypeList));
         }
 
-        $playbooks = [
-            ['playbooks', 'market-environment', 'Market Environment', 'base_access', 'Broad Market', 'Traders who want market context, sentiment, and volatility guidance before execution.', null, 7000, null, 10],
-            ['playbooks', 'crypto-environment', 'Crypto Environment', 'base_access', 'Crypto', 'Crypto traders who want sentiment and volatility context before taking positions.', null, 7000, null, 20],
-            ['playbooks', 'nyse-sector-rotation-playbook', 'NYSE Sector Rotation Playbook', 'core_access', 'Equities / Sectors', 'Investors targeting multi-week sector rotation opportunities.', '~60 days', 10000, 'https://example.com/payments/nyse-sector-rotation', 30],
-            ['playbooks', 'xrp-turtle-playbook', 'XRP Turtle Playbook', 'core_access', 'XRP', 'Patient XRP traders looking for slower-developing momentum swings.', '~16 days', 9000, 'https://example.com/payments/xrp-turtle', 40],
-            ['playbooks', 'btc-bunny-playbook', 'BTC Bunny Playbook', 'pro_access', 'BTC', 'Short-term BTC traders seeking structured intraday momentum setups.', '~10 hours', 14000, 'https://example.com/payments/btc-bunny', 50],
-            ['playbooks', 'sol-bunny-playbook', 'SOL Bunny Playbook', 'pro_access', 'SOL', 'Short-term SOL traders seeking structured intraday momentum setups.', '~9 hours', null, null, 60],
-            ['playbooks', 'xrp-bunny-playbook', 'XRP Bunny Playbook', 'pro_access', 'XRP', 'Short-term XRP traders seeking structured intraday momentum setups.', '~16 hours', 18000, 'https://example.com/payments/xrp-bunny', 70],
-            ['joint-community-deployments', 'sigma-pro-engine', 'Sigma Pro Engine', 'licensed_sigma', 'Crypto', 'Crypto traders who want optimized trend-flip alerts through a partner community.', null, null, 'https://example.com/payments/sigma', 80],
+        $playbookRows = [
+            ['NYSE Market Environment Daily Newsletter', 'Traders who want market context, sentiment, and volatility guidance before execution.', 'NYSE BASE', 'NYSE', 'Swing Trading', '~90 days', AccessLevel::DailyNewsletterDiscord->value, '$70/mo', 'Explore Playbook', 'market-data-bars'],
+            ['Crypto Market Environment Daily Newsletter', 'Crypto traders who want sentiment and volatility context before taking positions.', 'CRYPTO BASE', 'Crypto', 'Swing Trading', '~60 days', AccessLevel::DailyNewsletterDiscord->value, '$70/mo', 'Explore Playbook', 'crypto-info-box'],
+            ['Sigma Pro Engine (insert logo)', 'Crypto traders who want optimized trend-flip alerts through a partner community access model.', 'CRYPTO BASE', 'Crypto', 'System Alerts', '—', AccessLevel::PartnerCommunityAccess->value, 'External / Token-Gated', 'View Deployment', 'command-cube'],
+            ['NYSE ETF Environment Daily Newsletter', 'Investors targeting multi-week sector rotation opportunities.', 'NYSE CORE', 'NYSE', 'Swing Trading', '~90 days', AccessLevel::DailyNewsletterDiscord->value, '$125/mo', 'Explore Playbook', 'sector-rotation'],
+            ['XRP Turtle Playbook', 'Patient XRP traders looking for slower-developing momentum swings.', 'CRYPTO CORE', 'Crypto', 'Swing Trading', '~16 days', AccessLevel::AlertsGuidedDiscord->value, '$90/mo', 'Explore Playbook', 'turtle'],
+            ['SPY Scalp Playbook', 'Active traders focused on structured intraday momentum and higher-frequency execution.', 'NYSE PRO', 'NYSE', 'Day Trading', '~4 minutes', AccessLevel::AlertsGuidedDiscord->value, '$180/mo', 'Explore Playbook', 'spy-playbook'],
+            ['BTC Bunny Playbook', 'Short-term BTC traders seeking structured intraday momentum setups.', 'CRYPTO PRO', 'Crypto', 'Day Trading', '~10 hours', AccessLevel::AlertsGuidedDiscord->value, '$180/mo', 'Explore Playbook', 'bunny'],
+            ['SOL Bunny Playbook', 'Short-term SOL traders seeking structured intraday momentum setups.', 'CRYPTO PRO', 'Crypto', 'Day Trading', '~9 hours', AccessLevel::AlertsGuidedDiscord->value, 'Coming Soon', 'Explore Playbook', 'bunny'],
+            ['XRP Bunny Playbook', 'Short-term XRP traders seeking structured intraday momentum setups.', 'CRYPTO PRO', 'Crypto', 'Day Trading', '~16 hours', AccessLevel::AlertsGuidedDiscord->value, '$180/mo', 'Explore Playbook', 'bunny'],
         ];
 
-        foreach ($playbooks as [$categorySlug, $slug, $framework, $access, $market, $bestFor, $averageHoldTime, $priceCents, $paymentUrl, $sortOrder]) {
-            Playbook::updateOrCreate(
-                ['slug' => $slug],
-                [
-                    'playbook_category_id' => $categories[$categorySlug]->id,
-                    'framework' => $framework,
-                    'access' => $access,
-                    'market' => $market,
-                    'best_for' => $bestFor,
-                    'average_hold_time' => $averageHoldTime,
-                    'price_cents' => $priceCents,
-                    'currency' => 'USD',
-                    'payment_url' => $paymentUrl,
-                    'sort_order' => $sortOrder,
-                    'is_featured' => in_array($slug, ['xrp-turtle-playbook', 'btc-bunny-playbook'], true),
-                    'is_active' => true,
-                    'published_at' => now(),
-                ],
-            );
+        foreach ($playbookRows as $index => [$title, $bestFor, $traderTypeList, $marketName, $tradingPace, $averageHold, $access, $price, $actionLabel, $icon]) {
+            $playbook = Playbook::create([
+                'market_id' => $markets[$marketName]->id,
+                'icon' => $icon,
+                'title' => $title,
+                'slug' => Str::slug($title),
+                'access' => $access,
+                'best_for' => $bestFor,
+                'trading_pace' => $tradingPace,
+                'average_hold_time' => $averageHold,
+                'price' => $price,
+                'action_label' => $actionLabel,
+                'sort_order' => ($index + 1) * 10,
+                'is_featured' => in_array($title, ['XRP Turtle Playbook', 'BTC Bunny Playbook'], true),
+                'is_active' => true,
+                'published_at' => now(),
+            ]);
+
+            $playbook->traderTypes()->sync($this->traderTypeIds($traderTypes, $traderTypeList));
         }
+    }
+
+    /**
+     * @param  Collection<string, TraderType>  $traderTypes
+     * @return list<int>
+     */
+    private function traderTypeIds($traderTypes, string $traderTypeList): array
+    {
+        return collect(explode(';', $traderTypeList))
+            ->map(fn (string $name): string => trim($name))
+            ->filter()
+            ->map(fn (string $name): int => $traderTypes[$name]->id)
+            ->values()
+            ->all();
     }
 }

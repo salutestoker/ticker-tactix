@@ -2,30 +2,29 @@
 
 namespace App\Models;
 
-use Database\Factories\PlaybookFactory;
+use App\Enums\AccessLevel;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Playbook extends Model
 {
-    /** @use HasFactory<PlaybookFactory> */
-    use HasFactory, SoftDeletes;
+    use SoftDeletes;
 
     protected $fillable = [
-        'playbook_category_id',
-        'framework',
+        'market_id',
+        'icon',
+        'title',
         'slug',
         'access',
-        'market',
         'best_for',
+        'trading_pace',
         'average_hold_time',
-        'price_cents',
-        'currency',
-        'payment_url',
+        'price',
+        'action_label',
         'sort_order',
         'is_featured',
         'is_active',
@@ -37,7 +36,7 @@ class Playbook extends Model
     protected function casts(): array
     {
         return [
-            'price_cents' => 'integer',
+            'access' => AccessLevel::class,
             'is_featured' => 'boolean',
             'is_active' => 'boolean',
             'published_at' => 'datetime',
@@ -45,9 +44,14 @@ class Playbook extends Model
         ];
     }
 
-    public function category(): BelongsTo
+    public function market(): BelongsTo
     {
-        return $this->belongsTo(PlaybookCategory::class, 'playbook_category_id');
+        return $this->belongsTo(Market::class);
+    }
+
+    public function traderTypes(): BelongsToMany
+    {
+        return $this->belongsToMany(TraderType::class)->withTimestamps();
     }
 
     #[Scope]
@@ -59,6 +63,6 @@ class Playbook extends Model
     #[Scope]
     protected function ordered(Builder $query): void
     {
-        $query->orderBy('sort_order')->orderBy('framework');
+        $query->orderBy('sort_order')->orderBy('title');
     }
 }

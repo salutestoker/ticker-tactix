@@ -963,11 +963,12 @@ Suggested supporting cards above the matrix:
 Matrix columns should include:
 
 - Module
-- Purpose
 - What It Does
-- Key Output
+- Trader Type
+- Market
 - Version
 - Access
+- Action
 
 Module rows should use icons from the custom icon library.
 
@@ -982,14 +983,7 @@ Suggested module examples:
 - Backtest Lab
 - Data Pipeline
 
-Access types:
-
-- Core
-- Pro
-- Locked
-- Coming Soon
-
-Use `Core` as seafoam, `Pro` as violet, and locked states as muted/violet.
+Trader Type and Market chips should use the taxonomy color stored in the database. Access badges should display the shared enum value exactly.
 
 ---
 
@@ -1003,21 +997,17 @@ Use a large gradient title:
 
 Matrix columns should include:
 
-- Category
-- Playbook / Framework
-- Access
+- Playbook
+- Trader Type
 - Market
+- Access
+- Trading Pace
 - Best For
 - Avg Hold
 - Price
 - Action
 
-Suggested categories:
-
-- Market Environment
-- Core Playbooks
-- Pro Playbooks
-- Joint Community Deployments
+Playbook Categories are no longer part of the product model. Playbook price is freeform text and should be rendered exactly as stored.
 
 Access types:
 

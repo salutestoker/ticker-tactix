@@ -3,9 +3,9 @@ import {
     HudButton,
     HudPanel,
     StatusBadge,
+    TaxonomyBadge,
 } from '@/Components/UI/Hud';
 import AdminLayout from '@/Layouts/AdminLayout';
-import { formatPrice } from '@/lib/format';
 import type { Playbook } from '@/types';
 import { Head, router } from '@inertiajs/react';
 
@@ -30,8 +30,9 @@ export default function AdminPlaybooksIndex({
                     <table className="min-w-full text-left text-sm">
                         <thead className="font-heading text-seafoam-green text-xs tracking-[0.14em] uppercase">
                             <tr>
-                                <th className="px-5 py-4">Framework</th>
-                                <th className="px-5 py-4">Category</th>
+                                <th className="px-5 py-4">Playbook</th>
+                                <th className="px-5 py-4">Market</th>
+                                <th className="px-5 py-4">Trader Types</th>
                                 <th className="px-5 py-4">Access</th>
                                 <th className="px-5 py-4">Price</th>
                                 <th className="px-5 py-4">Status</th>
@@ -45,19 +46,40 @@ export default function AdminPlaybooksIndex({
                                     className="border-main-blue/20 border-t"
                                 >
                                     <td className="px-5 py-4 text-white">
-                                        {playbook.framework}
+                                        {playbook.title}
                                     </td>
-                                    <td className="px-5 py-4 text-white/65">
-                                        {playbook.category?.name}
+                                    <td className="px-5 py-4">
+                                        {playbook.market ? (
+                                            <TaxonomyBadge
+                                                label={playbook.market.name}
+                                                color={playbook.market.color}
+                                            />
+                                        ) : (
+                                            <span className="text-white/45">
+                                                —
+                                            </span>
+                                        )}
+                                    </td>
+                                    <td className="px-5 py-4">
+                                        <div className="flex flex-wrap gap-2">
+                                            {(
+                                                playbook.trader_types ??
+                                                playbook.traderTypes ??
+                                                []
+                                            ).map((type) => (
+                                                <TaxonomyBadge
+                                                    key={type.id}
+                                                    label={type.name}
+                                                    color={type.color}
+                                                />
+                                            ))}
+                                        </div>
                                     </td>
                                     <td className="px-5 py-4">
                                         <AccessBadge access={playbook.access} />
                                     </td>
                                     <td className="text-seafoam-green px-5 py-4">
-                                        {formatPrice(
-                                            playbook.price_cents,
-                                            playbook.currency,
-                                        )}
+                                        {playbook.price || '—'}
                                     </td>
                                     <td className="px-5 py-4">
                                         <StatusBadge

@@ -30,9 +30,14 @@ Always-loaded instructions for Codex agents working in this repository. Keep thi
 
 ## Core Domain
 
-- Primary entities: Modules, Playbooks, and Playbook Categories.
-- Modules use `/modules/{slug}` and may belong to a Playbook Category.
-- Playbooks use `/playbooks/{slug}` and must belong to a Playbook Category.
+- Primary entities: Modules, Playbooks, Trader Types, and Markets.
+- Playbook Categories have been removed; do not recreate category models, fields, routes, UI, or seed data.
+- Modules use `/modules/{slug}`, belong to one Market, and may have multiple Trader Types.
+- Playbooks use `/playbooks/{slug}`, belong to one Market, and use Trader Types.
+- Access is managed through `App\Enums\AccessLevel` and frontend mirrored types.
+- Playbook price is freeform text; do not use cents/currency fields.
+- Icons are selected by key through the shared Icon Selector and rendered through the icon registry.
+- Modules can select related Modules through `Trader’s also bought`.
 - Public pages show only records where `is_active = true` and `published_at` is set.
 - Admin pages manage draft, inactive, and published records.
 - Store prices as integer cents. Store payment links as external URLs. Do not store card data.

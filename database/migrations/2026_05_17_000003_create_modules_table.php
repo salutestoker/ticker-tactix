@@ -10,17 +10,14 @@ return new class extends Migration
     {
         Schema::create('modules', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('playbook_category_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('market_id')->constrained()->restrictOnDelete();
             $table->string('icon')->nullable();
             $table->string('title');
             $table->string('slug')->unique();
-            $table->string('purpose')->nullable();
             $table->text('description')->nullable();
-            $table->text('what_it_does')->nullable();
-            $table->string('key_output')->nullable();
-            $table->string('version')->nullable();
-            $table->string('access')->default('core');
-            $table->string('payment_url')->nullable();
+            $table->decimal('version', 6, 3)->nullable();
+            $table->string('access');
+            $table->string('action_label')->nullable();
             $table->unsignedInteger('sort_order')->default(0);
             $table->boolean('is_featured')->default(false);
             $table->boolean('is_active')->default(true);
@@ -30,10 +27,28 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
+
+        Schema::create('module_trader_type', function (Blueprint $table): void {
+            $table->id();
+            $table->foreignId('module_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('trader_type_id')->constrained()->cascadeOnDelete();
+            $table->timestamps();
+            $table->unique(['module_id', 'trader_type_id']);
+        });
+
+        Schema::create('module_related_modules', function (Blueprint $table): void {
+            $table->id();
+            $table->foreignId('module_id')->constrained('modules')->cascadeOnDelete();
+            $table->foreignId('related_module_id')->constrained('modules')->cascadeOnDelete();
+            $table->timestamps();
+            $table->unique(['module_id', 'related_module_id']);
+        });
     }
 
     public function down(): void
     {
+        Schema::dropIfExists('module_related_modules');
+        Schema::dropIfExists('module_trader_type');
         Schema::dropIfExists('modules');
     }
 };

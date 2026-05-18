@@ -11,7 +11,8 @@ export default function AdminDashboard({
     stats: {
         modules: number;
         playbooks: number;
-        categories: number;
+        markets: number;
+        traderTypes: number;
         drafts: number;
     };
     recentModules: Module[];
@@ -71,10 +72,10 @@ function Recent({
                     >
                         <div>
                             <p className="font-medium text-white">
-                                {'title' in item ? item.title : item.framework}
+                                {item.title}
                             </p>
                             <p className="mt-1 text-sm text-white/50">
-                                {item.category?.name}
+                                {item.market?.name || 'No market assigned'}
                             </p>
                         </div>
                         <div className="flex items-center gap-3">

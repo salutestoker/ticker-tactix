@@ -1,21 +1,21 @@
-import { HudButton, HudPanel } from '@/Components/UI/Hud';
+import { IconSelector } from '@/Components/Admin/IconSelector';
+import { HudButton, HudPanel, TaxonomyBadge } from '@/Components/UI/Hud';
 import AdminLayout from '@/Layouts/AdminLayout';
-import type { Module, PlaybookCategory } from '@/types';
+import type { Market, Module, SelectOption, TraderType } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import type { FormEvent, ReactNode } from 'react';
 
 type ModuleForm = {
-    playbook_category_id: string;
+    market_id: string;
+    trader_type_ids: number[];
+    related_module_ids: number[];
     icon: string;
     title: string;
     slug: string;
-    purpose: string;
     description: string;
-    what_it_does: string;
-    key_output: string;
     version: string;
     access: string;
-    payment_url: string;
+    action_label: string;
     sort_order: number;
     is_featured: boolean;
     is_active: boolean;
@@ -26,27 +26,38 @@ type ModuleForm = {
 
 export default function ModuleFormPage({
     module,
-    categories,
+    markets,
+    traderTypes,
+    modules,
+    accessOptions,
 }: {
     module: Module | null;
-    categories: PlaybookCategory[];
+    markets: Market[];
+    traderTypes: TraderType[];
+    modules: Pick<Module, 'id' | 'title' | 'slug'>[];
+    accessOptions: SelectOption[];
 }) {
     const isEdit = Boolean(module);
+    const attachedTraderTypes =
+        module?.trader_types ?? module?.traderTypes ?? [];
+    const attachedRelatedModules =
+        module?.related_modules ?? module?.relatedModules ?? [];
+
     const { data, setData, post, put, processing, errors } =
         useForm<ModuleForm>({
-            playbook_category_id: module?.playbook_category_id
-                ? String(module.playbook_category_id)
-                : '',
+            market_id: module?.market_id ? String(module.market_id) : '',
+            trader_type_ids: attachedTraderTypes.map((type) => type.id),
+            related_module_ids: attachedRelatedModules.map((item) => item.id),
             icon: module?.icon || '',
             title: module?.title || '',
             slug: module?.slug || '',
-            purpose: module?.purpose || '',
             description: module?.description || '',
-            what_it_does: module?.what_it_does || '',
-            key_output: module?.key_output || '',
-            version: module?.version || '',
-            access: module?.access || 'core',
-            payment_url: module?.payment_url || '',
+            version: module?.version ? String(module.version) : '',
+            access:
+                module?.access ||
+                accessOptions[0]?.value ||
+                'Invite-Only Indicator + Discord',
+            action_label: module?.action_label || 'Explore Module',
             sort_order: module?.sort_order ?? 0,
             is_featured: module?.is_featured ?? false,
             is_active: module?.is_active ?? true,
@@ -54,6 +65,7 @@ export default function ModuleFormPage({
             meta_title: module?.meta_title || '',
             meta_description: module?.meta_description || '',
         });
+    const formErrors = errors as Record<string, string | undefined>;
 
     function submit(event: FormEvent) {
         event.preventDefault();
@@ -84,65 +96,58 @@ export default function ModuleFormPage({
                             placeholder="Auto-generated when empty"
                         />
                     </Field>
-                    <Field label="Category" error={errors.playbook_category_id}>
+                    <Field label="Market" error={errors.market_id}>
                         <select
                             className={input}
-                            value={data.playbook_category_id}
+                            value={data.market_id}
                             onChange={(e) =>
-                                setData('playbook_category_id', e.target.value)
+                                setData('market_id', e.target.value)
                             }
                         >
-                            <option value="">No category</option>
-                            {categories.map((category) => (
-                                <option key={category.id} value={category.id}>
-                                    {category.name}
+                            <option value="">Select market</option>
+                            {markets.map((market) => (
+                                <option key={market.id} value={market.id}>
+                                    {market.name}
                                 </option>
                             ))}
                         </select>
                     </Field>
-                    <Field label="Icon Key" error={errors.icon}>
-                        <input
-                            className={input}
+                    <Field label="Icon" error={errors.icon}>
+                        <IconSelector
                             value={data.icon}
-                            onChange={(e) => setData('icon', e.target.value)}
+                            onChange={(value) => setData('icon', value)}
                         />
                     </Field>
-                    <Field label="Purpose" error={errors.purpose}>
-                        <input
+                    <Field label="Access" error={errors.access}>
+                        <select
                             className={input}
-                            value={data.purpose}
-                            onChange={(e) => setData('purpose', e.target.value)}
-                        />
-                    </Field>
-                    <Field label="Key Output" error={errors.key_output}>
-                        <input
-                            className={input}
-                            value={data.key_output}
-                            onChange={(e) =>
-                                setData('key_output', e.target.value)
-                            }
-                        />
+                            value={data.access}
+                            onChange={(e) => setData('access', e.target.value)}
+                        >
+                            {accessOptions.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                    {option.label}
+                                </option>
+                            ))}
+                        </select>
                     </Field>
                     <Field label="Version" error={errors.version}>
                         <input
                             className={input}
                             value={data.version}
+                            type="number"
+                            min="0"
+                            step="0.001"
                             onChange={(e) => setData('version', e.target.value)}
+                            placeholder="1.33"
                         />
                     </Field>
-                    <Field label="Access" error={errors.access}>
+                    <Field label="Action Label" error={errors.action_label}>
                         <input
                             className={input}
-                            value={data.access}
-                            onChange={(e) => setData('access', e.target.value)}
-                        />
-                    </Field>
-                    <Field label="Payment URL" error={errors.payment_url}>
-                        <input
-                            className={input}
-                            value={data.payment_url}
+                            value={data.action_label}
                             onChange={(e) =>
-                                setData('payment_url', e.target.value)
+                                setData('action_label', e.target.value)
                             }
                         />
                     </Field>
@@ -183,21 +188,40 @@ export default function ModuleFormPage({
                             }
                         />
                     </div>
+                    <Field
+                        label="Trader Types"
+                        error={
+                            formErrors.trader_type_ids ||
+                            formErrors['trader_type_ids.0']
+                        }
+                    >
+                        <PillMultiSelect
+                            selected={data.trader_type_ids}
+                            options={traderTypes}
+                            onChange={(ids) => setData('trader_type_ids', ids)}
+                        />
+                    </Field>
+                    <Field
+                        label="Trader’s also bought"
+                        error={
+                            formErrors.related_module_ids ||
+                            formErrors['related_module_ids.0']
+                        }
+                    >
+                        <RelatedModuleSelect
+                            selected={data.related_module_ids}
+                            options={modules}
+                            onChange={(ids) =>
+                                setData('related_module_ids', ids)
+                            }
+                        />
+                    </Field>
                     <Field label="Description" error={errors.description}>
                         <textarea
                             className={textarea}
                             value={data.description}
                             onChange={(e) =>
                                 setData('description', e.target.value)
-                            }
-                        />
-                    </Field>
-                    <Field label="What It Does" error={errors.what_it_does}>
-                        <textarea
-                            className={textarea}
-                            value={data.what_it_does}
-                            onChange={(e) =>
-                                setData('what_it_does', e.target.value)
                             }
                         />
                     </Field>
@@ -278,4 +302,70 @@ function Check({
             {label}
         </label>
     );
+}
+
+function PillMultiSelect({
+    selected,
+    options,
+    onChange,
+}: {
+    selected: number[];
+    options: TraderType[];
+    onChange: (ids: number[]) => void;
+}) {
+    return (
+        <div className="mt-3 flex flex-wrap gap-2">
+            {options.map((option) => {
+                const isSelected = selected.includes(option.id);
+
+                return (
+                    <button
+                        key={option.id}
+                        type="button"
+                        className={`rounded-sm border px-3 py-2 transition ${isSelected ? 'border-seafoam-green/60 bg-seafoam-green/10' : 'border-main-blue/30 bg-panel-deep hover:border-main-blue/60'}`}
+                        onClick={() => onChange(toggleId(selected, option.id))}
+                    >
+                        <TaxonomyBadge
+                            label={option.name}
+                            color={option.color}
+                        />
+                    </button>
+                );
+            })}
+        </div>
+    );
+}
+
+function RelatedModuleSelect({
+    selected,
+    options,
+    onChange,
+}: {
+    selected: number[];
+    options: Pick<Module, 'id' | 'title' | 'slug'>[];
+    onChange: (ids: number[]) => void;
+}) {
+    return (
+        <div className="mt-3 grid max-h-64 gap-2 overflow-auto pr-1">
+            {options.map((module) => (
+                <label
+                    key={module.id}
+                    className="border-main-blue/30 bg-panel-deep flex items-center gap-3 rounded-sm border px-3 py-2 text-white/75"
+                >
+                    <input
+                        checked={selected.includes(module.id)}
+                        type="checkbox"
+                        onChange={() => onChange(toggleId(selected, module.id))}
+                    />
+                    {module.title}
+                </label>
+            ))}
+        </div>
+    );
+}
+
+function toggleId(selected: number[], id: number) {
+    return selected.includes(id)
+        ? selected.filter((selectedId) => selectedId !== id)
+        : [...selected, id];
 }

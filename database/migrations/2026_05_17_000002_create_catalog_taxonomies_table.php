@@ -8,12 +8,24 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('playbook_categories', function (Blueprint $table): void {
+        Schema::create('trader_types', function (Blueprint $table): void {
             $table->id();
             $table->string('name');
             $table->string('slug')->unique();
             $table->text('description')->nullable();
+            $table->string('color')->nullable();
             $table->string('icon')->nullable();
+            $table->unsignedInteger('sort_order')->default(0);
+            $table->boolean('is_active')->default(true);
+            $table->timestamps();
+            $table->softDeletes();
+        });
+
+        Schema::create('markets', function (Blueprint $table): void {
+            $table->id();
+            $table->string('name');
+            $table->string('slug')->unique();
+            $table->text('description')->nullable();
             $table->string('color')->nullable();
             $table->unsignedInteger('sort_order')->default(0);
             $table->boolean('is_active')->default(true);
@@ -24,6 +36,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('playbook_categories');
+        Schema::dropIfExists('markets');
+        Schema::dropIfExists('trader_types');
     }
 };

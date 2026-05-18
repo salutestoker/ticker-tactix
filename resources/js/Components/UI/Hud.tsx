@@ -1,3 +1,4 @@
+import { brandColor } from '@/lib/brand';
 import { accessLabel, accessTone } from '@/lib/format';
 import { Link } from '@inertiajs/react';
 import type { ButtonHTMLAttributes, PropsWithChildren, ReactNode } from 'react';
@@ -111,6 +112,24 @@ export function AccessBadge({ access }: { access: string }) {
             className={`font-heading inline-flex items-center rounded-sm border px-3 py-1 text-[0.65rem] font-semibold tracking-[0.12em] uppercase ${toneClasses[tone]}`}
         >
             {accessLabel(access)}
+        </span>
+    );
+}
+
+export function TaxonomyBadge({
+    label,
+    color,
+}: {
+    label: string;
+    color?: string | null;
+}) {
+    const tone = brandColor(color);
+
+    return (
+        <span
+            className={`font-heading inline-flex items-center rounded-sm border px-3 py-1 text-[0.65rem] font-semibold tracking-[0.12em] uppercase ${tone.borderClass} ${tone.backgroundClass} ${tone.textClass} ${tone.glowClass}`}
+        >
+            {label}
         </span>
     );
 }

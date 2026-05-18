@@ -1,3 +1,9 @@
+export type AccessValue =
+    | 'Invite-Only Indicator + Discord'
+    | 'Daily Newsletter + Discord'
+    | 'Partner Community Access'
+    | 'Alerts + Guided Discord';
+
 export interface User {
     id: number;
     name: string;
@@ -8,13 +14,25 @@ export interface User {
     is_admin: boolean;
 }
 
-export interface PlaybookCategory {
+export interface Market {
     id: number;
     name: string;
     slug: string;
     description?: string | null;
-    icon?: string | null;
     color?: string | null;
+    sort_order: number;
+    is_active: boolean;
+    modules_count?: number;
+    playbooks_count?: number;
+}
+
+export interface TraderType {
+    id: number;
+    name: string;
+    slug: string;
+    description?: string | null;
+    color?: string | null;
+    icon?: string | null;
     sort_order: number;
     is_active: boolean;
     modules_count?: number;
@@ -23,45 +41,53 @@ export interface PlaybookCategory {
 
 export interface Module {
     id: number;
-    playbook_category_id?: number | null;
+    market_id: number;
     icon?: string | null;
     title: string;
     slug: string;
-    purpose?: string | null;
     description?: string | null;
-    what_it_does?: string | null;
-    key_output?: string | null;
-    version?: string | null;
-    access: string;
-    payment_url?: string | null;
+    version?: number | string | null;
+    access: AccessValue;
+    action_label?: string | null;
     sort_order: number;
     is_featured: boolean;
     is_active: boolean;
     published_at?: string | null;
     meta_title?: string | null;
     meta_description?: string | null;
-    category?: PlaybookCategory | null;
+    market?: Market | null;
+    trader_types?: TraderType[];
+    traderTypes?: TraderType[];
+    related_modules?: Module[];
+    relatedModules?: Module[];
 }
 
 export interface Playbook {
     id: number;
-    playbook_category_id: number;
-    framework: string;
+    market_id: number;
+    icon?: string | null;
+    title: string;
     slug: string;
-    access: string;
-    market?: string | null;
+    access: AccessValue;
     best_for?: string | null;
+    trading_pace?: string | null;
     average_hold_time?: string | null;
-    price_cents?: number | null;
-    currency: string;
-    payment_url?: string | null;
+    price?: string | null;
+    action_label?: string | null;
     sort_order: number;
     is_featured: boolean;
     is_active: boolean;
     published_at?: string | null;
     meta_title?: string | null;
     meta_description?: string | null;
-    category?: PlaybookCategory | null;
+    market?: Market | null;
+    trader_types?: TraderType[];
+    traderTypes?: TraderType[];
+}
+
+export interface SelectOption {
+    label: string;
+    value: string;
 }
 
 export type PageProps<

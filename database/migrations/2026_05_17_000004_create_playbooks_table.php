@@ -10,16 +10,16 @@ return new class extends Migration
     {
         Schema::create('playbooks', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('playbook_category_id')->constrained()->cascadeOnDelete();
-            $table->string('framework');
+            $table->foreignId('market_id')->constrained()->restrictOnDelete();
+            $table->string('icon')->nullable();
+            $table->string('title');
             $table->string('slug')->unique();
             $table->string('access');
-            $table->string('market')->nullable();
             $table->text('best_for')->nullable();
+            $table->string('trading_pace')->nullable();
             $table->string('average_hold_time')->nullable();
-            $table->unsignedInteger('price_cents')->nullable();
-            $table->string('currency', 3)->default('USD');
-            $table->string('payment_url')->nullable();
+            $table->string('price')->nullable();
+            $table->string('action_label')->nullable();
             $table->unsignedInteger('sort_order')->default(0);
             $table->boolean('is_featured')->default(false);
             $table->boolean('is_active')->default(true);
@@ -29,10 +29,19 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
+
+        Schema::create('playbook_trader_type', function (Blueprint $table): void {
+            $table->id();
+            $table->foreignId('playbook_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('trader_type_id')->constrained()->cascadeOnDelete();
+            $table->timestamps();
+            $table->unique(['playbook_id', 'trader_type_id']);
+        });
     }
 
     public function down(): void
     {
+        Schema::dropIfExists('playbook_trader_type');
         Schema::dropIfExists('playbooks');
     }
 };

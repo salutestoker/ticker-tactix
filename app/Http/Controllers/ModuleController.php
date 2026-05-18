@@ -11,7 +11,7 @@ class ModuleController extends Controller
     public function index(): Response
     {
         return Inertia::render('Modules/Index', [
-            'modules' => Module::public()->with('category')->ordered()->get(),
+            'modules' => Module::public()->with(['market', 'traderTypes'])->ordered()->get(),
         ]);
     }
 
@@ -20,13 +20,11 @@ class ModuleController extends Controller
         abort_unless($module->is_active && $module->published_at, 404);
 
         return Inertia::render('Modules/Show', [
-            'module' => $module->load('category'),
-            'relatedModules' => Module::public()
-                ->with('category')
-                ->whereKeyNot($module->id)
-                ->where('playbook_category_id', $module->playbook_category_id)
+            'module' => $module->load(['market', 'traderTypes']),
+            'relatedModules' => $module->relatedModules()
+                ->public()
+                ->with(['market', 'traderTypes'])
                 ->ordered()
-                ->take(4)
                 ->get(),
         ]);
     }

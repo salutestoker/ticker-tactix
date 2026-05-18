@@ -2,31 +2,27 @@
 
 namespace App\Models;
 
-use Database\Factories\ModuleFactory;
+use App\Enums\AccessLevel;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Module extends Model
 {
-    /** @use HasFactory<ModuleFactory> */
-    use HasFactory, SoftDeletes;
+    use SoftDeletes;
 
     protected $fillable = [
-        'playbook_category_id',
+        'market_id',
         'icon',
         'title',
         'slug',
-        'purpose',
         'description',
-        'what_it_does',
-        'key_output',
         'version',
         'access',
-        'payment_url',
+        'action_label',
         'sort_order',
         'is_featured',
         'is_active',
@@ -38,6 +34,8 @@ class Module extends Model
     protected function casts(): array
     {
         return [
+            'access' => AccessLevel::class,
+            'version' => 'float',
             'is_featured' => 'boolean',
             'is_active' => 'boolean',
             'published_at' => 'datetime',
@@ -45,9 +43,24 @@ class Module extends Model
         ];
     }
 
-    public function category(): BelongsTo
+    public function market(): BelongsTo
     {
-        return $this->belongsTo(PlaybookCategory::class, 'playbook_category_id');
+        return $this->belongsTo(Market::class);
+    }
+
+    public function traderTypes(): BelongsToMany
+    {
+        return $this->belongsToMany(TraderType::class)->withTimestamps();
+    }
+
+    public function relatedModules(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            self::class,
+            'module_related_modules',
+            'module_id',
+            'related_module_id',
+        )->withTimestamps();
     }
 
     #[Scope]

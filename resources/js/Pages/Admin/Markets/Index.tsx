@@ -1,23 +1,24 @@
-import { HudButton, HudPanel, StatusBadge } from '@/Components/UI/Hud';
+import {
+    HudButton,
+    HudPanel,
+    StatusBadge,
+    TaxonomyBadge,
+} from '@/Components/UI/Hud';
 import AdminLayout from '@/Layouts/AdminLayout';
-import type { PlaybookCategory } from '@/types';
+import type { Market } from '@/types';
 import { Head, router } from '@inertiajs/react';
 
-export default function AdminCategoriesIndex({
-    categories,
-}: {
-    categories: PlaybookCategory[];
-}) {
+export default function AdminMarketsIndex({ markets }: { markets: Market[] }) {
     return (
         <AdminLayout>
-            <Head title="Manage Categories" />
+            <Head title="Manage Markets" />
             <HudPanel className="overflow-hidden">
                 <div className="border-main-blue/25 flex items-center justify-between border-b p-5">
                     <h2 className="font-heading text-sm tracking-[0.16em] text-white uppercase">
-                        Playbook Categories
+                        Markets
                     </h2>
-                    <HudButton href={route('admin.playbook-categories.create')}>
-                        Create Category
+                    <HudButton href={route('admin.markets.create')}>
+                        Create Market
                     </HudButton>
                 </div>
                 <div className="overflow-x-auto">
@@ -26,6 +27,7 @@ export default function AdminCategoriesIndex({
                             <tr>
                                 <th className="px-5 py-4">Name</th>
                                 <th className="px-5 py-4">Slug</th>
+                                <th className="px-5 py-4">Color</th>
                                 <th className="px-5 py-4">Modules</th>
                                 <th className="px-5 py-4">Playbooks</th>
                                 <th className="px-5 py-4">Status</th>
@@ -33,26 +35,32 @@ export default function AdminCategoriesIndex({
                             </tr>
                         </thead>
                         <tbody>
-                            {categories.map((category) => (
+                            {markets.map((market) => (
                                 <tr
-                                    key={category.id}
+                                    key={market.id}
                                     className="border-main-blue/20 border-t"
                                 >
                                     <td className="px-5 py-4 text-white">
-                                        {category.name}
+                                        {market.name}
                                     </td>
                                     <td className="px-5 py-4 text-white/60">
-                                        {category.slug}
+                                        {market.slug}
                                     </td>
                                     <td className="px-5 py-4">
-                                        {category.modules_count ?? 0}
+                                        <TaxonomyBadge
+                                            label={market.color || 'default'}
+                                            color={market.color}
+                                        />
                                     </td>
-                                    <td className="px-5 py-4">
-                                        {category.playbooks_count ?? 0}
+                                    <td className="px-5 py-4 text-white/70">
+                                        {market.modules_count ?? 0}
+                                    </td>
+                                    <td className="px-5 py-4 text-white/70">
+                                        {market.playbooks_count ?? 0}
                                     </td>
                                     <td className="px-5 py-4">
                                         <StatusBadge
-                                            active={category.is_active}
+                                            active={market.is_active}
                                             published="published"
                                         />
                                     </td>
@@ -60,8 +68,8 @@ export default function AdminCategoriesIndex({
                                         <div className="flex gap-2">
                                             <HudButton
                                                 href={route(
-                                                    'admin.playbook-categories.edit',
-                                                    category.id,
+                                                    'admin.markets.edit',
+                                                    market.id,
                                                 )}
                                                 tone="blue"
                                             >
@@ -73,8 +81,8 @@ export default function AdminCategoriesIndex({
                                                 onClick={() =>
                                                     router.delete(
                                                         route(
-                                                            'admin.playbook-categories.destroy',
-                                                            category.id,
+                                                            'admin.markets.destroy',
+                                                            market.id,
                                                         ),
                                                     )
                                                 }

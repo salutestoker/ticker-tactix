@@ -1,34 +1,50 @@
-import { HudButton, HudPanel } from '@/Components/UI/Hud';
+import { IconSelector } from '@/Components/Admin/IconSelector';
+import { HudButton, HudPanel, TaxonomyBadge } from '@/Components/UI/Hud';
 import AdminLayout from '@/Layouts/AdminLayout';
-import type { PlaybookCategory } from '@/types';
+import type { SelectOption, TraderType } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import type { FormEvent, ReactNode } from 'react';
 
-export default function CategoryFormPage({
-    category,
+type TraderTypeForm = {
+    name: string;
+    slug: string;
+    description: string;
+    color: string;
+    icon: string;
+    sort_order: number;
+    is_active: boolean;
+};
+
+export default function TraderTypeFormPage({
+    traderType,
+    colorOptions,
 }: {
-    category: PlaybookCategory | null;
+    traderType: TraderType | null;
+    colorOptions: SelectOption[];
 }) {
-    const { data, setData, post, put, processing, errors } = useForm({
-        name: category?.name || '',
-        slug: category?.slug || '',
-        description: category?.description || '',
-        icon: category?.icon || '',
-        color: category?.color || '',
-        sort_order: category?.sort_order ?? 0,
-        is_active: category?.is_active ?? true,
-    });
+    const { data, setData, post, put, processing, errors } =
+        useForm<TraderTypeForm>({
+            name: traderType?.name || '',
+            slug: traderType?.slug || '',
+            description: traderType?.description || '',
+            color: traderType?.color || colorOptions[0]?.value || '',
+            icon: traderType?.icon || '',
+            sort_order: traderType?.sort_order ?? 0,
+            is_active: traderType?.is_active ?? true,
+        });
 
     function submit(event: FormEvent) {
         event.preventDefault();
-        category
-            ? put(route('admin.playbook-categories.update', category.id))
-            : post(route('admin.playbook-categories.store'));
+        traderType
+            ? put(route('admin.trader-types.update', traderType.id))
+            : post(route('admin.trader-types.store'));
     }
 
     return (
         <AdminLayout>
-            <Head title={category ? 'Edit Category' : 'Create Category'} />
+            <Head
+                title={traderType ? 'Edit Trader Type' : 'Create Trader Type'}
+            />
             <HudPanel className="p-6">
                 <form className="grid gap-5 xl:grid-cols-2" onSubmit={submit}>
                     <Field label="Name" error={errors.name}>
@@ -43,20 +59,36 @@ export default function CategoryFormPage({
                             className={input}
                             value={data.slug}
                             onChange={(e) => setData('slug', e.target.value)}
-                        />
-                    </Field>
-                    <Field label="Icon" error={errors.icon}>
-                        <input
-                            className={input}
-                            value={data.icon}
-                            onChange={(e) => setData('icon', e.target.value)}
+                            placeholder="Auto-generated when empty"
                         />
                     </Field>
                     <Field label="Color" error={errors.color}>
-                        <input
+                        <select
                             className={input}
                             value={data.color}
                             onChange={(e) => setData('color', e.target.value)}
+                        >
+                            {colorOptions.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                    {option.label}
+                                </option>
+                            ))}
+                        </select>
+                        <div className="mt-3">
+                            <TaxonomyBadge
+                                label={
+                                    colorOptions.find(
+                                        (option) => option.value === data.color,
+                                    )?.label || 'Selected color'
+                                }
+                                color={data.color}
+                            />
+                        </div>
+                    </Field>
+                    <Field label="Icon" error={errors.icon}>
+                        <IconSelector
+                            value={data.icon}
+                            onChange={(value) => setData('icon', value)}
                         />
                     </Field>
                     <Field label="Sort Order" error={errors.sort_order}>
@@ -91,7 +123,9 @@ export default function CategoryFormPage({
                     </Field>
                     <div className="xl:col-span-2">
                         <HudButton type="submit" disabled={processing}>
-                            {category ? 'Update Category' : 'Create Category'}
+                            {traderType
+                                ? 'Update Trader Type'
+                                : 'Create Trader Type'}
                         </HudButton>
                     </div>
                 </form>
@@ -103,6 +137,7 @@ export default function CategoryFormPage({
 const input =
     'mt-2 w-full rounded-sm border border-main-blue/35 bg-panel-deep px-4 py-3 text-white outline-none focus:border-seafoam-green';
 const textarea = `${input} min-h-32`;
+
 function Field({
     label,
     error,

@@ -7,11 +7,8 @@ const nav = [
     ['Dashboard', 'admin.dashboard', 'admin.dashboard'],
     ['Modules', 'admin.modules.index', 'admin.modules.*'],
     ['Playbooks', 'admin.playbooks.index', 'admin.playbooks.*'],
-    [
-        'Categories',
-        'admin.playbook-categories.index',
-        'admin.playbook-categories.*',
-    ],
+    ['Markets', 'admin.markets.index', 'admin.markets.*'],
+    ['Trader Types', 'admin.trader-types.index', 'admin.trader-types.*'],
 ] as const;
 
 const navLinkBase =

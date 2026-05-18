@@ -1,5 +1,5 @@
-import { tickerTactixIcons, type TickerTactixIconName } from '@/Design/Icons';
 import { CommandCube } from '@/Design/Icons/command-cube';
+import { iconRegistry, isIconName } from '@/lib/icons';
 
 interface Props {
     name?: string | null;
@@ -7,10 +7,7 @@ interface Props {
 }
 
 export function IconRenderer({ name, className = 'h-6 w-6' }: Props) {
-    const Icon =
-        name && name in tickerTactixIcons
-            ? tickerTactixIcons[name as TickerTactixIconName]
-            : CommandCube;
+    const Icon = isIconName(name) ? iconRegistry[name] : CommandCube;
 
     return <Icon className={className} aria-hidden="true" />;
 }

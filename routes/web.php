@@ -1,9 +1,10 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\MarketController as AdminMarketController;
 use App\Http\Controllers\Admin\ModuleController as AdminModuleController;
-use App\Http\Controllers\Admin\PlaybookCategoryController as AdminPlaybookCategoryController;
 use App\Http\Controllers\Admin\PlaybookController as AdminPlaybookController;
+use App\Http\Controllers\Admin\TraderTypeController as AdminTraderTypeController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PlaybookController;
@@ -39,7 +40,8 @@ Route::middleware(['auth', 'admin'])
         Route::get('/', AdminDashboardController::class)->name('dashboard');
         Route::resource('modules', AdminModuleController::class)->except(['show']);
         Route::resource('playbooks', AdminPlaybookController::class)->except(['show']);
-        Route::resource('playbook-categories', AdminPlaybookCategoryController::class)->except(['show']);
+        Route::resource('markets', AdminMarketController::class)->except(['show']);
+        Route::resource('trader-types', AdminTraderTypeController::class)->except(['show']);
     });
 
 require __DIR__.'/auth.php';

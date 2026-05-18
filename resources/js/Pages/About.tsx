@@ -32,7 +32,7 @@ export default function About() {
                         ],
                         [
                             'Deployment Ready',
-                            'Playbooks convert module output into a framework matched to market, hold time, and access tier.',
+                            'Playbooks convert module output into execution guidance matched to market, hold time, and access tier.',
                         ],
                     ].map(([title, copy]) => (
                         <HudPanel key={title} className="p-7">
