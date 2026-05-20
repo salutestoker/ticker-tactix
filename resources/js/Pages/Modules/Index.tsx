@@ -3,6 +3,7 @@ import {
     AccessBadge,
     Eyebrow,
     GradientHeading,
+    HudButton,
     HudPanel,
     TaxonomyBadge,
 } from '@/Components/UI/Hud';
@@ -19,63 +20,133 @@ export default function ModulesIndex({
         <PublicLayout>
             <Head title="Modules" />
             <PublicHeroFrame>
+                <div className="relative z-10 w-[102vw] translate-x-[-2%] -translate-y-[18%] mix-blend-lighten">
+                    <img
+                        src="/design/assets/images/bg-modules.png"
+                        className=""
+                        alt=""
+                    />
+                </div>
                 <div className="mx-auto max-w-7xl">
                     <Eyebrow>System Modules</Eyebrow>
                     <GradientHeading className="text-center">
                         Module Matrix
                     </GradientHeading>
-                    <div className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                        {modules.map((module) => (
-                            <Link
-                                key={module.id}
-                                href={route('modules.show', module.slug)}
-                            >
-                                <HudPanel className="hover:border-seafoam-green/60 h-full p-6 transition hover:shadow-[0_0_36px_rgba(0,250,146,0.16)]">
-                                    <div className="flex items-start gap-4">
-                                        <div className="border-seafoam-green/35 bg-seafoam-green/10 text-seafoam-green rounded-md border p-3">
-                                            <IconRenderer
-                                                name={module.icon}
-                                                className="h-8 w-8"
-                                            />
-                                        </div>
-                                        <div>
-                                            <h2 className="font-heading text-lg tracking-[0.1em] text-white uppercase">
-                                                {module.title}
-                                            </h2>
-                                            <p className="mt-2 text-sm text-white/55">
-                                                {module.market?.name ||
-                                                    'No market assigned'}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <p className="mt-5 leading-7 text-white/68">
-                                        {module.description}
-                                    </p>
-                                    <div className="mt-5 flex flex-wrap gap-2">
-                                        {(
-                                            module.trader_types ??
-                                            module.traderTypes ??
-                                            []
-                                        ).map((type: TraderType) => (
-                                            <TaxonomyBadge
-                                                key={type.id}
-                                                label={type.name}
-                                                color={type.color}
-                                            />
-                                        ))}
-                                    </div>
-                                    <div className="mt-6 flex items-center justify-between">
-                                        <span className="font-heading text-violet-light text-sm">
-                                            {formatVersion(module.version)}
-                                        </span>
-                                        <AccessBadge access={module.access} />
-                                    </div>
-                                </HudPanel>
-                            </Link>
-                        ))}
-                    </div>
+                    <HudPanel className="mt-10 overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full border-collapse text-left text-sm">
+                                <thead className="font-heading text-seafoam-green text-xs tracking-[0.14em] uppercase">
+                                    <tr>
+                                        <th className="px-6 py-5">Module</th>
+                                        <th className="px-6 py-5">
+                                            What It Does
+                                        </th>
+                                        <th className="px-6 py-5">
+                                            Trader Type
+                                        </th>
+                                        <th className="px-6 py-5">Market</th>
+                                        <th className="px-6 py-5">Version</th>
+                                        <th className="px-6 py-5">Access</th>
+                                        <th className="px-6 py-5">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {modules.map((module) => (
+                                        <tr
+                                            key={module.id}
+                                            className="border-main-blue/20 border-t"
+                                        >
+                                            <td className="px-6 py-5">
+                                                <Link
+                                                    href={route(
+                                                        'modules.show',
+                                                        module.slug,
+                                                    )}
+                                                    className="text-seafoam-green flex items-center gap-4 hover:text-white"
+                                                >
+                                                    <IconRenderer
+                                                        name={module.icon}
+                                                        className="h-8 w-8"
+                                                    />
+                                                    <span className="font-heading text-sm tracking-[0.08em] uppercase">
+                                                        {module.title}
+                                                    </span>
+                                                </Link>
+                                            </td>
+                                            <td className="px-6 py-5 text-white/75">
+                                                {module.description}
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <TaxonomyList
+                                                    types={
+                                                        module.trader_types ??
+                                                        module.traderTypes ??
+                                                        []
+                                                    }
+                                                />
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                {module.market ? (
+                                                    <TaxonomyBadge
+                                                        label={
+                                                            module.market.name
+                                                        }
+                                                        color={
+                                                            module.market.color
+                                                        }
+                                                    />
+                                                ) : (
+                                                    <span className="text-white/45">
+                                                        —
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td className="text-seafoam-green px-6 py-5">
+                                                {formatVersion(module.version)}
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <AccessBadge
+                                                    access={module.access}
+                                                />
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <HudButton
+                                                    href={route(
+                                                        'modules.show',
+                                                        module.slug,
+                                                    )}
+                                                    tone="violet"
+                                                >
+                                                    {module.action_label ||
+                                                        'Inspect'}
+                                                </HudButton>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </HudPanel>
                 </div>
             </PublicHeroFrame>
         </PublicLayout>
+    );
+}
+
+function TaxonomyList({ types }: { types: TraderType[] }) {
+    if (!types.length) {
+        return <span className="text-white/45">—</span>;
+    }
+
+    return (
+        <div className="flex flex-wrap gap-2">
+            {types.map((type) => (
+                <TaxonomyBadge
+                    key={type.id}
+                    label={type.name}
+                    color={type.color}
+                />
+            ))}
+        </div>
     );
 }

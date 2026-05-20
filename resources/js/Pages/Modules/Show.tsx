@@ -23,6 +23,13 @@ export default function ModulesShow({
         <PublicLayout>
             <Head title={module.meta_title || module.title} />
             <PublicHeroFrame>
+                <div className="relative z-10 w-[102vw] translate-x-[-2%] -translate-y-[18%] mix-blend-lighten">
+                    <img
+                        src="/design/assets/images/bg-playbooks.png"
+                        className=""
+                        alt=""
+                    />
+                </div>
                 <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1fr_360px]">
                     <div>
                         <div className="text-seafoam-green mb-6 flex items-center gap-4">

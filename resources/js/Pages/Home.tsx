@@ -20,23 +20,23 @@ interface Props extends PageProps {
 
 const systemCards = [
     {
-        title: 'Backtested System Logic',
+        title: 'Backtested Framework Logic',
         description:
-            'Rules-based logic validated through historical testing and controlled deployment.',
+            'Rules-based playbook architecture shaped through historical testing and disciplined deployment.',
         icon: 'backtested-brain-circuit',
         tone: 'violet',
     },
     {
-        title: 'Structured Command Center',
+        title: 'Structured Execution Layer',
         description:
-            'Centralized intelligence that processes, validates, and coordinates all modules.',
+            'A coordinated framework that translates market context into repeatable execution.',
         icon: 'command-cube',
         tone: 'seafoam',
     },
     {
         title: 'Versioned Access Model',
         description:
-            'Modules are released in versions with controlled access and ongoing updates.',
+            'Playbooks are delivered through controlled versions with curated access and ongoing refinement.',
         icon: 'versioned-layers',
         tone: 'violet',
     },
@@ -46,7 +46,7 @@ export default function Home({ modules, playbooks }: Props) {
     return (
         <PublicLayout>
             <Head title="Trade With Structure, Not Emotion" />
-            <section className="relative min-h-[980px] overflow-hidden px-6 py-28">
+            <section className="relative min-h-[980px] overflow-hidden px-6 pt-23 pb-28">
                 <div className="absolute inset-0 h-[50vw] bg-[url('/design/assets/images/bg-hero.jpg')] bg-cover bg-bottom opacity-95 md:h-[50vh]" />
 
                 <img
@@ -58,13 +58,13 @@ export default function Home({ modules, playbooks }: Props) {
                 <div className="via-midnight-blue/80 to-midnight-blue absolute inset-0 bg-gradient-to-b from-transparent" />
                 <div className="relative mx-auto flex max-w-7xl flex-col items-center text-center">
                     <img
-                        className="mt-16 h-32 w-auto object-contain sm:h-40"
+                        className="mt-1 h-40 w-auto max-w-none md:h-80"
                         src="/design/assets/images/logo-ticker-tactix-2026.png"
                         alt="Ticker Tactix"
                     />
                     <div className="mt-1">
                         <h1 className="text-seafoam-green font-heading text-5xl leading-[0.8] font-semibold uppercase sm:text-7xl lg:text-8xl">
-                            <div>
+                            <div style={{ lineHeight: 0.4 }}>
                                 <span className="brand-gradient-text-reverse font-heading text-main-blue text-2xl tracking-[0.12em] uppercase sm:text-4xl">
                                     Trade With
                                 </span>
@@ -76,66 +76,84 @@ export default function Home({ modules, playbooks }: Props) {
                                 </span>
                             </div>
                         </h1>
+                        {/*<p className="font-mono-display mx-auto mt-8 max-w-2xl text-lg leading-8 tracking-[0.12em] text-white/80 uppercase">*/}
+                        {/*    A rules-based market operating system for traders*/}
+                        {/*    who value structure over signals.*/}
+                        {/*</p>*/}
+
                         <p className="font-mono-display mx-auto mt-8 max-w-2xl text-lg leading-8 tracking-[0.12em] text-white/80 uppercase">
                             A rules-based market operating system for traders
                             who value structure over signals.
                         </p>
+                        <p className="mx-auto mt-4 max-w-2xl max-w-[500px] text-base text-white/80">
+                            Custom indicators, structured playbooks, and
+                            disciplined market frameworks for traders who want
+                            decision support, not hype.
+                        </p>
+
                         <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
-                            <HudButton
-                                href={route('modules.index')}
-                                variant="solid"
-                            >
-                                Explore Modules
-                            </HudButton>
-                            <HudButton
-                                href={route('playbooks.index')}
-                                tone="violet"
-                                variant="solid"
-                            >
-                                Explore Playbooks
-                            </HudButton>
+                            {/*<HudButton*/}
+                            {/*    href={route('modules.index')}*/}
+                            {/*    variant="solid"*/}
+                            {/*>*/}
+                            {/*    Explore Modules*/}
+                            {/*</HudButton>*/}
+                            {/*<HudButton*/}
+                            {/*    href={route('playbooks.index')}*/}
+                            {/*    tone="violet"*/}
+                            {/*    variant="solid"*/}
+                            {/*>*/}
+                            {/*    Explore Playbooks*/}
+                            {/*</HudButton>*/}
                         </div>
                     </div>
 
                     <div className="mt-36 w-full">
-                        <Eyebrow>System Overview</Eyebrow>
+                        <Eyebrow>Rules-Based Market Operations</Eyebrow>
                         <GradientHeading className="mx-auto max-w-5xl">
                             <span className="text-3xl sm:text-5xl">
-                                How The Ticker-Tactix System Constrains
-                                Decisions
+                                How Ticker-Tactix brings structure to decisions.
                             </span>
                         </GradientHeading>
                         <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-white/75">
-                            Market analysis flows from directional bias, to
-                            participation, to volatility assessment, into
-                            structured playbook execution.
+                            Ticker-Tactix organizes market decisions into
+                            modules and deployable playbooks so traders can
+                            reduce emotional override, constrain risk, and
+                            repeat the same decision process under pressure.
+                            Rather than starting with excitement, opinion, or
+                            impulse, the system starts with structure. Each
+                            layer is designed to narrow the field of possible
+                            decisions before execution is ever considered.
                         </p>
-
                         <img
                             src="/design/assets/images/system.jpg"
-                            className="mt-5 mix-blend-lighten"
+                            className="mt-6 hidden mix-blend-lighten"
                             alt=""
                         />
                     </div>
+                </div>
+                <div className="relative z-10 mt-6 w-[102vw] translate-x-[-2%] py-5 mix-blend-lighten">
+                    <img
+                        src="/design/assets/images/bg-home-how-ticker-tactix-works.png"
+                        className=""
+                        alt=""
+                    />
                 </div>
             </section>
 
             <section className="from-main-blue-bright to-midnight-blue bg-gradient-to-b px-6 py-24">
                 <div className="mx-auto max-w-7xl">
                     <Eyebrow>System Modules</Eyebrow>
-                    <GradientHeading className="text-center">
-                        Module Matrix
-                    </GradientHeading>
+                    <h2 className="font-heading text-center text-4xl leading-none font-semibold uppercase sm:text-5xl lg:text-6xl">
+                        <span className="text-violet">Module</span>{' '}
+                        <span className="text-seafoam-green">Matrix</span>
+                    </h2>
                     <p className="mx-auto mt-5 max-w-2xl text-center text-lg text-white/75">
                         Specialized components that power the Ticker-Tactix
                         system. Each module has a unique role in producing
                         high-probability signals.
                     </p>
-                    <div className="mt-12 grid gap-6 lg:grid-cols-3">
-                        {systemCards.map((card) => (
-                            <SystemInfoCard key={card.title} {...card} />
-                        ))}
-                    </div>
+
                     <HudPanel className="mt-10 overflow-hidden">
                         <div className="overflow-x-auto">
                             <table className="min-w-full border-collapse text-left text-sm">
@@ -236,14 +254,19 @@ export default function Home({ modules, playbooks }: Props) {
 
             <section className="bg-midnight-blue px-6 py-24">
                 <div className="mx-auto max-w-7xl">
-                    <Eyebrow>Playbook Access</Eyebrow>
+                    <Eyebrow>System Playbooks</Eyebrow>
                     <GradientHeading className="text-center">
-                        Deployment Matrix
+                        Playbook Matrix
                     </GradientHeading>
-                    <p className="mx-auto mt-5 max-w-2xl text-center text-lg text-white/75">
+                    <p className="mx-auto mt-5 max-w-2xl max-w-[400px] text-center text-lg text-white/75">
                         Choose the playbook that matches your market, holding
                         period, and execution speed.
                     </p>
+                    <div className="mt-12 grid gap-6 px-10 lg:grid-cols-3">
+                        {systemCards.map((card) => (
+                            <SystemInfoCard key={card.title} {...card} />
+                        ))}
+                    </div>
                     <HudPanel className="mt-12 overflow-hidden">
                         <div className="overflow-x-auto">
                             <table className="min-w-full text-left text-sm">
@@ -257,7 +280,6 @@ export default function Home({ modules, playbooks }: Props) {
                                         <th className="px-6 py-5">Access</th>
                                         <th className="px-6 py-5">Pace</th>
                                         <th className="px-6 py-5">Best For</th>
-                                        <th className="px-6 py-5">Avg Hold</th>
                                         <th className="px-6 py-5">Price</th>
                                         <th className="px-6 py-5">Action</th>
                                     </tr>
@@ -314,10 +336,6 @@ export default function Home({ modules, playbooks }: Props) {
                                             </td>
                                             <td className="px-6 py-5 text-white/65">
                                                 {playbook.best_for}
-                                            </td>
-                                            <td className="px-6 py-5 text-white/70">
-                                                {playbook.average_hold_time ??
-                                                    '—'}
                                             </td>
                                             <td className="font-heading text-seafoam-green px-6 py-5">
                                                 {playbook.price || '—'}

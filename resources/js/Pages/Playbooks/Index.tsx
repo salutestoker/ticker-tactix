@@ -18,10 +18,17 @@ export default function PlaybooksIndex({
         <PublicLayout>
             <Head title="Playbooks" />
             <PublicHeroFrame>
+                <div className="relative z-10 w-[102vw] translate-x-[-2%] -translate-y-[18%] mix-blend-lighten">
+                    <img
+                        src="/design/assets/images/bg-playbooks.png"
+                        className=""
+                        alt=""
+                    />
+                </div>
                 <div className="mx-auto max-w-7xl">
                     <Eyebrow>Playbook Access</Eyebrow>
                     <GradientHeading className="text-center">
-                        Deployment Matrix
+                        Playbook Matrix
                     </GradientHeading>
                     <HudPanel className="mt-12 overflow-hidden">
                         <div className="overflow-x-auto">
@@ -35,7 +42,6 @@ export default function PlaybooksIndex({
                                         <th className="px-6 py-5">Access</th>
                                         <th className="px-6 py-5">Market</th>
                                         <th className="px-6 py-5">Best For</th>
-                                        <th className="px-6 py-5">Avg Hold</th>
                                         <th className="px-6 py-5">Price</th>
                                         <th className="px-6 py-5">Action</th>
                                     </tr>
@@ -101,10 +107,6 @@ export default function PlaybooksIndex({
                                             </td>
                                             <td className="px-6 py-5 text-white/65">
                                                 {playbook.best_for}
-                                            </td>
-                                            <td className="px-6 py-5 text-white/70">
-                                                {playbook.average_hold_time ??
-                                                    '—'}
                                             </td>
                                             <td className="font-heading text-seafoam-green px-6 py-5">
                                                 {playbook.price || '—'}
