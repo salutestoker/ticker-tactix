@@ -109,7 +109,15 @@ export default function Home({ modules, playbooks }: Props) {
                         </div>
                     </div>
 
-                    <div className="mt-36 w-full">
+                    <div className="relative z-10 mt-6 w-full py-5 mix-blend-lighten">
+                        <img
+                            src="/design/assets/images/bg-home-how-ticker-tactix-works.png"
+                            className="mx-auto"
+                            alt=""
+                        />
+                    </div>
+
+                    <div className="mt-10 w-full">
                         <Eyebrow>Rules-Based Market Operations</Eyebrow>
                         <GradientHeading className="mx-auto max-w-5xl">
                             <span className="text-3xl sm:text-5xl">
@@ -132,13 +140,6 @@ export default function Home({ modules, playbooks }: Props) {
                             alt=""
                         />
                     </div>
-                </div>
-                <div className="relative z-10 mt-6 w-full py-5 mix-blend-lighten">
-                    <img
-                        src="/design/assets/images/bg-home-how-ticker-tactix-works.png"
-                        className="mx-auto"
-                        alt=""
-                    />
                 </div>
             </section>
 
