@@ -101,6 +101,17 @@ Important fields:
 - `title`
 - `slug`
 - `description`
+- `purpose`
+- `layer`
+- `key_output`
+- `trading_pace`
+- `short_name`
+- `price`
+- `module_overview`
+- `core_features` JSON array of feature rows
+- `customization_options` JSON array of bullet strings
+- `best_used_for` JSON array of bullet strings
+- `summary`
 - `version` as numeric decimal without the `v` prefix
 - `access`
 - `action_label`
@@ -252,6 +263,8 @@ The registry must include `turtle`, `bunny`, and all existing Ticker Tactix icon
 Module forms should include:
 
 - title, slug, description
+- purpose, layer, key output, trading pace, short name, price
+- module overview, core features, customization options, best used for, summary
 - Trader Type multi-select
 - Market select
 - Access enum select
@@ -284,6 +297,7 @@ Market forms include name, slug, description, color picker, sort order, and acti
 - Market chips use taxonomy colors.
 - Access badges display the enum value.
 - Module versions display as `v{version}`.
+- Module detail pages use the rich detail schema for the main module card, sidebar metadata, and related module cards.
 - Playbook price displays as raw text.
 - Removed fields must not be displayed.
 

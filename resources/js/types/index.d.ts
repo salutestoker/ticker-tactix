@@ -39,6 +39,13 @@ export interface TraderType {
     playbooks_count?: number;
 }
 
+export interface ModuleFeature {
+    label: string;
+    description?: string | null;
+    icon?: string | null;
+    tone?: string | null;
+}
+
 export interface Module {
     id: number;
     market_id: number;
@@ -46,6 +53,17 @@ export interface Module {
     title: string;
     slug: string;
     description?: string | null;
+    purpose?: string | null;
+    layer?: string | null;
+    key_output?: string | null;
+    trading_pace?: string | null;
+    short_name?: string | null;
+    price?: string | null;
+    module_overview?: string | null;
+    core_features?: ModuleFeature[] | null;
+    customization_options?: string[] | null;
+    best_used_for?: string[] | null;
+    summary?: string | null;
     version?: number | string | null;
     access: AccessValue;
     action_label?: string | null;

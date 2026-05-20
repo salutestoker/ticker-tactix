@@ -82,6 +82,8 @@ class DatabaseSeeder extends Seeder
             ['Candle Color', 'Simplifies candle-state interpretation by visually classifying bar behavior based on the module’s directional logic.', 'NYSE PRO; CRYPTO PRO', 'All', AccessLevel::InviteOnlyIndicatorDiscord->value, 'v1.11', 'Explore Module', 'candle-color'],
         ];
 
+        $seededModules = collect();
+
         foreach ($moduleRows as $index => [$title, $description, $traderTypeList, $marketName, $access, $version, $actionLabel, $icon]) {
             $module = Module::create([
                 'market_id' => $markets[$marketName]->id,
@@ -89,6 +91,7 @@ class DatabaseSeeder extends Seeder
                 'title' => $title,
                 'slug' => Str::slug($title),
                 'description' => $description,
+                ...$this->moduleDetails($title, $description),
                 'version' => ltrim($version, 'v'),
                 'access' => $access,
                 'action_label' => $actionLabel,
@@ -99,6 +102,30 @@ class DatabaseSeeder extends Seeder
             ]);
 
             $module->traderTypes()->sync($this->traderTypeIds($traderTypes, $traderTypeList));
+            $seededModules[$title] = $module;
+        }
+
+        $relatedModuleMap = [
+            'Momentum Cycles' => ['Sequence Pressure', 'Long WAP', 'Trend Tracer', 'Pulse'],
+            'Sequence Pressure' => ['Momentum Cycles', 'Trend Tracer', 'Range Rails', 'Candle Color'],
+            'Trend Tracer' => ['Momentum Cycles', 'Sequence Pressure', 'Tide', 'AAVWAP'],
+            'Crypto Velocity Stats' => ['Crypto Info Box', 'Crypto Info Line', 'Pulse', 'Range Rails'],
+            'Pulse' => ['Momentum Cycles', 'Tide', 'Range Rails', 'Candle Color'],
+            'Range Rails' => ['Pulse', 'AAVWAP', 'Long WAP', 'Candle Color'],
+        ];
+
+        foreach ($relatedModuleMap as $moduleTitle => $relatedTitles) {
+            if (! isset($seededModules[$moduleTitle])) {
+                continue;
+            }
+
+            $seededModules[$moduleTitle]->relatedModules()->sync(
+                collect($relatedTitles)
+                    ->filter(fn (string $title): bool => isset($seededModules[$title]))
+                    ->map(fn (string $title): int => $seededModules[$title]->id)
+                    ->values()
+                    ->all(),
+            );
         }
 
         $playbookRows = [
@@ -147,5 +174,132 @@ class DatabaseSeeder extends Seeder
             ->map(fn (string $name): int => $traderTypes[$name]->id)
             ->values()
             ->all();
+    }
+
+    /**
+     * @return array{
+     *     purpose: string,
+     *     layer: string,
+     *     key_output: string,
+     *     trading_pace: string,
+     *     short_name: string,
+     *     price: string,
+     *     module_overview: string,
+     *     core_features: list<array{label: string, description: string, icon: string, tone: string}>,
+     *     customization_options: list<string>,
+     *     best_used_for: list<string>,
+     *     summary: string
+     * }
+     */
+    private function moduleDetails(string $title, string $description): array
+    {
+        $shortName = $this->shortModuleName($title);
+
+        $defaults = [
+            'purpose' => $this->modulePurpose($title),
+            'layer' => 'Classification Layer',
+            'key_output' => $this->moduleKeyOutput($title),
+            'trading_pace' => 'ALL',
+            'short_name' => $shortName,
+            'price' => '$50/mo',
+            'module_overview' => "Ticker-Tactix {$title} ({$shortName}) translates live market behavior into a structured visual layer that helps traders quickly understand context, pressure, and directional quality without losing focus on price action.",
+            'core_features' => [
+                ['label' => 'Signal Layer', 'description' => 'Highlights the module’s primary read so the current state is easy to identify at a glance.', 'icon' => 'trend-tracer', 'tone' => 'blue'],
+                ['label' => 'Context Filter', 'description' => 'Adds structure around raw movement so stronger and weaker conditions are easier to separate.', 'icon' => 'direction-target', 'tone' => 'violet'],
+                ['label' => 'Visual State', 'description' => 'Uses color and compact HUD cues to make shifts in behavior immediately readable.', 'icon' => 'pulse', 'tone' => 'green'],
+                ['label' => 'Adaptive Background', 'description' => 'Optional shading reacts to the dominant state for faster trend and risk recognition.', 'icon' => 'market-data-bars', 'tone' => 'gold'],
+            ],
+            'customization_options' => [
+                'Toggle visibility of supporting lines, markers, and background states.',
+                'Works across supported symbols and timeframes.',
+            ],
+            'best_used_for' => [
+                'Confirming when market conditions support the current trade idea.',
+                'Reducing noisy decision-making with a consistent visual framework.',
+                'Adding multi-timeframe context before execution.',
+            ],
+            'summary' => "Ticker-Tactix {$title} gives traders a focused way to read market structure, turning scattered price behavior into an organized module view for cleaner decision support.",
+        ];
+
+        if ($title !== 'Momentum Cycles') {
+            return $defaults;
+        }
+
+        return [
+            ...$defaults,
+            'purpose' => 'Direction',
+            'key_output' => 'Momentum Phase',
+            'module_overview' => 'Ticker-Tactix Momentum Cycles (T-T:MC) translates raw market motion into an elegant visual language of acceleration, deceleration, and reversal. By blending short and medium-term velocity measurements, it forms a momentum map that highlights the balance between force and direction inside every trend. Each cycle is rendered through adaptive color transitions, cross markers, and optional background shifts that make changes in market energy unmistakable at a glance.',
+            'core_features' => [
+                ['label' => 'Signal Line', 'description' => 'The heart of the indicator, capturing real-time changes in price strength and directional bias.', 'icon' => 'trend-tracer', 'tone' => 'blue'],
+                ['label' => 'Momentum Line', 'description' => 'A smoothed trail of recent momentum, providing structure and flow to the cycles.', 'icon' => 'momentum-cycles', 'tone' => 'violet'],
+                ['label' => 'Histogram Display', 'description' => 'Visualizes bullish and bearish phases, color-coded to distinguish rising and fading energy in both bullish and bearish zones.', 'icon' => 'market-data-bars', 'tone' => 'green'],
+                ['label' => 'Dynamic Background', 'description' => 'Optional shading reacts instantly to the prevailing momentum phase for immediate trend context.', 'icon' => 'data-pipeline', 'tone' => 'gold'],
+            ],
+            'customization_options' => [
+                'Toggle visibility of lines, histogram, dots, and background for a clean or detailed look.',
+                'Works across all symbols and timeframes.',
+            ],
+            'best_used_for' => [
+                'Identifying early momentum shifts before trend confirmation.',
+                'Visualizing cycle transitions to refine entry and exit timing.',
+                'Enhancing multi-timeframe confluence and directional confidence.',
+            ],
+            'summary' => 'Ticker-Tactix Momentum Cycles gives traders a visual framework to sense the rhythm of price action, transforming market noise into a readable cycle of strength and release.',
+        ];
+    }
+
+    private function shortModuleName(string $title): string
+    {
+        return match ($title) {
+            'Momentum Cycles' => 'T-T:MC',
+            'Sequence Pressure' => 'T-T:SP',
+            'Trend Tracer' => 'T-T:TT',
+            'Crypto Velocity Stats' => 'T-T:CVS',
+            'Info Box' => 'T-T:IB',
+            'Info Line' => 'T-T:IL',
+            'Crypto Info Box' => 'T-T:CIB',
+            'Crypto Info Line' => 'T-T:CIL',
+            'Pulse' => 'T-T:PULSE',
+            'Tide' => 'T-T:TIDE',
+            'Range Rails' => 'T-T:RR',
+            'AAVWAP' => 'T-T:AAVWAP',
+            'Long WAP' => 'T-T:LWAP',
+            'Candle Color' => 'T-T:CC',
+            default => 'T-T:'.Str::upper(Str::of($title)->replaceMatches('/[^A-Za-z0-9]+/', '')->substr(0, 4)),
+        };
+    }
+
+    private function modulePurpose(string $title): string
+    {
+        return match ($title) {
+            'Momentum Cycles', 'Trend Tracer', 'Candle Color' => 'Direction',
+            'Sequence Pressure' => 'Pressure',
+            'Crypto Velocity Stats' => 'Velocity',
+            'Info Box', 'Info Line', 'Crypto Info Box', 'Crypto Info Line' => 'Context',
+            'Pulse', 'Tide' => 'Participation',
+            'Range Rails' => 'Range Structure',
+            'AAVWAP', 'Long WAP' => 'Value Reference',
+            default => 'Decision Support',
+        };
+    }
+
+    private function moduleKeyOutput(string $title): string
+    {
+        return match ($title) {
+            'Momentum Cycles' => 'Momentum Phase',
+            'Sequence Pressure' => 'Pressure State',
+            'Trend Tracer' => 'Trend Posture',
+            'Crypto Velocity Stats' => 'Velocity State',
+            'Info Box', 'Info Line' => 'Market HUD',
+            'Crypto Info Box', 'Crypto Info Line' => 'Crypto HUD',
+            'Pulse' => 'Participation Quality',
+            'Tide' => 'Market Current',
+            'Range Rails' => 'Range Rails',
+            'AAVWAP' => 'Anchored Value',
+            'Long WAP' => 'Long-Term Value',
+            'Candle Color' => 'Candle State',
+            default => 'Module Signal',
+        };
     }
 }

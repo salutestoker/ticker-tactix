@@ -16,9 +16,6 @@ export default function PublicLayout({ children }: PropsWithChildren) {
     const menuRef = useRef<HTMLDivElement>(null);
     const menuButtonRef = useRef<HTMLButtonElement>(null);
 
-    const accountHref = auth.user ? route('dashboard') : route('login');
-    const accountLabel = auth.user ? 'Dashboard' : 'Login';
-
     useEffect(() => {
         if (!isMenuOpen) {
             return;

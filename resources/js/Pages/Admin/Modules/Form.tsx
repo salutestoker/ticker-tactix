@@ -13,6 +13,17 @@ type ModuleForm = {
     title: string;
     slug: string;
     description: string;
+    purpose: string;
+    layer: string;
+    key_output: string;
+    trading_pace: string;
+    short_name: string;
+    price: string;
+    module_overview: string;
+    core_features_text: string;
+    customization_options_text: string;
+    best_used_for_text: string;
+    summary: string;
     version: string;
     access: string;
     action_label: string;
@@ -52,6 +63,19 @@ export default function ModuleFormPage({
             title: module?.title || '',
             slug: module?.slug || '',
             description: module?.description || '',
+            purpose: module?.purpose || '',
+            layer: module?.layer || '',
+            key_output: module?.key_output || '',
+            trading_pace: module?.trading_pace || '',
+            short_name: module?.short_name || '',
+            price: module?.price || '',
+            module_overview: module?.module_overview || '',
+            core_features_text: coreFeaturesToText(module?.core_features),
+            customization_options_text: linesToText(
+                module?.customization_options,
+            ),
+            best_used_for_text: linesToText(module?.best_used_for),
+            summary: module?.summary || '',
             version: module?.version ? String(module.version) : '',
             access:
                 module?.access ||
@@ -151,6 +175,54 @@ export default function ModuleFormPage({
                             }
                         />
                     </Field>
+                    <Field label="Purpose" error={errors.purpose}>
+                        <input
+                            className={input}
+                            value={data.purpose}
+                            onChange={(e) => setData('purpose', e.target.value)}
+                        />
+                    </Field>
+                    <Field label="Layer" error={errors.layer}>
+                        <input
+                            className={input}
+                            value={data.layer}
+                            onChange={(e) => setData('layer', e.target.value)}
+                        />
+                    </Field>
+                    <Field label="Key Output" error={errors.key_output}>
+                        <input
+                            className={input}
+                            value={data.key_output}
+                            onChange={(e) =>
+                                setData('key_output', e.target.value)
+                            }
+                        />
+                    </Field>
+                    <Field label="Trading Pace" error={errors.trading_pace}>
+                        <input
+                            className={input}
+                            value={data.trading_pace}
+                            onChange={(e) =>
+                                setData('trading_pace', e.target.value)
+                            }
+                        />
+                    </Field>
+                    <Field label="Short Name" error={errors.short_name}>
+                        <input
+                            className={input}
+                            value={data.short_name}
+                            onChange={(e) =>
+                                setData('short_name', e.target.value)
+                            }
+                        />
+                    </Field>
+                    <Field label="Price" error={errors.price}>
+                        <input
+                            className={input}
+                            value={data.price}
+                            onChange={(e) => setData('price', e.target.value)}
+                        />
+                    </Field>
                     <Field label="Sort Order" error={errors.sort_order}>
                         <input
                             className={input}
@@ -223,6 +295,65 @@ export default function ModuleFormPage({
                             onChange={(e) =>
                                 setData('description', e.target.value)
                             }
+                        />
+                    </Field>
+                    <Field
+                        label="Module Overview"
+                        error={errors.module_overview}
+                    >
+                        <textarea
+                            className={textarea}
+                            value={data.module_overview}
+                            onChange={(e) =>
+                                setData('module_overview', e.target.value)
+                            }
+                        />
+                    </Field>
+                    <Field
+                        label="Core Features"
+                        error={formErrors.core_features_text}
+                    >
+                        <textarea
+                            className={textarea}
+                            value={data.core_features_text}
+                            onChange={(e) =>
+                                setData('core_features_text', e.target.value)
+                            }
+                            placeholder="Feature title | Feature description | icon-key | tone"
+                        />
+                    </Field>
+                    <Field
+                        label="Customization Options"
+                        error={formErrors.customization_options_text}
+                    >
+                        <textarea
+                            className={textarea}
+                            value={data.customization_options_text}
+                            onChange={(e) =>
+                                setData(
+                                    'customization_options_text',
+                                    e.target.value,
+                                )
+                            }
+                        />
+                    </Field>
+                    <Field
+                        label="Best Used For"
+                        error={formErrors.best_used_for_text}
+                    >
+                        <textarea
+                            className={textarea}
+                            value={data.best_used_for_text}
+                            onChange={(e) =>
+                                setData('best_used_for_text', e.target.value)
+                            }
+                        />
+                    </Field>
+                    <Field label="Summary" error={errors.summary}>
+                        <textarea
+                            className={textarea}
+                            value={data.summary}
+                            onChange={(e) => setData('summary', e.target.value)}
                         />
                     </Field>
                     <Field label="Meta Title" error={errors.meta_title}>
@@ -368,4 +499,21 @@ function toggleId(selected: number[], id: number) {
     return selected.includes(id)
         ? selected.filter((selectedId) => selectedId !== id)
         : [...selected, id];
+}
+
+function coreFeaturesToText(features?: Module['core_features']) {
+    return (features ?? [])
+        .map((feature) =>
+            [
+                feature.label,
+                feature.description,
+                feature.icon ?? '',
+                feature.tone ?? '',
+            ].join(' | '),
+        )
+        .join('\n');
+}
+
+function linesToText(lines?: string[] | null) {
+    return (lines ?? []).join('\n');
 }

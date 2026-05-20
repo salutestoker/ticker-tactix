@@ -38,7 +38,13 @@ class ModuleController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $this->validated($request);
-        $module = Module::create(Arr::except($data, ['trader_type_ids', 'related_module_ids']));
+        $module = Module::create(Arr::except($data, [
+            'trader_type_ids',
+            'related_module_ids',
+            'core_features_text',
+            'customization_options_text',
+            'best_used_for_text',
+        ]));
 
         $module->traderTypes()->sync($data['trader_type_ids']);
         $module->relatedModules()->sync($data['related_module_ids'] ?? []);
@@ -61,7 +67,13 @@ class ModuleController extends Controller
     {
         $data = $this->validated($request, $module);
 
-        $module->update(Arr::except($data, ['trader_type_ids', 'related_module_ids']));
+        $module->update(Arr::except($data, [
+            'trader_type_ids',
+            'related_module_ids',
+            'core_features_text',
+            'customization_options_text',
+            'best_used_for_text',
+        ]));
         $module->traderTypes()->sync($data['trader_type_ids']);
         $module->relatedModules()->sync($data['related_module_ids'] ?? []);
 
@@ -91,6 +103,17 @@ class ModuleController extends Controller
             'title' => ['required', 'string', 'max:255'],
             'slug' => ['nullable', 'string', 'max:255', Rule::unique('modules', 'slug')->ignore($module)],
             'description' => ['nullable', 'string'],
+            'purpose' => ['nullable', 'string', 'max:255'],
+            'layer' => ['nullable', 'string', 'max:255'],
+            'key_output' => ['nullable', 'string', 'max:255'],
+            'trading_pace' => ['nullable', 'string', 'max:255'],
+            'short_name' => ['nullable', 'string', 'max:255'],
+            'price' => ['nullable', 'string', 'max:255'],
+            'module_overview' => ['nullable', 'string'],
+            'core_features_text' => ['nullable', 'string'],
+            'customization_options_text' => ['nullable', 'string'],
+            'best_used_for_text' => ['nullable', 'string'],
+            'summary' => ['nullable', 'string'],
             'version' => ['nullable', 'numeric', 'min:0'],
             'access' => ['required', Rule::enum(AccessLevel::class)],
             'action_label' => ['nullable', 'string', 'max:255'],
@@ -104,7 +127,45 @@ class ModuleController extends Controller
 
         $data['slug'] = $data['slug'] ?: Str::slug($data['title']);
         $data['related_module_ids'] = array_values(array_unique($data['related_module_ids'] ?? []));
+        $data['core_features'] = $this->parseCoreFeatures($data['core_features_text'] ?? '');
+        $data['customization_options'] = $this->parseLines($data['customization_options_text'] ?? '');
+        $data['best_used_for'] = $this->parseLines($data['best_used_for_text'] ?? '');
 
         return $data;
+    }
+
+    /**
+     * @return list<array{label: string, description: string, icon: string|null, tone: string|null}>
+     */
+    private function parseCoreFeatures(string $value): array
+    {
+        return collect(preg_split('/\r\n|\r|\n/', $value) ?: [])
+            ->map(fn (string $line): string => trim($line))
+            ->filter()
+            ->map(function (string $line): array {
+                $parts = array_map('trim', explode('|', $line));
+
+                return [
+                    'label' => $parts[0] ?? '',
+                    'description' => $parts[1] ?? '',
+                    'icon' => ($parts[2] ?? '') ?: null,
+                    'tone' => ($parts[3] ?? '') ?: null,
+                ];
+            })
+            ->filter(fn (array $feature): bool => $feature['label'] !== '')
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function parseLines(string $value): array
+    {
+        return collect(preg_split('/\r\n|\r|\n/', $value) ?: [])
+            ->map(fn (string $line): string => trim($line))
+            ->filter()
+            ->values()
+            ->all();
     }
 }
