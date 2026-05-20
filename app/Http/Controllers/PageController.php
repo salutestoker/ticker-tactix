@@ -24,6 +24,16 @@ class PageController extends Controller
         return Inertia::render('About');
     }
 
+    public function traderTypes(): Response
+    {
+        return Inertia::render('TraderTypes');
+    }
+
+    public function testimonials(): Response
+    {
+        return Inertia::render('Testimonials');
+    }
+
     public function contact(): Response
     {
         return Inertia::render('Contact');

@@ -5,10 +5,10 @@ import { useEffect, useRef, useState, type PropsWithChildren } from 'react';
 const nav = [
     ['Home', 'home'],
     ['Methodology', 'about'],
-    ['What kind of trader are you?', 'home'],
+    ['What type of trader are you?', 'trader-types'],
     ['Modules', 'modules.index'],
     ['Playbooks', 'playbooks.index'],
-    ['Testimonials', 'home'],
+    ['Testimonials', 'testimonials'],
     ['Contact', 'contact'],
 ] as const;
 

@@ -14,6 +14,8 @@ use Inertia\Inertia;
 
 Route::get('/', [PageController::class, 'home'])->name('home');
 Route::get('/about', [PageController::class, 'about'])->name('about');
+Route::get('/trader-types', [PageController::class, 'traderTypes'])->name('trader-types');
+Route::get('/testimonials', [PageController::class, 'testimonials'])->name('testimonials');
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
 Route::get('/modules', [ModuleController::class, 'index'])->name('modules.index');
 Route::get('/modules/{module:slug}', [ModuleController::class, 'show'])->name('modules.show');

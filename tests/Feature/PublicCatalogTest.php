@@ -78,6 +78,16 @@ class PublicCatalogTest extends TestCase
                 ->component('Playbooks/Index')
                 ->has('playbooks', 1)
                 ->where('playbooks.0.slug', 'market-environment'));
+
+        $this->get('/trader-types')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('TraderTypes'));
+
+        $this->get('/testimonials')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Testimonials'));
     }
 
     public function test_public_detail_pages_respect_publish_state(): void
