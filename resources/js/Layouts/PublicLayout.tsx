@@ -1,17 +1,12 @@
-import { HudButton } from '@/Components/UI/Hud';
 import type { PageProps } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import {
-    useEffect,
-    useRef,
-    useState,
-    type PropsWithChildren,
-} from 'react';
+import { useEffect, useRef, useState, type PropsWithChildren } from 'react';
 
 const nav = [
+    ['Home', 'home'],
+    ['Methodology', 'about'],
     ['Modules', 'modules.index'],
     ['Playbooks', 'playbooks.index'],
-    ['Methodology', 'about'],
     ['Contact', 'contact'],
 ] as const;
 
@@ -65,7 +60,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                         />
                     </Link>
                     <div className="flex items-center gap-3">
-                        {auth.user && (
+                        {/*auth.user && (
                             <HudButton
                                 href={route('admin.dashboard')}
                                 tone="violet"
@@ -73,7 +68,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                             >
                                 Dashboard
                             </HudButton>
-                        )}
+                        )*/}
                         <button
                             ref={menuButtonRef}
                             className="border-violet-light/20 text-violet-light hover:border-violet-light/50 focus-visible:ring-violet-light focus-visible:ring-offset-midnight-blue flex h-10 w-10 items-center justify-center rounded-full border bg-black/50 transition focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
@@ -114,13 +109,14 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                                     {label}
                                 </Link>
                             ))}
+                            {/*
                             <Link
                                 href={accountHref}
                                 className="font-heading hover:border-violet-light/35 hover:bg-violet-light/10 hover:text-violet-light rounded-sm border border-transparent px-4 py-3 text-xs font-semibold tracking-[0.18em] text-white/70 uppercase transition"
                                 onClick={() => setIsMenuOpen(false)}
                             >
                                 {accountLabel}
-                            </Link>
+                            </Link>*/}
                             {auth.user?.is_admin ? (
                                 <Link
                                     href={route('admin.dashboard')}
