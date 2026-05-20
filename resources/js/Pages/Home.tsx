@@ -7,6 +7,7 @@ import {
     HudPanel,
     TaxonomyBadge,
 } from '@/Components/UI/Hud';
+import { RotatingTaxonomyBadges } from '@/Components/UI/RotatingTaxonomyBadges';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { formatVersion } from '@/lib/format';
 import type { Module, PageProps, Playbook, TraderType } from '@/types';
@@ -190,16 +191,16 @@ export default function Home({ modules, playbooks }: Props) {
                                                         name={module.icon}
                                                         className="h-8 w-8"
                                                     />
-                                                    <span className="font-heading text-sm tracking-[0.08em] uppercase">
+                                                    <span className="font-heading text-sm tracking-[0.08em] text-white uppercase">
                                                         {module.title}
                                                     </span>
                                                 </Link>
                                             </td>
-                                            <td className="px-6 py-5 text-white/75">
+                                            <td className="w-full px-6 py-5 text-white/75">
                                                 {module.description}
                                             </td>
-                                            <td className="px-6 py-5">
-                                                <TaxonomyList
+                                            <td className="px-6 py-5 align-middle">
+                                                <RotatingTaxonomyBadges
                                                     types={
                                                         module.trader_types ??
                                                         module.traderTypes ??
@@ -227,9 +228,9 @@ export default function Home({ modules, playbooks }: Props) {
                                                 {formatVersion(module.version)}
                                             </td>
                                             <td className="px-6 py-5">
-                                                <AccessBadge
-                                                    access={module.access}
-                                                />
+                                                <span className="text-xs lowercase">
+                                                    {module.access}
+                                                </span>
                                             </td>
                                             <td className="px-6 py-5">
                                                 <HudButton

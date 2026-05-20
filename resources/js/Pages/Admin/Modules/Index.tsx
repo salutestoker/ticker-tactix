@@ -5,6 +5,7 @@ import {
     StatusBadge,
     TaxonomyBadge,
 } from '@/Components/UI/Hud';
+import { RotatingTaxonomyBadges } from '@/Components/UI/RotatingTaxonomyBadges';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { formatVersion } from '@/lib/format';
 import type { Module } from '@/types';
@@ -57,20 +58,14 @@ export default function AdminModulesIndex({ modules }: { modules: Module[] }) {
                                             </span>
                                         )}
                                     </td>
-                                    <td className="px-5 py-4">
-                                        <div className="flex flex-wrap gap-2">
-                                            {(
+                                    <td className="px-5 py-4 align-middle">
+                                        <RotatingTaxonomyBadges
+                                            types={
                                                 module.trader_types ??
                                                 module.traderTypes ??
                                                 []
-                                            ).map((type) => (
-                                                <TaxonomyBadge
-                                                    key={type.id}
-                                                    label={type.name}
-                                                    color={type.color}
-                                                />
-                                            ))}
-                                        </div>
+                                            }
+                                        />
                                     </td>
                                     <td className="text-violet-light px-5 py-4">
                                         {formatVersion(module.version)}

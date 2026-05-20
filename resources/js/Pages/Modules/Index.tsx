@@ -8,9 +8,10 @@ import {
     TaxonomyBadge,
 } from '@/Components/UI/Hud';
 import { PublicHeroFrame } from '@/Components/UI/PublicHero';
+import { RotatingTaxonomyBadges } from '@/Components/UI/RotatingTaxonomyBadges';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { formatVersion } from '@/lib/format';
-import type { Module, PageProps, TraderType } from '@/types';
+import type { Module, PageProps } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 
 export default function ModulesIndex({
@@ -76,8 +77,8 @@ export default function ModulesIndex({
                                             <td className="px-6 py-5 text-white/75">
                                                 {module.description}
                                             </td>
-                                            <td className="px-6 py-5">
-                                                <TaxonomyList
+                                            <td className="px-6 py-5 align-middle">
+                                                <RotatingTaxonomyBadges
                                                     types={
                                                         module.trader_types ??
                                                         module.traderTypes ??
@@ -130,23 +131,5 @@ export default function ModulesIndex({
                 </div>
             </PublicHeroFrame>
         </PublicLayout>
-    );
-}
-
-function TaxonomyList({ types }: { types: TraderType[] }) {
-    if (!types.length) {
-        return <span className="text-white/45">—</span>;
-    }
-
-    return (
-        <div className="flex flex-wrap gap-2">
-            {types.map((type) => (
-                <TaxonomyBadge
-                    key={type.id}
-                    label={type.name}
-                    color={type.color}
-                />
-            ))}
-        </div>
     );
 }
