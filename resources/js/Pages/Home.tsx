@@ -133,10 +133,10 @@ export default function Home({ modules, playbooks }: Props) {
                         />
                     </div>
                 </div>
-                <div className="relative z-10 mt-6 w-[102vw] translate-x-[-2%] py-5 mix-blend-lighten">
+                <div className="relative z-10 mt-6 w-full py-5 mix-blend-lighten">
                     <img
                         src="/design/assets/images/bg-home-how-ticker-tactix-works.png"
-                        className=""
+                        className="mx-auto"
                         alt=""
                     />
                 </div>

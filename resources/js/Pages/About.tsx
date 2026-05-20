@@ -8,6 +8,13 @@ export default function About() {
         <PublicLayout>
             <Head title="Methodology" />
             <PublicHeroFrame>
+                <div className="relative z-10 w-[102vw] translate-x-[-2%] -translate-y-[18%] mix-blend-lighten">
+                    <img
+                        src="/design/assets/images/bg-methodology.png"
+                        className=""
+                        alt=""
+                    />
+                </div>
                 <div className="mx-auto max-w-5xl text-center">
                     <Eyebrow>Methodology</Eyebrow>
                     <GradientHeading>

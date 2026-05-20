@@ -151,7 +151,14 @@ export default function TraderTypes() {
         <PublicLayout>
             <Head title="What Type of Trader Are You?" />
             <PublicHeroFrame className="px-4 pt-32 pb-20 sm:px-6">
-                <div className="mx-auto max-w-6xl text-center">
+                <div className="relative z-10 w-[102vw] translate-x-[-2%] -translate-y-[35%] mix-blend-lighten">
+                    <img
+                        src="/design/assets/images/bg-what-type-of-trader-are-you.png"
+                        className=""
+                        alt=""
+                    />
+                </div>
+                <div className="mx-auto mt-[-35%] max-w-6xl text-center">
                     <Eyebrow>Framework Fit</Eyebrow>
                     <h1 className="font-heading leading-none font-semibold tracking-[0.06em] text-white uppercase drop-shadow-[0_0_26px_rgba(125,211,252,0.32)]">
                         <span className="text-seafoam-green mr-3 inline-block text-7xl sm:text-8xl lg:text-9xl">
