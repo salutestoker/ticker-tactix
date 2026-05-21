@@ -114,7 +114,7 @@ Important fields:
 - `summary`
 - `version` as numeric decimal without the `v` prefix
 - `access`
-- `action_label`
+- `action_url`
 - `sort_order`
 - `is_featured`
 - `is_active`
@@ -139,7 +139,8 @@ The matrix mapping is:
 - `Market` -> `market`
 - `Access` -> `AccessLevel`
 - `Version` -> numeric `version` with leading `v` stripped
-- `Action` -> `action_label`
+- Matrix `Action` values are not stored. Module tables always render an internal `Explore` link to the module detail page.
+- Optional admin-managed `action_url` values power the external `Subscribe` button on detail pages; empty values render `Coming Soon`.
 
 Render versions on the frontend with the `v` prefix.
 
@@ -160,7 +161,7 @@ Important fields:
 - `trading_pace`
 - `average_hold_time`
 - `price`
-- `action_label`
+- `action_url`
 - `sort_order`
 - `is_featured`
 - `is_active`
@@ -186,7 +187,8 @@ The matrix mapping is:
 - `Avg Hold` -> `average_hold_time`
 - `Access` -> `AccessLevel`
 - `Price` -> `price`
-- `Action` -> `action_label`
+- Matrix `Action` values are not stored. Playbook tables always render an internal `Explore` link to the playbook detail page.
+- Optional admin-managed `action_url` values power the external `Subscribe` button on detail pages; empty values render `Coming Soon`.
 
 ## Trader Type Model
 

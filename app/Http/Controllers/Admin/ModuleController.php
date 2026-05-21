@@ -116,7 +116,7 @@ class ModuleController extends Controller
             'summary' => ['nullable', 'string'],
             'version' => ['nullable', 'numeric', 'min:0'],
             'access' => ['required', Rule::enum(AccessLevel::class)],
-            'action_label' => ['nullable', 'string', 'max:255'],
+            'action_url' => ['nullable', 'url', 'max:2048'],
             'sort_order' => ['required', 'integer', 'min:0'],
             'is_featured' => ['required', 'boolean'],
             'is_active' => ['required', 'boolean'],

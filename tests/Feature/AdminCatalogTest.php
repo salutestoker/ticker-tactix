@@ -40,7 +40,7 @@ class AdminCatalogTest extends TestCase
                 'description' => 'Identify momentum phase and trend strength.',
                 'version' => '1.0',
                 'access' => AccessLevel::InviteOnlyIndicatorDiscord->value,
-                'action_label' => 'Explore Module',
+                'action_url' => 'https://example.com/modules/momentum-cycles',
                 'sort_order' => 10,
                 'is_featured' => true,
                 'is_active' => true,
@@ -57,6 +57,7 @@ class AdminCatalogTest extends TestCase
             'slug' => 'momentum-cycles',
             'market_id' => $market->id,
             'access' => AccessLevel::InviteOnlyIndicatorDiscord->value,
+            'action_url' => 'https://example.com/modules/momentum-cycles',
         ]);
         $this->assertDatabaseHas('module_trader_type', [
             'module_id' => $module->id,
@@ -75,7 +76,7 @@ class AdminCatalogTest extends TestCase
                 'trading_pace' => 'Daily',
                 'average_hold_time' => '1-3 days',
                 'price' => '$70/mo',
-                'action_label' => 'Join Newsletter',
+                'action_url' => 'https://example.com/playbooks/market-environment',
                 'sort_order' => 20,
                 'is_featured' => true,
                 'is_active' => true,
@@ -92,6 +93,7 @@ class AdminCatalogTest extends TestCase
             'slug' => 'market-environment',
             'market_id' => $market->id,
             'price' => '$70/mo',
+            'action_url' => 'https://example.com/playbooks/market-environment',
         ]);
         $this->assertDatabaseHas('playbook_trader_type', [
             'playbook_id' => $playbook->id,

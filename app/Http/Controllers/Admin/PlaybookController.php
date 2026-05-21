@@ -85,7 +85,7 @@ class PlaybookController extends Controller
             'trading_pace' => ['nullable', 'string', 'max:255'],
             'average_hold_time' => ['nullable', 'string', 'max:255'],
             'price' => ['nullable', 'string', 'max:255'],
-            'action_label' => ['nullable', 'string', 'max:255'],
+            'action_url' => ['nullable', 'url', 'max:2048'],
             'sort_order' => ['required', 'integer', 'min:0'],
             'is_featured' => ['required', 'boolean'],
             'is_active' => ['required', 'boolean'],

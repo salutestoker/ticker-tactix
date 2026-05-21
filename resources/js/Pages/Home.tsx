@@ -241,8 +241,7 @@ export default function Home({ modules, playbooks }: Props) {
                                                     )}
                                                     tone="violet"
                                                 >
-                                                    {module.action_label ||
-                                                        'Inspect'}
+                                                    Explore
                                                 </HudButton>
                                             </td>
                                         </tr>
@@ -350,8 +349,7 @@ export default function Home({ modules, playbooks }: Props) {
                                                     )}
                                                     tone="violet"
                                                 >
-                                                    {playbook.action_label ||
-                                                        'Inspect'}
+                                                    Explore
                                                 </HudButton>
                                             </td>
                                         </tr>

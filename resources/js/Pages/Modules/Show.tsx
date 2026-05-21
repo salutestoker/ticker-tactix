@@ -212,17 +212,25 @@ export default function ModulesShow({
                                     />
                                 </dl>
 
-                                <HudButton
-                                    href={route('modules.index')}
-                                    className="mt-8 w-full rounded-[14px]"
-                                    variant="solid"
-                                >
-                                    <span className="flex w-full items-center justify-center gap-3">
-                                        {module.action_label ||
-                                            'Explore Module'}
-                                        <span aria-hidden="true">→</span>
-                                    </span>
-                                </HudButton>
+                                {module.action_url ? (
+                                    <HudButton
+                                        href={module.action_url}
+                                        external
+                                        className="mt-8 w-full rounded-[14px]"
+                                        variant="solid"
+                                    >
+                                        Subscribe
+                                    </HudButton>
+                                ) : (
+                                    <HudButton
+                                        type="button"
+                                        disabled
+                                        className="mt-8 w-full rounded-[14px]"
+                                        variant="solid"
+                                    >
+                                        Coming Soon
+                                    </HudButton>
+                                )}
                             </HudPanel>
                         </aside>
                     </div>

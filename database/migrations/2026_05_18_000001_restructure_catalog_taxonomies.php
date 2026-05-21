@@ -42,8 +42,8 @@ return new class extends Migration
                 $table->foreignId('market_id')->nullable()->after('id')->constrained()->nullOnDelete();
             }
 
-            if (! Schema::hasColumn('modules', 'action_label')) {
-                $table->string('action_label')->nullable()->after('access');
+            if (! Schema::hasColumn('modules', 'action_url')) {
+                $table->string('action_url', 2048)->nullable()->after('access');
             }
         });
 
@@ -68,8 +68,8 @@ return new class extends Migration
                 $table->string('price')->nullable()->after('average_hold_time');
             }
 
-            if (! Schema::hasColumn('playbooks', 'action_label')) {
-                $table->string('action_label')->nullable()->after('price');
+            if (! Schema::hasColumn('playbooks', 'action_url')) {
+                $table->string('action_url', 2048)->nullable()->after('price');
             }
         });
 

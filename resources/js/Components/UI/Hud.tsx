@@ -35,7 +35,7 @@ export function HudButton({
               ? 'border-violet-light text-midnight-blue bg-violet-light shadow-[0_0_28px_rgba(181,67,215,0.3)]'
               : toneClasses[tone];
     const classes = [
-        'inline-flex min-h-11 items-center justify-center rounded-sm border px-5 py-3 font-heading text-xs font-semibold uppercase tracking-[0.14em] transition hover:brightness-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-seafoam-green focus-visible:ring-offset-2 focus-visible:ring-offset-midnight-blue disabled:cursor-not-allowed disabled:opacity-50',
+        'inline-flex min-h-11 items-center justify-center rounded-sm border px-5 py-3 font-heading text-xs font-semibold uppercase tracking-[0.14em] transition enabled:hover:brightness-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-seafoam-green focus-visible:ring-offset-2 focus-visible:ring-offset-midnight-blue disabled:cursor-not-allowed disabled:opacity-50',
         variant === 'solid' ? solid : toneClasses[tone],
         className,
     ].join(' ');

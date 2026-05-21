@@ -21,8 +21,9 @@ Route::get('/modules', [ModuleController::class, 'index'])->name('modules.index'
 Route::get('/modules/{module:slug}', [ModuleController::class, 'show'])->name('modules.show');
 Route::get('/playbooks', [PlaybookController::class, 'index'])->name('playbooks.index');
 Route::get('/playbooks/{playbook:slug}', [PlaybookController::class, 'show'])->name('playbooks.show');
+Route::redirect('/financial-disclaimer', '/risk-disclaimer');
 Route::get('/{page}', [PageController::class, 'legal'])
-    ->whereIn('page', ['terms-of-service', 'membership-agreement', 'privacy-policy', 'financial-disclaimer'])
+    ->whereIn('page', ['terms-of-service', 'membership-agreement', 'privacy-policy', 'risk-disclaimer'])
     ->name('legal.show');
 
 Route::get('/dashboard', function () {

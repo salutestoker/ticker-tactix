@@ -17,7 +17,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->decimal('version', 6, 3)->nullable();
             $table->string('access');
-            $table->string('action_label')->nullable();
+            $table->string('action_url', 2048)->nullable();
             $table->unsignedInteger('sort_order')->default(0);
             $table->boolean('is_featured')->default(false);
             $table->boolean('is_active')->default(true);

@@ -68,7 +68,7 @@ export interface Module {
     summary?: string | null;
     version?: number | string | null;
     access: AccessValue;
-    action_label?: string | null;
+    action_url?: string | null;
     sort_order: number;
     is_featured: boolean;
     is_active: boolean;
@@ -93,7 +93,7 @@ export interface Playbook {
     trading_pace?: string | null;
     average_hold_time?: string | null;
     price?: string | null;
-    action_label?: string | null;
+    action_url?: string | null;
     sort_order: number;
     is_featured: boolean;
     is_active: boolean;

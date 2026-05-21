@@ -24,7 +24,7 @@ class Playbook extends Model
         'trading_pace',
         'average_hold_time',
         'price',
-        'action_label',
+        'action_url',
         'sort_order',
         'is_featured',
         'is_active',

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('trading_pace')->nullable();
             $table->string('average_hold_time')->nullable();
             $table->string('price')->nullable();
-            $table->string('action_label')->nullable();
+            $table->string('action_url', 2048)->nullable();
             $table->unsignedInteger('sort_order')->default(0);
             $table->boolean('is_featured')->default(false);
             $table->boolean('is_active')->default(true);

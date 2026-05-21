@@ -33,7 +33,7 @@ class Module extends Model
         'summary',
         'version',
         'access',
-        'action_label',
+        'action_url',
         'sort_order',
         'is_featured',
         'is_active',

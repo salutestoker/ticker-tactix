@@ -155,6 +155,36 @@ class PublicCatalogTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Testimonials'));
+
+        $this->get('/terms-of-service')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Legal/Show')
+                ->where('title', 'Terms of Service')
+                ->where('slug', 'terms-of-service'));
+
+        $this->get('/membership-agreement')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Legal/Show')
+                ->where('title', 'Membership Agreement')
+                ->where('slug', 'membership-agreement'));
+
+        $this->get('/privacy-policy')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Legal/Show')
+                ->where('title', 'Privacy Policy')
+                ->where('slug', 'privacy-policy'));
+
+        $this->get('/risk-disclaimer')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Legal/Show')
+                ->where('title', 'Risk Disclaimer')
+                ->where('slug', 'risk-disclaimer'));
+
+        $this->get('/financial-disclaimer')->assertRedirect('/risk-disclaimer');
     }
 
     public function test_public_detail_pages_respect_publish_state(): void

@@ -122,8 +122,7 @@ export default function ModulesIndex({
                                                     )}
                                                     tone="violet"
                                                 >
-                                                    {module.action_label ||
-                                                        'Inspect'}
+                                                    Explore
                                                 </HudButton>
                                             </td>
                                         </tr>

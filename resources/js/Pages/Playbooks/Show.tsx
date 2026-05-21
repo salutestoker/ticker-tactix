@@ -73,12 +73,25 @@ export default function PlaybooksShow({ playbook }: { playbook: Playbook }) {
                             />
                             <Meta label="Price" value={playbook.price} />
                         </dl>
-                        <HudButton
-                            href={route('playbooks.index')}
-                            className="mt-8 w-full"
-                        >
-                            {playbook.action_label || 'Back To Matrix'}
-                        </HudButton>
+                        {playbook.action_url ? (
+                            <HudButton
+                                href={playbook.action_url}
+                                external
+                                className="mt-8 w-full"
+                                variant="solid"
+                            >
+                                Subscribe
+                            </HudButton>
+                        ) : (
+                            <HudButton
+                                type="button"
+                                disabled
+                                className="mt-8 w-full"
+                                variant="solid"
+                            >
+                                Coming Soon
+                            </HudButton>
+                        )}
                     </HudPanel>
                 </div>
             </PublicHeroFrame>

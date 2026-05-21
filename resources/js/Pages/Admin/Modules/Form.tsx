@@ -26,7 +26,7 @@ type ModuleForm = {
     summary: string;
     version: string;
     access: string;
-    action_label: string;
+    action_url: string;
     sort_order: number;
     is_featured: boolean;
     is_active: boolean;
@@ -81,7 +81,7 @@ export default function ModuleFormPage({
                 module?.access ||
                 accessOptions[0]?.value ||
                 'Invite-Only Indicator + Discord',
-            action_label: module?.action_label || 'Explore Module',
+            action_url: module?.action_url || '',
             sort_order: module?.sort_order ?? 0,
             is_featured: module?.is_featured ?? false,
             is_active: module?.is_active ?? true,
@@ -166,13 +166,15 @@ export default function ModuleFormPage({
                             placeholder="1.33"
                         />
                     </Field>
-                    <Field label="Action Label" error={errors.action_label}>
+                    <Field label="Action URL" error={errors.action_url}>
                         <input
                             className={input}
-                            value={data.action_label}
+                            value={data.action_url}
+                            type="url"
                             onChange={(e) =>
-                                setData('action_label', e.target.value)
+                                setData('action_url', e.target.value)
                             }
+                            placeholder="https://..."
                         />
                     </Field>
                     <Field label="Purpose" error={errors.purpose}>

@@ -143,6 +143,90 @@ export default function PublicLayout({ children }: PropsWithChildren) {
 }
 
 function Footer() {
+    const footerColumns: FooterColumnData[] = [
+        {
+            title: 'System',
+            links: [
+                {
+                    label: 'What Kind Of Trader Are You?',
+                    href: route('trader-types'),
+                    external: false,
+                },
+                {
+                    label: 'Modules',
+                    href: route('modules.index'),
+                    external: false,
+                },
+                {
+                    label: 'Playbooks',
+                    href: route('playbooks.index'),
+                    external: false,
+                },
+                {
+                    label: 'Methodology',
+                    href: route('about'),
+                    external: false,
+                },
+                {
+                    label: 'Support',
+                    href: 'mailto:tickertactix@gmail.com',
+                    external: true,
+                },
+            ],
+        },
+        {
+            title: 'Resources',
+            links: [
+                {
+                    label: 'Economic Calendar',
+                    href: 'https://tradingeconomics.com/calendar',
+                    external: true,
+                },
+                {
+                    label: 'Testimonials',
+                    href: route('testimonials'),
+                    external: false,
+                },
+            ],
+        },
+        {
+            title: 'Community',
+            links: [
+                { label: 'Discord (unlocked with subscription)' },
+                {
+                    label: 'X (Twitter)',
+                    href: 'https://x.com/ticker_tactix',
+                    external: true,
+                },
+            ],
+        },
+        {
+            title: 'Legal',
+            links: [
+                {
+                    label: 'Terms of Service',
+                    href: route('legal.show', 'terms-of-service'),
+                    external: false,
+                },
+                {
+                    label: 'Membership Agreement',
+                    href: route('legal.show', 'membership-agreement'),
+                    external: false,
+                },
+                {
+                    label: 'Privacy Policy',
+                    href: route('legal.show', 'privacy-policy'),
+                    external: false,
+                },
+                {
+                    label: 'Risk Disclaimer',
+                    href: route('legal.show', 'risk-disclaimer'),
+                    external: false,
+                },
+            ],
+        },
+    ];
+
     return (
         <footer className="bg-main-blue-bright relative overflow-hidden text-white">
             <div className="absolute inset-0 bg-[url('/design/assets/images/bg-footer.jpg')] bg-cover bg-center opacity-90" />
@@ -154,36 +238,13 @@ function Footer() {
                     alt="Ticker Tactix"
                 />
                 <div className="grid gap-10 border-y border-white/15 py-10 text-sm text-white/75 md:grid-cols-4">
-                    <FooterColumn
-                        title="System"
-                        links={['Modules', 'Playbooks', 'Methodology', 'About']}
-                    />
-                    <FooterColumn
-                        title="Resources"
-                        links={[
-                            'Documentation',
-                            'Backtesting Lab',
-                            'Blog',
-                            'Support',
-                        ]}
-                    />
-                    <FooterColumn
-                        title="Community"
-                        links={[
-                            'Discord',
-                            'X (Twitter)',
-                            'YouTube',
-                            'Partner Access',
-                        ]}
-                    />
-                    <FooterColumn
-                        title="Legal"
-                        links={[
-                            'Terms of Service',
-                            'Privacy Policy',
-                            'Risk Disclaimer',
-                        ]}
-                    />
+                    {footerColumns.map((column) => (
+                        <FooterColumn
+                            key={column.title}
+                            title={column.title}
+                            links={column.links}
+                        />
+                    ))}
                 </div>
                 <p className="font-heading mt-10 text-xs tracking-[0.35em] text-white/70 uppercase">
                     Trade with{' '}
@@ -198,7 +259,18 @@ function Footer() {
     );
 }
 
-function FooterColumn({ title, links }: { title: string; links: string[] }) {
+type FooterLink = {
+    label: string;
+    href?: string;
+    external?: boolean;
+};
+
+type FooterColumnData = {
+    title: string;
+    links: FooterLink[];
+};
+
+function FooterColumn({ title, links }: FooterColumnData) {
     return (
         <div>
             <h3 className="font-heading text-seafoam-green text-xs tracking-[0.22em] uppercase">
@@ -206,7 +278,20 @@ function FooterColumn({ title, links }: { title: string; links: string[] }) {
             </h3>
             <div className="mt-4 space-y-2">
                 {links.map((link) => (
-                    <div key={link}>{link}</div>
+                    <div key={link.label}>
+                        {link.href ? (
+                            <a
+                                className="text-inherit no-underline"
+                                href={link.href}
+                                target={link.external ? '_blank' : undefined}
+                                rel={link.external ? 'noreferrer' : undefined}
+                            >
+                                {link.label}
+                            </a>
+                        ) : (
+                            link.label
+                        )}
+                    </div>
                 ))}
             </div>
         </div>

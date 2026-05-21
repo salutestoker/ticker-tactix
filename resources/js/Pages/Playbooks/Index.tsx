@@ -121,8 +121,7 @@ export default function PlaybooksIndex({
                                                     )}
                                                     tone="violet"
                                                 >
-                                                    {playbook.action_label ||
-                                                        'Inspect'}
+                                                    Explore
                                                 </HudButton>
                                             </td>
                                         </tr>

@@ -57,8 +57,12 @@ textarea {
     letter-spacing: 0;
 }
 
-:where(button, [type='button'], [type='submit'], [type='reset'], a[href], [role='button']) {
+:where(button, [type='button'], [type='submit'], [type='reset'], a[href], [role='button']):not([disabled]) {
     cursor: pointer;
+}
+
+:where(button:disabled, button[disabled]) {
+    pointer-events: none;
 }
 
 ::selection {
