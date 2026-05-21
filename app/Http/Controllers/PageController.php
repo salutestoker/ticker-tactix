@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Module;
 use App\Models\Playbook;
+use App\Models\TraderType;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -13,7 +14,6 @@ class PageController extends Controller
     {
         return Inertia::render('Home', [
             'modules' => Module::public()->with(['market', 'traderTypes'])->ordered()->get(),
-            'featuredModules' => Module::public()->with(['market', 'traderTypes'])->where('is_featured', true)->ordered()->take(3)->get(),
             'playbooks' => Playbook::public()->with(['market', 'traderTypes'])->ordered()->get(),
             'featuredPlaybooks' => Playbook::public()->with(['market', 'traderTypes'])->where('is_featured', true)->ordered()->get(),
         ]);
@@ -26,7 +26,21 @@ class PageController extends Controller
 
     public function traderTypes(): Response
     {
-        return Inertia::render('TraderTypes');
+        return Inertia::render('TraderTypes', [
+            'traderTypes' => TraderType::active()
+                ->with([
+                    'modules' => fn ($query) => $query
+                        ->where('modules.is_active', true)
+                        ->with('market')
+                        ->ordered(),
+                    'playbooks' => fn ($query) => $query
+                        ->where('playbooks.is_active', true)
+                        ->with('market')
+                        ->ordered(),
+                ])
+                ->ordered()
+                ->get(),
+        ]);
     }
 
     public function testimonials(): Response

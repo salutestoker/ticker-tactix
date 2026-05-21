@@ -2,16 +2,14 @@ import { IconRenderer } from '@/Components/Icons/IconRenderer';
 import {
     AccessBadge,
     Eyebrow,
-    GradientHeading,
     HudButton,
     HudPanel,
     TaxonomyBadge,
 } from '@/Components/UI/Hud';
 import { PublicHeroFrame } from '@/Components/UI/PublicHero';
-import { RotatingTaxonomyBadges } from '@/Components/UI/RotatingTaxonomyBadges';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { formatVersion } from '@/lib/format';
-import type { Module, PageProps } from '@/types';
+import type { Module, PageProps, TraderType } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 
 export default function ModulesIndex({
@@ -30,9 +28,15 @@ export default function ModulesIndex({
                 </div>
                 <div className="mx-auto max-w-7xl">
                     <Eyebrow>System Modules</Eyebrow>
-                    <GradientHeading className="text-center">
-                        Module Matrix
-                    </GradientHeading>
+                    <h1 className="font-heading text-center text-4xl leading-none font-semibold uppercase sm:text-5xl lg:text-6xl">
+                        <span className="text-violet">Module</span>{' '}
+                        <span className="text-seafoam-green">Matrix</span>
+                    </h1>
+                    <p className="mx-auto mt-5 max-w-2xl text-center text-lg text-white/75">
+                        Specialized components that power the Ticker-Tactix
+                        system. Each module has a unique role in producing
+                        high-probability signals.
+                    </p>
                     <HudPanel className="mt-10 overflow-hidden">
                         <div className="overflow-x-auto">
                             <table className="min-w-full border-collapse text-left text-sm">
@@ -46,8 +50,8 @@ export default function ModulesIndex({
                                             Trader Type
                                         </th>
                                         <th className="px-6 py-5">Market</th>
-                                        <th className="px-6 py-5">Version</th>
                                         <th className="px-6 py-5">Access</th>
+                                        <th className="px-6 py-5">Version</th>
                                         <th className="px-6 py-5">Action</th>
                                     </tr>
                                 </thead>
@@ -69,16 +73,16 @@ export default function ModulesIndex({
                                                         name={module.icon}
                                                         className="h-8 w-8"
                                                     />
-                                                    <span className="font-heading text-sm tracking-[0.08em] uppercase">
+                                                    <span className="font-heading text-sm tracking-[0.08em] text-white uppercase">
                                                         {module.title}
                                                     </span>
                                                 </Link>
                                             </td>
-                                            <td className="px-6 py-5 text-white/75">
+                                            <td className="w-full px-6 py-5 text-white/75">
                                                 {module.description}
                                             </td>
-                                            <td className="px-6 py-5 align-middle">
-                                                <RotatingTaxonomyBadges
+                                            <td className="min-w-[300px] px-6 py-5 align-middle">
+                                                <TaxonomyList
                                                     types={
                                                         module.trader_types ??
                                                         module.traderTypes ??
@@ -102,13 +106,13 @@ export default function ModulesIndex({
                                                     </span>
                                                 )}
                                             </td>
-                                            <td className="text-seafoam-green px-6 py-5">
-                                                {formatVersion(module.version)}
-                                            </td>
                                             <td className="px-6 py-5">
                                                 <AccessBadge
                                                     access={module.access}
                                                 />
+                                            </td>
+                                            <td className="text-seafoam-green px-6 py-5">
+                                                {formatVersion(module.version)}
                                             </td>
                                             <td className="px-6 py-5">
                                                 <HudButton
@@ -131,5 +135,23 @@ export default function ModulesIndex({
                 </div>
             </PublicHeroFrame>
         </PublicLayout>
+    );
+}
+
+function TaxonomyList({ types }: { types: TraderType[] }) {
+    if (!types.length) {
+        return <span className="text-white/45">—</span>;
+    }
+
+    return (
+        <div className="flex flex-wrap gap-2">
+            {types.map((type) => (
+                <TaxonomyBadge
+                    key={type.id}
+                    label={type.name}
+                    color={type.color}
+                />
+            ))}
+        </div>
     );
 }

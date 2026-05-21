@@ -37,6 +37,8 @@ export interface TraderType {
     is_active: boolean;
     modules_count?: number;
     playbooks_count?: number;
+    modules?: Module[];
+    playbooks?: Playbook[];
 }
 
 export interface ModuleFeature {

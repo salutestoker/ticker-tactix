@@ -30,9 +30,9 @@ export default function AdminModulesIndex({ modules }: { modules: Module[] }) {
                             <tr>
                                 <th className="px-5 py-4">Title</th>
                                 <th className="px-5 py-4">Market</th>
+                                <th className="px-5 py-4">Access</th>
                                 <th className="px-5 py-4">Trader Types</th>
                                 <th className="px-5 py-4">Version</th>
-                                <th className="px-5 py-4">Access</th>
                                 <th className="px-5 py-4">Status</th>
                                 <th className="px-5 py-4">Actions</th>
                             </tr>
@@ -58,6 +58,9 @@ export default function AdminModulesIndex({ modules }: { modules: Module[] }) {
                                             </span>
                                         )}
                                     </td>
+                                    <td className="px-5 py-4">
+                                        <AccessBadge access={module.access} />
+                                    </td>
                                     <td className="px-5 py-4 align-middle">
                                         <RotatingTaxonomyBadges
                                             types={
@@ -69,9 +72,6 @@ export default function AdminModulesIndex({ modules }: { modules: Module[] }) {
                                     </td>
                                     <td className="text-violet-light px-5 py-4">
                                         {formatVersion(module.version)}
-                                    </td>
-                                    <td className="px-5 py-4">
-                                        <AccessBadge access={module.access} />
                                     </td>
                                     <td className="px-5 py-4">
                                         <StatusBadge

@@ -59,7 +59,9 @@ export default function PlaybooksIndex({
                                                         playbook.slug,
                                                     )}
                                                 >
-                                                    {playbook.title}
+                                                    <span className="font-heading text-sm tracking-[0.08em] text-white uppercase">
+                                                        {playbook.title}
+                                                    </span>
                                                 </Link>
                                             </td>
                                             <td className="px-6 py-5">

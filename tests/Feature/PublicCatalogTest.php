@@ -33,16 +33,43 @@ class PublicCatalogTest extends TestCase
         ]);
         $module->traderTypes()->attach($traderType);
 
-        Module::create([
+        $nonFeaturedModule = Module::create([
             'market_id' => $market->id,
-            'title' => 'Draft Module',
-            'slug' => 'draft-module',
+            'title' => 'Sequence Pressure',
+            'slug' => 'sequence-pressure',
+            'description' => 'Track exhaustion and pressure buildup.',
+            'version' => 1.1,
+            'access' => AccessLevel::InviteOnlyIndicatorDiscord,
+            'sort_order' => 15,
+            'is_featured' => false,
+            'is_active' => true,
+            'published_at' => now(),
+        ]);
+        $nonFeaturedModule->traderTypes()->attach($traderType);
+
+        $activeUnpublishedModule = Module::create([
+            'market_id' => $market->id,
+            'title' => 'Active Unpublished Module',
+            'slug' => 'active-unpublished-module',
             'access' => AccessLevel::InviteOnlyIndicatorDiscord,
             'sort_order' => 20,
             'is_featured' => false,
             'is_active' => true,
             'published_at' => null,
         ]);
+        $activeUnpublishedModule->traderTypes()->attach($traderType);
+
+        $inactiveModule = Module::create([
+            'market_id' => $market->id,
+            'title' => 'Inactive Module',
+            'slug' => 'inactive-module',
+            'access' => AccessLevel::InviteOnlyIndicatorDiscord,
+            'sort_order' => 25,
+            'is_featured' => true,
+            'is_active' => false,
+            'published_at' => now(),
+        ]);
+        $inactiveModule->traderTypes()->attach($traderType);
 
         $playbook = Playbook::create([
             'market_id' => $market->id,
@@ -58,18 +85,49 @@ class PublicCatalogTest extends TestCase
         ]);
         $playbook->traderTypes()->attach($traderType);
 
+        $activeUnpublishedPlaybook = Playbook::create([
+            'market_id' => $market->id,
+            'title' => 'Active Unpublished Playbook',
+            'slug' => 'active-unpublished-playbook',
+            'access' => AccessLevel::DailyNewsletterDiscord,
+            'best_for' => 'Active associated playbook.',
+            'price' => '$70/mo',
+            'sort_order' => 15,
+            'is_featured' => false,
+            'is_active' => true,
+            'published_at' => null,
+        ]);
+        $activeUnpublishedPlaybook->traderTypes()->attach($traderType);
+
+        $inactivePlaybook = Playbook::create([
+            'market_id' => $market->id,
+            'title' => 'Inactive Playbook',
+            'slug' => 'inactive-playbook',
+            'access' => AccessLevel::DailyNewsletterDiscord,
+            'best_for' => 'Inactive playbook.',
+            'price' => '$70/mo',
+            'sort_order' => 20,
+            'is_featured' => true,
+            'is_active' => false,
+            'published_at' => now(),
+        ]);
+        $inactivePlaybook->traderTypes()->attach($traderType);
+
         $this->get('/')
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Home')
+                ->has('modules', 2)
                 ->where('modules.0.title', 'Momentum Cycles')
+                ->where('modules.1.title', 'Sequence Pressure')
+                ->has('playbooks', 1)
                 ->where('playbooks.0.title', 'Market Environment'));
 
         $this->get('/modules')
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Modules/Index')
-                ->has('modules', 1)
+                ->has('modules', 2)
                 ->where('modules.0.slug', 'momentum-cycles'));
 
         $this->get('/playbooks')
@@ -82,7 +140,16 @@ class PublicCatalogTest extends TestCase
         $this->get('/trader-types')
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
-                ->component('TraderTypes'));
+                ->component('TraderTypes')
+                ->has('traderTypes', 1)
+                ->where('traderTypes.0.name', 'NYSE CORE')
+                ->has('traderTypes.0.modules', 3)
+                ->where('traderTypes.0.modules.0.title', 'Momentum Cycles')
+                ->where('traderTypes.0.modules.1.title', 'Sequence Pressure')
+                ->where('traderTypes.0.modules.2.title', 'Active Unpublished Module')
+                ->has('traderTypes.0.playbooks', 2)
+                ->where('traderTypes.0.playbooks.0.title', 'Market Environment')
+                ->where('traderTypes.0.playbooks.1.title', 'Active Unpublished Playbook'));
 
         $this->get('/testimonials')
             ->assertOk()

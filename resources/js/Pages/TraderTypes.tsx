@@ -1,10 +1,16 @@
 import { IconRenderer } from '@/Components/Icons/IconRenderer';
-import { Eyebrow, TaxonomyBadge } from '@/Components/UI/Hud';
+import { Eyebrow } from '@/Components/UI/Hud';
 import { PublicHeroFrame } from '@/Components/UI/PublicHero';
 import PublicLayout from '@/Layouts/PublicLayout';
+import type { Market, Module, PageProps, Playbook, TraderType } from '@/types';
 import { Head } from '@inertiajs/react';
 
 type TaxonomyColor = 'violet-light' | 'seafoam-green' | 'gold';
+
+type MarketChip = {
+    name: string;
+    color: TaxonomyColor;
+};
 
 type TraderTypeCard = {
     number: number;
@@ -13,12 +19,13 @@ type TraderTypeCard = {
     modules: string[];
     playbooks: string[];
     traderTypeColor: TaxonomyColor;
-    market: {
-        name: 'NYSE' | 'Crypto';
-        color: TaxonomyColor;
-    };
+    markets: MarketChip[];
     icon: string;
 };
+
+type TraderTypesProps = PageProps<{
+    traderTypes: TraderType[];
+}>;
 
 const toneClasses: Record<
     TaxonomyColor,
@@ -57,96 +64,9 @@ const toneClasses: Record<
     },
 };
 
-const traderTypes: TraderTypeCard[] = [
-    {
-        number: 1,
-        title: 'NYSE BASE',
-        description:
-            'For newer stock traders building structure with a smaller account. Focused on broad-market context and clean foundational tools.',
-        modules: ['Momentum Cycles', 'Sequence Pressure', 'Long VWAP'],
-        playbooks: ['Market Environment'],
-        traderTypeColor: 'violet-light',
-        market: { name: 'NYSE', color: 'seafoam-green' },
-        icon: 'market-data-bars',
-    },
-    {
-        number: 2,
-        title: 'CRYPTO BASE',
-        description:
-            'For crypto traders who want a simple starting point and community-led guidance before stepping into advanced deployment.',
-        modules: ['SIGMA Pro Engine (partner access)'],
-        playbooks: ['Join SIGMA'],
-        traderTypeColor: 'violet-light',
-        market: { name: 'Crypto', color: 'violet-light' },
-        icon: 'crypto-info-box',
-    },
-    {
-        number: 3,
-        title: 'NYSE CORE',
-        description:
-            'For patient stock traders ready for a more structured framework and broader market rotation awareness.',
-        modules: ['Momentum Cycles', 'Sequence Pressure', 'Long VWAP'],
-        playbooks: ['NYSE Sector Rotation Playbook'],
-        traderTypeColor: 'seafoam-green',
-        market: { name: 'NYSE', color: 'seafoam-green' },
-        icon: 'sector-rotation',
-    },
-    {
-        number: 4,
-        title: 'CRYPTO CORE',
-        description:
-            'For patient XRP traders who want slower-developing setups and a structured swing framework.',
-        modules: ['Momentum Cycles', 'Sequence Pressure', 'Long VWAP'],
-        playbooks: ['XRP Turtle Playbook'],
-        traderTypeColor: 'seafoam-green',
-        market: { name: 'Crypto', color: 'violet-light' },
-        icon: 'turtle',
-    },
-    {
-        number: 5,
-        title: 'NYSE PRO',
-        description:
-            'For active equity and index traders seeking a full intraday decision stack and tighter execution structure.',
-        modules: [
-            'Momentum Cycles',
-            'Sequence Pressure',
-            'Trend Tracer',
-            'Info Box / Info Line',
-            'Pulse',
-            'Range Rails',
-            'AVWAP',
-            'Candle Color',
-            'Tide',
-        ],
-        playbooks: ['SPY Scalp Playbook'],
-        traderTypeColor: 'gold',
-        market: { name: 'NYSE', color: 'seafoam-green' },
-        icon: 'spy-playbook',
-    },
-    {
-        number: 6,
-        title: 'CRYPTO PRO',
-        description:
-            'For active crypto traders who want a full multi-module framework for intraday momentum and guided execution.',
-        modules: [
-            'Momentum Cycles',
-            'Sequence Pressure',
-            'Crypto Velocity Stats',
-            'Crypto Info Box / Info Line',
-            'Pulse',
-            'Range Rails',
-            'AVWAP',
-            'Candle Color',
-            'Tide',
-        ],
-        playbooks: ['BTC Bunny Playbook', 'XRP Bunny Playbook'],
-        traderTypeColor: 'gold',
-        market: { name: 'Crypto', color: 'violet-light' },
-        icon: 'bunny',
-    },
-];
+export default function TraderTypes({ traderTypes }: TraderTypesProps) {
+    const cards = traderTypes.map(toTraderTypeCard);
 
-export default function TraderTypes() {
     return (
         <PublicLayout>
             <Head title="What Type of Trader Are You?" />
@@ -162,7 +82,7 @@ export default function TraderTypes() {
                     <Eyebrow>Framework Fit</Eyebrow>
                     <h1 className="font-heading leading-none font-semibold tracking-[0.06em] text-white uppercase drop-shadow-[0_0_26px_rgba(125,211,252,0.32)]">
                         <span className="text-seafoam-green mr-3 inline-block text-7xl sm:text-8xl lg:text-9xl">
-                            6
+                            {cards.length || 6}
                         </span>
                         <span className="text-4xl sm:text-6xl lg:text-7xl">
                             Trader Types
@@ -176,20 +96,20 @@ export default function TraderTypes() {
                         <Legend
                             icon="composite-engine"
                             label="Modules"
-                            copy="invite-only TradingView indicators + Discord module channels."
+                            copy="TradingView indicators + Discord module channels."
                             tone="green"
                         />
                         <Legend
                             icon="chat"
                             label="Playbooks"
-                            copy="alert-guided Discord strategy channels."
+                            copy="Alert-guided Discord strategy channels."
                             tone="violet"
                         />
                     </div>
                 </div>
 
                 <div className="mx-auto mt-12 grid max-w-7xl gap-6 lg:grid-cols-2">
-                    {traderTypes.map((traderType) => (
+                    {cards.map((traderType) => (
                         <TraderTypePanel
                             key={traderType.title}
                             traderType={traderType}
@@ -242,18 +162,6 @@ function TraderTypePanel({ traderType }: { traderType: TraderTypeCard }) {
                         >
                             {traderType.title}
                         </h2>
-                        <div className="mt-3 flex flex-wrap items-center gap-2">
-                            <TaxonomyMeta
-                                label="Trader Type"
-                                value={traderType.title}
-                                color={traderType.traderTypeColor}
-                            />
-                            <TaxonomyMeta
-                                label="Market"
-                                value={traderType.market.name}
-                                color={traderType.market.color}
-                            />
-                        </div>
                     </div>
                     <div
                         className={`hidden h-16 w-16 shrink-0 items-center justify-center rounded-full border bg-black/25 sm:flex ${tone.number}`}
@@ -302,9 +210,13 @@ function TypeList({
     tone: TaxonomyColor;
 }) {
     const activeTone = toneClasses[tone];
+    const hasItems = items.length > 0;
 
     return (
-        <section className="grid grid-cols-[44px_1fr] gap-4">
+        <section
+            className={`grid grid-cols-[44px_1fr] gap-4 ${hasItems ? '' : 'invisible'}`}
+            aria-hidden={!hasItems}
+        >
             <div
                 className={`flex h-11 w-11 items-center justify-center rounded-full border bg-black/25 ${activeTone.number}`}
             >
@@ -332,23 +244,93 @@ function TypeList({
     );
 }
 
-function TaxonomyMeta({
-    label,
-    value,
-    color,
-}: {
-    label: string;
-    value: string;
-    color: TaxonomyColor;
-}) {
-    return (
-        <span className="inline-flex items-center gap-2 rounded-sm border border-white/10 bg-black/20 px-2 py-1">
-            <span className="font-mono-display text-[0.58rem] tracking-[0.14em] text-white/45 uppercase">
-                {label}
-            </span>
-            <TaxonomyBadge label={value} color={color} />
-        </span>
+function toTraderTypeCard(
+    traderType: TraderType,
+    index: number,
+): TraderTypeCard {
+    const modules = traderType.modules ?? [];
+    const playbooks = traderType.playbooks ?? [];
+
+    return {
+        number: index + 1,
+        title: traderType.name,
+        description: traderType.description ?? '',
+        modules: modules.map((module) => module.title),
+        playbooks: playbooks.map((playbook) => playbook.title),
+        traderTypeColor: taxonomyColor(traderType.color),
+        markets: marketsForTraderType(traderType, modules, playbooks),
+        icon: traderType.icon || fallbackIcon(traderType.name),
+    };
+}
+
+function marketsForTraderType(
+    traderType: TraderType,
+    modules: Module[],
+    playbooks: Playbook[],
+): MarketChip[] {
+    const markets = [...modules, ...playbooks]
+        .map((item) => item.market)
+        .filter((market): market is Market => Boolean(market));
+    const byName = new Map<string, MarketChip>();
+
+    markets.forEach((market) => {
+        byName.set(market.name, {
+            name: market.name,
+            color: taxonomyColor(market.color),
+        });
+    });
+
+    const sorted = [...byName.values()].sort(
+        (a, b) => marketSortValue(a.name) - marketSortValue(b.name),
     );
+
+    if (sorted.length) {
+        return sorted;
+    }
+
+    if (traderType.name.startsWith('NYSE')) {
+        return [{ name: 'NYSE', color: 'seafoam-green' }];
+    }
+
+    if (traderType.name.startsWith('CRYPTO')) {
+        return [{ name: 'Crypto', color: 'violet-light' }];
+    }
+
+    return [{ name: 'All', color: 'gold' }];
+}
+
+function taxonomyColor(color?: string | null): TaxonomyColor {
+    if (
+        color === 'violet-light' ||
+        color === 'seafoam-green' ||
+        color === 'gold'
+    ) {
+        return color;
+    }
+
+    return 'violet-light';
+}
+
+function marketSortValue(name: string): number {
+    return (
+        {
+            NYSE: 10,
+            Crypto: 20,
+            All: 30,
+        }[name] ?? 100
+    );
+}
+
+function fallbackIcon(name: string): string {
+    if (name.includes('CRYPTO')) {
+        return 'crypto-info-box';
+    }
+
+    if (name.includes('NYSE')) {
+        return 'market-data-bars';
+    }
+
+    return 'command-cube';
 }
 
 function Legend({
@@ -379,8 +361,8 @@ function Legend({
                     className={`font-heading tracking-[0.08em] uppercase ${tone === 'green' ? 'text-seafoam-green' : 'text-violet-light'}`}
                 >
                     {label}
-                </span>{' '}
-                = {copy}
+                </span>
+                <div>{copy}</div>
             </p>
         </div>
     );

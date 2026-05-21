@@ -169,8 +169,8 @@ export default function Home({ modules, playbooks }: Props) {
                                             Trader Type
                                         </th>
                                         <th className="px-6 py-5">Market</th>
-                                        <th className="px-6 py-5">Version</th>
                                         <th className="px-6 py-5">Access</th>
+                                        <th className="px-6 py-5">Version</th>
                                         <th className="px-6 py-5">Action</th>
                                     </tr>
                                 </thead>
@@ -225,13 +225,13 @@ export default function Home({ modules, playbooks }: Props) {
                                                     </span>
                                                 )}
                                             </td>
+                                            <td className="px-6 py-5">
+                                                <AccessBadge
+                                                    access={module.access}
+                                                />
+                                            </td>
                                             <td className="text-seafoam-green px-6 py-5">
                                                 {formatVersion(module.version)}
-                                            </td>
-                                            <td className="px-6 py-5">
-                                                <span className="text-xs lowercase">
-                                                    {module.access}
-                                                </span>
                                             </td>
                                             <td className="px-6 py-5">
                                                 <HudButton
