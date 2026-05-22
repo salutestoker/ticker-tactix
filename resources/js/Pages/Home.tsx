@@ -1,21 +1,15 @@
 import { IconRenderer } from '@/Components/Icons/IconRenderer';
-import {
-    AccessBadge,
-    Eyebrow,
-    GradientHeading,
-    HudPanel,
-    TaxonomyBadge,
-} from '@/Components/UI/Hud';
-import { RotatingTaxonomyBadges } from '@/Components/UI/RotatingTaxonomyBadges';
+import { TaxonomyBadge } from '@/Components/UI/Hud';
+import { TraderTypeCards } from '@/Components/UI/TraderTypeCards';
 import PublicLayout from '@/Layouts/PublicLayout';
-import { formatVersion } from '@/lib/format';
 import type { Module, PageProps, Playbook, TraderType } from '@/types';
-import { Head, router } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 
 interface Props extends PageProps {
     modules: Module[];
     playbooks: Playbook[];
     featuredPlaybooks: Playbook[];
+    traderTypes: TraderType[];
 }
 
 const systemCards = [
@@ -42,12 +36,12 @@ const systemCards = [
     },
 ] as const;
 
-export default function Home({ modules, playbooks }: Props) {
+export default function Home({ traderTypes }: Props) {
     return (
         <PublicLayout>
             <Head title="Ticker-Tactix, LLC" />
-            <section className="relative min-h-[980px] overflow-hidden px-6 pt-23 pb-28">
-                <div className="absolute inset-0 h-[50vw] bg-[url('/design/assets/images/bg-hero.jpg')] bg-cover bg-bottom opacity-95 md:h-[50vh]" />
+            <section className="relative min-h-[980px] overflow-hidden px-6 pb-5">
+                <div className="absolute inset-0 h-[50vw] bg-[url('/design/assets/images/bg-hero.jpg')] bg-cover bg-bottom opacity-95 md:h-[80vh]" />
 
                 <img
                     className="absolute top-[15%] left-1/2 min-h-[80vw] w-full max-w-[2100px] min-w-300 -translate-x-1/2"
@@ -56,13 +50,13 @@ export default function Home({ modules, playbooks }: Props) {
                 />
 
                 <div className="via-midnight-blue/80 to-midnight-blue absolute inset-0 bg-gradient-to-b from-transparent" />
-                <div className="relative mx-auto flex max-w-7xl flex-col items-center text-center">
+                <div className="relative mx-auto mt-[20vw] flex max-w-7xl flex-col items-center text-center md:mt-[260px]">
                     <img
-                        className="mt-1 h-40 w-auto max-w-none md:h-80"
+                        className="h-40 w-auto max-w-none md:h-80"
                         src="/design/assets/images/logo-ticker-tactix-2026.png"
                         alt="Ticker Tactix"
                     />
-                    <div className="mt-1">
+                    <div className="">
                         <h1 className="text-seafoam-green font-heading text-5xl leading-[0.8] font-semibold uppercase sm:text-7xl lg:text-8xl">
                             <div style={{ lineHeight: 0.4 }}>
                                 <span className="brand-gradient-text-reverse font-heading text-main-blue text-2xl tracking-[0.12em] uppercase sm:text-4xl">
@@ -91,6 +85,11 @@ export default function Home({ modules, playbooks }: Props) {
                             decision support, not hype.
                         </p>
 
+                        <TraderTypeCards
+                            traderTypes={traderTypes}
+                            className="mt-10"
+                        />
+
                         <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
                             {/*<HudButton*/}
                             {/*    href={route('modules.index')}*/}
@@ -115,289 +114,6 @@ export default function Home({ modules, playbooks }: Props) {
                             alt=""
                         />
                     </div>
-
-                    <div className="mt-10 w-full">
-                        <Eyebrow>Rules-Based Market Operations</Eyebrow>
-                        <GradientHeading className="mx-auto max-w-5xl">
-                            <span className="text-3xl sm:text-5xl">
-                                How Ticker-Tactix brings structure to decisions.
-                            </span>
-                        </GradientHeading>
-                        <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-white/75">
-                            Ticker-Tactix organizes market decisions into
-                            modules and deployable playbooks so traders can
-                            reduce emotional override, constrain risk, and
-                            repeat the same decision process under pressure.
-                            Rather than starting with excitement, opinion, or
-                            impulse, the system starts with structure. Each
-                            layer is designed to narrow the field of possible
-                            decisions before execution is ever considered.
-                        </p>
-                        <img
-                            src="/design/assets/images/system.jpg"
-                            className="mt-6 hidden mix-blend-lighten"
-                            alt=""
-                        />
-                    </div>
-                </div>
-            </section>
-
-            <section className="from-main-blue-bright to-midnight-blue bg-gradient-to-b px-6 py-24">
-                <div className="mx-auto max-w-7xl 2xl:max-w-[1500px]">
-                    <Eyebrow>System Modules</Eyebrow>
-                    <h2 className="font-heading text-center text-4xl leading-none font-semibold uppercase sm:text-5xl lg:text-6xl">
-                        <span className="text-violet">Module</span>{' '}
-                        <span className="text-seafoam-green">Matrix</span>
-                    </h2>
-                    <p className="mx-auto mt-5 max-w-2xl text-center text-lg text-white/75">
-                        Specialized components that power the Ticker-Tactix
-                        system. Each module has a unique role in producing
-                        high-probability signals.
-                    </p>
-
-                    <HudPanel className="mt-10 overflow-hidden">
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full border-collapse text-left text-sm">
-                                <thead className="font-heading text-seafoam-green text-xs tracking-[0.14em] uppercase">
-                                    <tr>
-                                        <th className="px-3 py-4 sm:px-6 sm:py-5">
-                                            Module
-                                        </th>
-                                        <th className="hidden px-6 py-5 md:table-cell">
-                                            What It Does
-                                        </th>
-                                        <th className="px-3 py-4 sm:px-6 sm:py-5">
-                                            Trader Type
-                                        </th>
-                                        <th className="hidden px-6 py-5 md:table-cell">
-                                            Market
-                                        </th>
-                                        <th className="hidden px-6 py-5 md:table-cell">
-                                            Access
-                                        </th>
-                                        <th className="hidden px-6 py-5 md:table-cell">
-                                            Version
-                                        </th>
-                                        <th className="px-3 py-4 sm:px-6 sm:py-5">
-                                            Price
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {modules.slice(0, 8).map((module) => (
-                                        <tr
-                                            key={module.id}
-                                            role="link"
-                                            tabIndex={0}
-                                            aria-label={`Explore ${module.title}`}
-                                            className="border-main-blue/20 hover:bg-main-blue/10 focus-visible:ring-seafoam-green/60 cursor-pointer border-t transition focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset"
-                                            onClick={() =>
-                                                router.visit(
-                                                    route(
-                                                        'modules.show',
-                                                        module.slug,
-                                                    ),
-                                                )
-                                            }
-                                            onKeyDown={(event) => {
-                                                if (
-                                                    event.key === 'Enter' ||
-                                                    event.key === ' '
-                                                ) {
-                                                    event.preventDefault();
-                                                    router.visit(
-                                                        route(
-                                                            'modules.show',
-                                                            module.slug,
-                                                        ),
-                                                    );
-                                                }
-                                            }}
-                                        >
-                                            <td className="px-3 py-4 sm:px-6 sm:py-5">
-                                                <div className="text-seafoam-green flex items-center gap-4">
-                                                    <IconRenderer
-                                                        name={module.icon}
-                                                        className="h-8 w-8"
-                                                    />
-                                                    <span className="font-heading text-sm tracking-[0.08em] text-white uppercase">
-                                                        {module.title}
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td className="hidden w-full min-w-[300px] px-6 py-5 text-white/75 md:table-cell">
-                                                {module.description}
-                                            </td>
-                                            <td className="px-3 py-4 align-middle sm:px-6 sm:py-5">
-                                                <RotatingTaxonomyBadges
-                                                    types={
-                                                        module.trader_types ??
-                                                        module.traderTypes ??
-                                                        []
-                                                    }
-                                                />
-                                            </td>
-                                            <td className="hidden px-6 py-5 md:table-cell">
-                                                {module.market ? (
-                                                    <TaxonomyBadge
-                                                        label={
-                                                            module.market.name
-                                                        }
-                                                        color={
-                                                            module.market.color
-                                                        }
-                                                    />
-                                                ) : (
-                                                    <span className="text-white/45">
-                                                        —
-                                                    </span>
-                                                )}
-                                            </td>
-                                            <td className="hidden px-6 py-5 md:table-cell">
-                                                <AccessBadge
-                                                    access={module.access}
-                                                />
-                                            </td>
-                                            <td className="text-seafoam-green hidden px-6 py-5 md:table-cell">
-                                                {formatVersion(module.version)}
-                                            </td>
-                                            <td className="font-heading text-seafoam-green px-3 py-4 sm:px-6 sm:py-5">
-                                                {module.price || '—'}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </HudPanel>
-                </div>
-            </section>
-
-            <section className="bg-midnight-blue px-6 py-24">
-                <div className="mx-auto max-w-7xl 2xl:max-w-[1500px]">
-                    <Eyebrow>System Playbooks</Eyebrow>
-                    <GradientHeading className="text-center">
-                        Playbook Matrix
-                    </GradientHeading>
-                    <p className="mx-auto mt-5 max-w-2xl max-w-[400px] text-center text-lg text-white/75">
-                        Choose the playbook that matches your market, holding
-                        period, and execution speed.
-                    </p>
-                    <div className="mt-12 grid gap-6 lg:grid-cols-3 xl:px-10">
-                        {systemCards.map((card) => (
-                            <SystemInfoCard key={card.title} {...card} />
-                        ))}
-                    </div>
-                    <HudPanel className="mt-12 overflow-hidden">
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full text-left text-sm">
-                                <thead className="font-heading text-xs tracking-[0.14em] text-white/60 uppercase">
-                                    <tr>
-                                        <th className="px-3 py-4 sm:px-6 sm:py-5">
-                                            Playbook
-                                        </th>
-                                        <th className="px-3 py-4 sm:px-6 sm:py-5">
-                                            Trader Type
-                                        </th>
-                                        <th className="hidden px-6 py-5 md:table-cell">
-                                            Market
-                                        </th>
-                                        <th className="hidden px-6 py-5 md:table-cell">
-                                            Access
-                                        </th>
-                                        <th className="hidden px-6 py-5 md:table-cell">
-                                            Pace
-                                        </th>
-                                        <th className="hidden px-6 py-5 md:table-cell">
-                                            Best For
-                                        </th>
-                                        <th className="px-3 py-4 sm:px-6 sm:py-5">
-                                            Price
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {playbooks.map((playbook) => (
-                                        <tr
-                                            key={playbook.id}
-                                            role="link"
-                                            tabIndex={0}
-                                            aria-label={`Explore ${playbook.title}`}
-                                            className="border-main-blue/20 hover:bg-main-blue/10 focus-visible:ring-seafoam-green/60 cursor-pointer border-t transition focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset"
-                                            onClick={() =>
-                                                router.visit(
-                                                    route(
-                                                        'playbooks.show',
-                                                        playbook.slug,
-                                                    ),
-                                                )
-                                            }
-                                            onKeyDown={(event) => {
-                                                if (
-                                                    event.key === 'Enter' ||
-                                                    event.key === ' '
-                                                ) {
-                                                    event.preventDefault();
-                                                    router.visit(
-                                                        route(
-                                                            'playbooks.show',
-                                                            playbook.slug,
-                                                        ),
-                                                    );
-                                                }
-                                            }}
-                                        >
-                                            <td className="px-3 py-4 font-medium text-white sm:px-6 sm:py-5">
-                                                <span className="font-heading text-sm tracking-[0.08em] text-white uppercase">
-                                                    {playbook.title}
-                                                </span>
-                                            </td>
-                                            <td className="px-3 py-4 sm:px-6 sm:py-5">
-                                                <TaxonomyList
-                                                    types={
-                                                        playbook.trader_types ??
-                                                        playbook.traderTypes ??
-                                                        []
-                                                    }
-                                                />
-                                            </td>
-                                            <td className="hidden px-6 py-5 md:table-cell">
-                                                {playbook.market ? (
-                                                    <TaxonomyBadge
-                                                        label={
-                                                            playbook.market.name
-                                                        }
-                                                        color={
-                                                            playbook.market
-                                                                .color
-                                                        }
-                                                    />
-                                                ) : (
-                                                    <span className="text-white/45">
-                                                        —
-                                                    </span>
-                                                )}
-                                            </td>
-                                            <td className="hidden px-6 py-5 md:table-cell">
-                                                <AccessBadge
-                                                    access={playbook.access}
-                                                />
-                                            </td>
-                                            <td className="hidden px-6 py-5 text-white/70 md:table-cell">
-                                                {playbook.trading_pace || '—'}
-                                            </td>
-                                            <td className="hidden w-full min-w-[300px] px-6 py-5 text-white/75 md:table-cell">
-                                                {playbook.best_for}
-                                            </td>
-                                            <td className="font-heading text-seafoam-green px-3 py-4 sm:px-6 sm:py-5">
-                                                {playbook.price || '—'}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </HudPanel>
                 </div>
             </section>
         </PublicLayout>

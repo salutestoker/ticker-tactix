@@ -16,6 +16,7 @@ class PageController extends Controller
             'modules' => Module::public()->with(['market', 'traderTypes'])->ordered()->get(),
             'playbooks' => Playbook::public()->with(['market', 'traderTypes'])->ordered()->get(),
             'featuredPlaybooks' => Playbook::public()->with(['market', 'traderTypes'])->where('is_featured', true)->ordered()->get(),
+            'traderTypes' => $this->activeTraderTypes(),
         ]);
     }
 
@@ -27,19 +28,7 @@ class PageController extends Controller
     public function traderTypes(): Response
     {
         return Inertia::render('TraderTypes', [
-            'traderTypes' => TraderType::active()
-                ->with([
-                    'modules' => fn ($query) => $query
-                        ->where('modules.is_active', true)
-                        ->with('market')
-                        ->ordered(),
-                    'playbooks' => fn ($query) => $query
-                        ->where('playbooks.is_active', true)
-                        ->with('market')
-                        ->ordered(),
-                ])
-                ->ordered()
-                ->get(),
+            'traderTypes' => $this->activeTraderTypes(),
         ]);
     }
 
@@ -68,5 +57,22 @@ class PageController extends Controller
             'title' => $pages[$page],
             'slug' => $page,
         ]);
+    }
+
+    private function activeTraderTypes()
+    {
+        return TraderType::active()
+            ->with([
+                'modules' => fn ($query) => $query
+                    ->where('modules.is_active', true)
+                    ->with('market')
+                    ->ordered(),
+                'playbooks' => fn ($query) => $query
+                    ->where('playbooks.is_active', true)
+                    ->with('market')
+                    ->ordered(),
+            ])
+            ->ordered()
+            ->get();
     }
 }

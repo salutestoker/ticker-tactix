@@ -25,7 +25,7 @@ export default function ModulesIndex({
                         alt=""
                     />
                 </div>
-                <div className="mx-auto max-w-7xl 2xl:max-w-[1500px]">
+                <div className="mx-auto max-w-7xl xl:max-w-[1500px]">
                     <Eyebrow>System Modules</Eyebrow>
                     <h1 className="font-heading text-center text-4xl leading-none font-semibold uppercase sm:text-5xl lg:text-6xl">
                         <span className="text-violet">Module</span>{' '}

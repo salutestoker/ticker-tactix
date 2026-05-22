@@ -27,6 +27,28 @@ export default function About() {
                         the same decision process under pressure.
                     </p>
                 </div>
+                <div className="mx-auto my-20 max-w-5xl text-center">
+                    <Eyebrow>Rules-Based Market Operations</Eyebrow>
+                    <GradientHeading className="mx-auto max-w-5xl">
+                        <span className="text-3xl sm:text-5xl">
+                            How Ticker-Tactix brings structure to decisions.
+                        </span>
+                    </GradientHeading>
+                    <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-white/75">
+                        Ticker-Tactix organizes market decisions into modules
+                        and deployable playbooks so traders can reduce emotional
+                        override, constrain risk, and repeat the same decision
+                        process under pressure. Rather than starting with
+                        excitement, opinion, or impulse, the system starts with
+                        structure. Each layer is designed to narrow the field of
+                        possible decisions before execution is ever considered.
+                    </p>
+                    <img
+                        src="/design/assets/images/system.jpg"
+                        className="mt-6 hidden mix-blend-lighten"
+                        alt=""
+                    />
+                </div>
                 <div className="mx-auto mt-14 grid max-w-6xl gap-6 md:grid-cols-3">
                     {[
                         [
