@@ -283,7 +283,7 @@ export default function Home({ modules, playbooks }: Props) {
                         Choose the playbook that matches your market, holding
                         period, and execution speed.
                     </p>
-                    <div className="mt-12 grid gap-6 sm:px-10 lg:grid-cols-3">
+                    <div className="mt-12 grid gap-6 lg:grid-cols-3 xl:px-10">
                         {systemCards.map((card) => (
                             <SystemInfoCard key={card.title} {...card} />
                         ))}
@@ -443,7 +443,7 @@ function SystemInfoCard({
 
     return (
         <article
-            className={`bg-panel-deep/92 flex min-h-32 items-center gap-6 rounded-[14px] border p-6 text-left ${cardTone}`}
+            className={`bg-panel-deep/92 flex min-h-32 items-center gap-6 rounded-[14px] border p-6 text-left lg:flex-col xl:flex-row ${cardTone}`}
         >
             <div
                 className={`flex h-20 w-20 shrink-0 items-center justify-center rounded-[14px] border ${iconTone}`}
