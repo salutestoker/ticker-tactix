@@ -2,10 +2,10 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     @php
         $seoTitle = 'Ticker-Tactix, LLC';
-        $seoDescription = 'Trade with structure not emotion. A rules-based market operating system for traders who value structure over signals. Custom indicators, structured playbooks, and disciplined market frameworks for traders who want decision support, not hype.';
+        $seoDescription = 'Trade with structure not emotion. A rules-based market operating system for traders who value structure over signals.';
         $seoSiteName = 'Ticker-Tactix';
         $seoCanonicalUrl = request()->fullUrl();
-        $seoImageUrl = url('/design/assets/images/open-graph/ticker-tactix-2026.png');
+        $seoImageUrl = url('/design/assets/images/open-graph/ticker-tactix-2026--compressed.jpg');
         $seoImageAlt = 'Ticker-Tactix hero artwork with the headline Trade with Structure Not Emotion.';
     @endphp
     <head>
