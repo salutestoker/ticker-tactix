@@ -24,7 +24,7 @@ export default function PlaybooksIndex({
                         alt=""
                     />
                 </div>
-                <div className="mx-auto max-w-[1500px]">
+                <div className="mx-auto max-w-7xl 2xl:max-w-[1500px]">
                     <Eyebrow>Playbook Access</Eyebrow>
                     <GradientHeading className="text-center">
                         Playbook Matrix

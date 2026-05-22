@@ -143,7 +143,7 @@ export default function Home({ modules, playbooks }: Props) {
             </section>
 
             <section className="from-main-blue-bright to-midnight-blue bg-gradient-to-b px-6 py-24">
-                <div className="mx-auto max-w-[1500px]">
+                <div className="mx-auto max-w-7xl 2xl:max-w-[1500px]">
                     <Eyebrow>System Modules</Eyebrow>
                     <h2 className="font-heading text-center text-4xl leading-none font-semibold uppercase sm:text-5xl lg:text-6xl">
                         <span className="text-violet">Module</span>{' '}
@@ -274,7 +274,7 @@ export default function Home({ modules, playbooks }: Props) {
             </section>
 
             <section className="bg-midnight-blue px-6 py-24">
-                <div className="mx-auto max-w-[1500px]">
+                <div className="mx-auto max-w-7xl 2xl:max-w-[1500px]">
                     <Eyebrow>System Playbooks</Eyebrow>
                     <GradientHeading className="text-center">
                         Playbook Matrix
