@@ -1,5 +1,4 @@
 import {
-    AccessBadge,
     HudButton,
     HudPanel,
     StatusBadge,
@@ -30,11 +29,8 @@ export default function AdminPlaybooksIndex({
                     <table className="min-w-full text-left text-sm">
                         <thead className="font-heading text-seafoam-green text-xs tracking-[0.14em] uppercase">
                             <tr>
-                                <th className="px-5 py-4">Playbook</th>
-                                <th className="px-5 py-4">Market</th>
+                                <th className="px-5 py-4">Title</th>
                                 <th className="px-5 py-4">Trader Types</th>
-                                <th className="px-5 py-4">Access</th>
-                                <th className="px-5 py-4">Price</th>
                                 <th className="px-5 py-4">Status</th>
                                 <th className="px-5 py-4">Actions</th>
                             </tr>
@@ -47,18 +43,6 @@ export default function AdminPlaybooksIndex({
                                 >
                                     <td className="px-5 py-4 text-white">
                                         {playbook.title}
-                                    </td>
-                                    <td className="px-5 py-4">
-                                        {playbook.market ? (
-                                            <TaxonomyBadge
-                                                label={playbook.market.name}
-                                                color={playbook.market.color}
-                                            />
-                                        ) : (
-                                            <span className="text-white/45">
-                                                —
-                                            </span>
-                                        )}
                                     </td>
                                     <td className="px-5 py-4">
                                         <div className="flex flex-wrap gap-2">
@@ -74,12 +58,6 @@ export default function AdminPlaybooksIndex({
                                                 />
                                             ))}
                                         </div>
-                                    </td>
-                                    <td className="px-5 py-4">
-                                        <AccessBadge access={playbook.access} />
-                                    </td>
-                                    <td className="text-seafoam-green px-5 py-4">
-                                        {playbook.price || '—'}
                                     </td>
                                     <td className="px-5 py-4">
                                         <StatusBadge

@@ -15,6 +15,32 @@ class PublicCatalogTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_homepage_renders_social_metadata(): void
+    {
+        $description = 'Trade with structure not emotion. A rules-based market operating system for traders who value structure over signals. Custom indicators, structured playbooks, and disciplined market frameworks for traders who want decision support, not hype.';
+        $imageUrl = url('/design/assets/images/open-graph/ticker-tactix-2026.png');
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('<title inertia>Ticker-Tactix, LLC</title>', false)
+            ->assertSee('<meta name="description" content="'.$description.'">', false)
+            ->assertSee('<link rel="canonical" href="'.url('/').'">', false)
+            ->assertSee('<meta property="og:type" content="website">', false)
+            ->assertSee('<meta property="og:site_name" content="Ticker-Tactix">', false)
+            ->assertSee('<meta property="og:title" content="Ticker-Tactix, LLC">', false)
+            ->assertSee('<meta property="og:description" content="'.$description.'">', false)
+            ->assertSee('<meta property="og:url" content="'.url('/').'">', false)
+            ->assertSee('<meta property="og:image" content="'.$imageUrl.'">', false)
+            ->assertSee('<meta property="og:image:width" content="3024">', false)
+            ->assertSee('<meta property="og:image:height" content="1722">', false)
+            ->assertSee('<meta property="og:image:alt" content="Ticker-Tactix hero artwork with the headline Trade with Structure Not Emotion.">', false)
+            ->assertSee('<meta name="twitter:card" content="summary_large_image">', false)
+            ->assertSee('<meta name="twitter:title" content="Ticker-Tactix, LLC">', false)
+            ->assertSee('<meta name="twitter:description" content="'.$description.'">', false)
+            ->assertSee('<meta name="twitter:image" content="'.$imageUrl.'">', false)
+            ->assertSee('<meta name="twitter:image:alt" content="Ticker-Tactix hero artwork with the headline Trade with Structure Not Emotion.">', false);
+    }
+
     public function test_home_and_catalog_pages_render_public_records(): void
     {
         [$market, $traderType] = $this->catalogTaxonomies();

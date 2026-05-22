@@ -3,7 +3,6 @@ import {
     AccessBadge,
     Eyebrow,
     GradientHeading,
-    HudButton,
     HudPanel,
     TaxonomyBadge,
 } from '@/Components/UI/Hud';
@@ -11,7 +10,7 @@ import { RotatingTaxonomyBadges } from '@/Components/UI/RotatingTaxonomyBadges';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { formatVersion } from '@/lib/format';
 import type { Module, PageProps, Playbook, TraderType } from '@/types';
-import { Head, Link } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 
 interface Props extends PageProps {
     modules: Module[];
@@ -46,7 +45,7 @@ const systemCards = [
 export default function Home({ modules, playbooks }: Props) {
     return (
         <PublicLayout>
-            <Head title="Trade With Structure, Not Emotion" />
+            <Head title="Ticker-Tactix, LLC" />
             <section className="relative min-h-[980px] overflow-hidden px-6 pt-23 pb-28">
                 <div className="absolute inset-0 h-[50vw] bg-[url('/design/assets/images/bg-hero.jpg')] bg-cover bg-bottom opacity-95 md:h-[50vh]" />
 
@@ -161,33 +160,62 @@ export default function Home({ modules, playbooks }: Props) {
                             <table className="min-w-full border-collapse text-left text-sm">
                                 <thead className="font-heading text-seafoam-green text-xs tracking-[0.14em] uppercase">
                                     <tr>
-                                        <th className="px-6 py-5">Module</th>
-                                        <th className="px-6 py-5">
+                                        <th className="px-3 py-4 sm:px-6 sm:py-5">
+                                            Module
+                                        </th>
+                                        <th className="hidden px-6 py-5 md:table-cell">
                                             What It Does
                                         </th>
-                                        <th className="px-6 py-5">
+                                        <th className="px-3 py-4 sm:px-6 sm:py-5">
                                             Trader Type
                                         </th>
-                                        <th className="px-6 py-5">Market</th>
-                                        <th className="px-6 py-5">Access</th>
-                                        <th className="px-6 py-5">Version</th>
-                                        <th className="px-6 py-5">Action</th>
+                                        <th className="hidden px-6 py-5 md:table-cell">
+                                            Market
+                                        </th>
+                                        <th className="hidden px-6 py-5 md:table-cell">
+                                            Access
+                                        </th>
+                                        <th className="hidden px-6 py-5 md:table-cell">
+                                            Version
+                                        </th>
+                                        <th className="px-3 py-4 sm:px-6 sm:py-5">
+                                            Price
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {modules.slice(0, 8).map((module) => (
                                         <tr
                                             key={module.id}
-                                            className="border-main-blue/20 border-t"
-                                        >
-                                            <td className="px-6 py-5">
-                                                <Link
-                                                    href={route(
+                                            role="link"
+                                            tabIndex={0}
+                                            aria-label={`Explore ${module.title}`}
+                                            className="border-main-blue/20 hover:bg-main-blue/10 focus-visible:ring-seafoam-green/60 cursor-pointer border-t transition focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset"
+                                            onClick={() =>
+                                                router.visit(
+                                                    route(
                                                         'modules.show',
                                                         module.slug,
-                                                    )}
-                                                    className="text-seafoam-green flex items-center gap-4 hover:text-white"
-                                                >
+                                                    ),
+                                                )
+                                            }
+                                            onKeyDown={(event) => {
+                                                if (
+                                                    event.key === 'Enter' ||
+                                                    event.key === ' '
+                                                ) {
+                                                    event.preventDefault();
+                                                    router.visit(
+                                                        route(
+                                                            'modules.show',
+                                                            module.slug,
+                                                        ),
+                                                    );
+                                                }
+                                            }}
+                                        >
+                                            <td className="px-3 py-4 sm:px-6 sm:py-5">
+                                                <div className="text-seafoam-green flex items-center gap-4">
                                                     <IconRenderer
                                                         name={module.icon}
                                                         className="h-8 w-8"
@@ -195,12 +223,12 @@ export default function Home({ modules, playbooks }: Props) {
                                                     <span className="font-heading text-sm tracking-[0.08em] text-white uppercase">
                                                         {module.title}
                                                     </span>
-                                                </Link>
+                                                </div>
                                             </td>
-                                            <td className="w-full px-6 py-5 text-white/75">
+                                            <td className="hidden w-full min-w-[300px] px-6 py-5 text-white/75 md:table-cell">
                                                 {module.description}
                                             </td>
-                                            <td className="px-6 py-5 align-middle">
+                                            <td className="px-3 py-4 align-middle sm:px-6 sm:py-5">
                                                 <RotatingTaxonomyBadges
                                                     types={
                                                         module.trader_types ??
@@ -209,7 +237,7 @@ export default function Home({ modules, playbooks }: Props) {
                                                     }
                                                 />
                                             </td>
-                                            <td className="px-6 py-5">
+                                            <td className="hidden px-6 py-5 md:table-cell">
                                                 {module.market ? (
                                                     <TaxonomyBadge
                                                         label={
@@ -225,24 +253,16 @@ export default function Home({ modules, playbooks }: Props) {
                                                     </span>
                                                 )}
                                             </td>
-                                            <td className="px-6 py-5">
+                                            <td className="hidden px-6 py-5 md:table-cell">
                                                 <AccessBadge
                                                     access={module.access}
                                                 />
                                             </td>
-                                            <td className="text-seafoam-green px-6 py-5">
+                                            <td className="text-seafoam-green hidden px-6 py-5 md:table-cell">
                                                 {formatVersion(module.version)}
                                             </td>
-                                            <td className="px-6 py-5">
-                                                <HudButton
-                                                    href={route(
-                                                        'modules.show',
-                                                        module.slug,
-                                                    )}
-                                                    tone="violet"
-                                                >
-                                                    Explore
-                                                </HudButton>
+                                            <td className="font-heading text-seafoam-green px-3 py-4 sm:px-6 sm:py-5">
+                                                {module.price || '—'}
                                             </td>
                                         </tr>
                                     ))}
@@ -263,7 +283,7 @@ export default function Home({ modules, playbooks }: Props) {
                         Choose the playbook that matches your market, holding
                         period, and execution speed.
                     </p>
-                    <div className="mt-12 grid gap-6 px-10 lg:grid-cols-3">
+                    <div className="mt-12 grid gap-6 sm:px-10 lg:grid-cols-3">
                         {systemCards.map((card) => (
                             <SystemInfoCard key={card.title} {...card} />
                         ))}
@@ -273,35 +293,66 @@ export default function Home({ modules, playbooks }: Props) {
                             <table className="min-w-full text-left text-sm">
                                 <thead className="font-heading text-xs tracking-[0.14em] text-white/60 uppercase">
                                     <tr>
-                                        <th className="px-6 py-5">Playbook</th>
-                                        <th className="px-6 py-5">
+                                        <th className="px-3 py-4 sm:px-6 sm:py-5">
+                                            Playbook
+                                        </th>
+                                        <th className="px-3 py-4 sm:px-6 sm:py-5">
                                             Trader Type
                                         </th>
-                                        <th className="px-6 py-5">Market</th>
-                                        <th className="px-6 py-5">Access</th>
-                                        <th className="px-6 py-5">Pace</th>
-                                        <th className="px-6 py-5">Best For</th>
-                                        <th className="px-6 py-5">Price</th>
-                                        <th className="px-6 py-5">Action</th>
+                                        <th className="hidden px-6 py-5 md:table-cell">
+                                            Market
+                                        </th>
+                                        <th className="hidden px-6 py-5 md:table-cell">
+                                            Access
+                                        </th>
+                                        <th className="hidden px-6 py-5 md:table-cell">
+                                            Pace
+                                        </th>
+                                        <th className="hidden px-6 py-5 md:table-cell">
+                                            Best For
+                                        </th>
+                                        <th className="px-3 py-4 sm:px-6 sm:py-5">
+                                            Price
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {playbooks.map((playbook) => (
                                         <tr
                                             key={playbook.id}
-                                            className="border-main-blue/20 border-t"
-                                        >
-                                            <td className="px-6 py-5 font-medium text-white">
-                                                <Link
-                                                    href={route(
+                                            role="link"
+                                            tabIndex={0}
+                                            aria-label={`Explore ${playbook.title}`}
+                                            className="border-main-blue/20 hover:bg-main-blue/10 focus-visible:ring-seafoam-green/60 cursor-pointer border-t transition focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset"
+                                            onClick={() =>
+                                                router.visit(
+                                                    route(
                                                         'playbooks.show',
                                                         playbook.slug,
-                                                    )}
-                                                >
+                                                    ),
+                                                )
+                                            }
+                                            onKeyDown={(event) => {
+                                                if (
+                                                    event.key === 'Enter' ||
+                                                    event.key === ' '
+                                                ) {
+                                                    event.preventDefault();
+                                                    router.visit(
+                                                        route(
+                                                            'playbooks.show',
+                                                            playbook.slug,
+                                                        ),
+                                                    );
+                                                }
+                                            }}
+                                        >
+                                            <td className="px-3 py-4 font-medium text-white sm:px-6 sm:py-5">
+                                                <span className="font-heading text-sm tracking-[0.08em] text-white uppercase">
                                                     {playbook.title}
-                                                </Link>
+                                                </span>
                                             </td>
-                                            <td className="px-6 py-5">
+                                            <td className="px-3 py-4 sm:px-6 sm:py-5">
                                                 <TaxonomyList
                                                     types={
                                                         playbook.trader_types ??
@@ -310,7 +361,7 @@ export default function Home({ modules, playbooks }: Props) {
                                                     }
                                                 />
                                             </td>
-                                            <td className="px-6 py-5">
+                                            <td className="hidden px-6 py-5 md:table-cell">
                                                 {playbook.market ? (
                                                     <TaxonomyBadge
                                                         label={
@@ -327,30 +378,19 @@ export default function Home({ modules, playbooks }: Props) {
                                                     </span>
                                                 )}
                                             </td>
-                                            <td className="px-6 py-5">
+                                            <td className="hidden px-6 py-5 md:table-cell">
                                                 <AccessBadge
                                                     access={playbook.access}
                                                 />
                                             </td>
-                                            <td className="px-6 py-5 text-white/70">
+                                            <td className="hidden px-6 py-5 text-white/70 md:table-cell">
                                                 {playbook.trading_pace || '—'}
                                             </td>
-                                            <td className="px-6 py-5 text-white/65">
+                                            <td className="hidden w-full min-w-[300px] px-6 py-5 text-white/75 md:table-cell">
                                                 {playbook.best_for}
                                             </td>
-                                            <td className="font-heading text-seafoam-green px-6 py-5">
+                                            <td className="font-heading text-seafoam-green px-3 py-4 sm:px-6 sm:py-5">
                                                 {playbook.price || '—'}
-                                            </td>
-                                            <td className="px-6 py-5">
-                                                <HudButton
-                                                    href={route(
-                                                        'playbooks.show',
-                                                        playbook.slug,
-                                                    )}
-                                                    tone="violet"
-                                                >
-                                                    Explore
-                                                </HudButton>
                                             </td>
                                         </tr>
                                     ))}

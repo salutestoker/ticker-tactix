@@ -1,10 +1,4 @@
-import {
-    AccessBadge,
-    HudButton,
-    HudPanel,
-    StatusBadge,
-    TaxonomyBadge,
-} from '@/Components/UI/Hud';
+import { HudButton, HudPanel, StatusBadge } from '@/Components/UI/Hud';
 import { RotatingTaxonomyBadges } from '@/Components/UI/RotatingTaxonomyBadges';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { formatVersion } from '@/lib/format';
@@ -29,8 +23,6 @@ export default function AdminModulesIndex({ modules }: { modules: Module[] }) {
                         <thead className="font-heading text-seafoam-green text-xs tracking-[0.14em] uppercase">
                             <tr>
                                 <th className="px-5 py-4">Title</th>
-                                <th className="px-5 py-4">Market</th>
-                                <th className="px-5 py-4">Access</th>
                                 <th className="px-5 py-4">Trader Types</th>
                                 <th className="px-5 py-4">Version</th>
                                 <th className="px-5 py-4">Status</th>
@@ -45,21 +37,6 @@ export default function AdminModulesIndex({ modules }: { modules: Module[] }) {
                                 >
                                     <td className="px-5 py-4 text-white">
                                         {module.title}
-                                    </td>
-                                    <td className="px-5 py-4">
-                                        {module.market ? (
-                                            <TaxonomyBadge
-                                                label={module.market.name}
-                                                color={module.market.color}
-                                            />
-                                        ) : (
-                                            <span className="text-white/45">
-                                                —
-                                            </span>
-                                        )}
-                                    </td>
-                                    <td className="px-5 py-4">
-                                        <AccessBadge access={module.access} />
                                     </td>
                                     <td className="px-5 py-4 align-middle">
                                         <RotatingTaxonomyBadges

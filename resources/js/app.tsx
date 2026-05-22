@@ -5,13 +5,15 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Ticker Tactix';
+const defaultPageTitle = 'Ticker-Tactix, LLC';
 const pages = import.meta.glob('./Pages/**/*.tsx') as Record<
     string,
     () => Promise<{ default: ResolvedComponent }>
 >;
 
 createInertiaApp({
-    title: (title) => `${title} - ${appName}`,
+    title: (title) =>
+        title === defaultPageTitle ? defaultPageTitle : `${title} - ${appName}`,
     resolve: (name) =>
         resolvePageComponent<{ default: ResolvedComponent }>(
             `./Pages/${name}.tsx`,
