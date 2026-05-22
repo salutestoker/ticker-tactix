@@ -71,7 +71,7 @@ export default function TraderTypes({ traderTypes }: TraderTypesProps) {
         <PublicLayout>
             <Head title="What Type of Trader Are You?" />
             <PublicHeroFrame className="px-4 pt-32 pb-20 sm:px-6">
-                <div className="relative z-10 w-[102vw] translate-x-[-2%] -translate-y-[35%] mix-blend-lighten">
+                <div className="relative z-10 flex w-[102vw] translate-x-[-2%] -translate-y-[35%] justify-center mix-blend-lighten">
                     <img
                         src="/design/assets/images/bg-what-type-of-trader-are-you.png"
                         className=""

@@ -17,7 +17,7 @@ export default function PlaybooksIndex({
         <PublicLayout>
             <Head title="Playbooks" />
             <PublicHeroFrame>
-                <div className="relative z-10 w-[102vw] translate-x-[-2%] -translate-y-[18%] mix-blend-lighten">
+                <div className="relative z-10 flex w-[102vw] translate-x-[-2%] -translate-y-[18%] justify-center mix-blend-lighten">
                     <img
                         src="/design/assets/images/bg-playbooks.png"
                         className=""
