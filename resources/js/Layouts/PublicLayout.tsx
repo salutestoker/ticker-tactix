@@ -231,7 +231,7 @@ function Footer() {
     return (
         <footer className="bg-main-blue-bright relative overflow-hidden text-white">
             <video
-                className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-90"
+                className="pointer-events-none absolute inset-0 opacity-90 max-md:top-full max-md:w-[420%] max-md:max-w-none max-md:-translate-y-full md:h-full md:w-full md:object-cover"
                 autoPlay
                 loop
                 muted
@@ -252,7 +252,7 @@ function Footer() {
                 {/*    src="/design/assets/images/logo-ticker-tactix-2026.png"*/}
                 {/*    alt="Ticker Tactix"*/}
                 {/*/>*/}
-                <div className="grid gap-10 border-y border-white/15 py-10 text-sm text-white/75 md:grid-cols-4">
+                <div className="grid grid-cols-2 gap-x-6 gap-y-10 border-y border-white/15 py-10 text-left text-sm text-white/75 md:grid-cols-4 md:text-center">
                     {footerColumns.map((column) => (
                         <FooterColumn
                             key={column.title}

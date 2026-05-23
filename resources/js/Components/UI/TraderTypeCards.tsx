@@ -59,26 +59,40 @@ export function TraderTypeCards({
     className?: string;
 }) {
     const cards = traderTypes.map(toTraderTypeCard);
+    const isHomeRoute = route().current('home');
+    const cardsGrid = (
+        <div className="mx-auto mt-12 grid max-w-7xl gap-6 lg:grid-cols-2">
+            {cards.map((traderType) => (
+                <TraderTypePanel
+                    key={traderType.title}
+                    traderType={traderType}
+                />
+            ))}
+        </div>
+    );
 
     return (
         <div className={className}>
-            <TraderTypeLegend />
-
-            <div className="mx-auto mt-12 grid max-w-7xl gap-6 lg:grid-cols-2">
-                {cards.map((traderType) => (
-                    <TraderTypePanel
-                        key={traderType.title}
-                        traderType={traderType}
-                    />
-                ))}
-            </div>
+            {isHomeRoute ? (
+                <>
+                    {cardsGrid}
+                    <TraderTypeLegend className="mt-10" />
+                </>
+            ) : (
+                <>
+                    <TraderTypeLegend />
+                    {cardsGrid}
+                </>
+            )}
         </div>
     );
 }
 
-export function TraderTypeLegend() {
+export function TraderTypeLegend({ className = '' }: { className?: string }) {
     return (
-        <div className="mx-auto flex max-w-4xl flex-col gap-6 text-base leading-7 text-white/78 md:grid md:grid-cols-2 md:gap-3">
+        <div
+            className={`mx-auto flex max-w-4xl flex-col gap-6 text-base leading-7 text-white/78 md:grid md:grid-cols-2 md:gap-3 ${className}`}
+        >
             <Legend
                 icon="composite-engine"
                 label="Modules"
