@@ -12,6 +12,10 @@ gsap.registerPlugin(useGSAP);
 const moduleImageBase = '/design/assets/images/modules';
 const autoScrollPixelsPerSecond = 28;
 const dragActivationDistance = 12;
+const dragVelocitySmoothing = 0.35;
+const maxMomentumPixelsPerSecond = 2600;
+const minMomentumPixelsPerSecond = 18;
+const momentumDecayPerFrame = 0.94;
 
 const imageSlugs = new Set([
     'crypto-info-box',
@@ -70,9 +74,9 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
                 force3D: true,
             });
 
-            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                return;
-            }
+            const reducedMotion = window.matchMedia(
+                '(prefers-reduced-motion: reduce)',
+            ).matches;
 
             let hoverPaused = false;
             let manualPaused = false;
@@ -83,6 +87,10 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
             let suppressNextClick = false;
             let dragStartX = 0;
             let dragStartTrackX = currentX;
+            let dragVelocity = 0;
+            let lastPointerX = 0;
+            let lastPointerTime = 0;
+            let momentumVelocity = 0;
             let activePointerId: number | null = null;
 
             const wrapTrackX = (value: number) => {
@@ -103,6 +111,13 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
                     x: currentX,
                     force3D: true,
                 });
+            };
+
+            const clampMomentumVelocity = (value: number) => {
+                return Math.max(
+                    maxMomentumPixelsPerSecond * -1,
+                    Math.min(maxMomentumPixelsPerSecond, value),
+                );
             };
 
             const syncSetWidth = () => {
@@ -147,6 +162,10 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
                 activePointerId = event.pointerId;
                 dragStartX = event.clientX;
                 dragStartTrackX = currentX;
+                dragVelocity = 0;
+                lastPointerX = event.clientX;
+                lastPointerTime = event.timeStamp;
+                momentumVelocity = 0;
                 window.clearTimeout(manualResumeTimeout);
                 viewportElement.classList.add('cursor-grabbing');
 
@@ -161,6 +180,21 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
                 }
 
                 const deltaX = event.clientX - dragStartX;
+                const elapsedTime = Math.max(
+                    16,
+                    event.timeStamp - lastPointerTime,
+                );
+                const pointerDelta = event.clientX - lastPointerX;
+                const instantVelocity = (pointerDelta / elapsedTime) * 1000;
+
+                if (Number.isFinite(instantVelocity)) {
+                    dragVelocity +=
+                        (instantVelocity - dragVelocity) *
+                        dragVelocitySmoothing;
+                }
+
+                lastPointerX = event.clientX;
+                lastPointerTime = event.timeStamp;
 
                 if (!dragStarted && Math.abs(deltaX) < dragActivationDistance) {
                     return;
@@ -185,7 +219,19 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
                     viewportElement.releasePointerCapture(event.pointerId);
                 }
 
-                releaseManualPause(dragStarted ? 900 : 200);
+                momentumVelocity =
+                    dragStarted && !reducedMotion
+                        ? clampMomentumVelocity(dragVelocity)
+                        : 0;
+                dragVelocity = 0;
+
+                if (Math.abs(momentumVelocity) >= minMomentumPixelsPerSecond) {
+                    manualPaused = true;
+                    return;
+                }
+
+                momentumVelocity = 0;
+                releaseManualPause(dragStarted ? 350 : 200);
             };
 
             const handleClickCapture = (event: MouseEvent) => {
@@ -204,7 +250,30 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
             };
 
             const tick = (_time: number, deltaTime: number) => {
-                if (hoverPaused || manualPaused || pointerDown) {
+                if (pointerDown || reducedMotion) {
+                    return;
+                }
+
+                if (
+                    Math.abs(momentumVelocity) >= minMomentumPixelsPerSecond
+                ) {
+                    setTrackX(currentX + (momentumVelocity * deltaTime) / 1000);
+                    momentumVelocity *= Math.pow(
+                        momentumDecayPerFrame,
+                        deltaTime / 16.6667,
+                    );
+
+                    if (
+                        Math.abs(momentumVelocity) < minMomentumPixelsPerSecond
+                    ) {
+                        momentumVelocity = 0;
+                        releaseManualPause(180);
+                    }
+
+                    return;
+                }
+
+                if (hoverPaused || manualPaused) {
                     return;
                 }
 
