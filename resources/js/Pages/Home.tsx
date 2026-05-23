@@ -1,42 +1,15 @@
-import { IconRenderer } from '@/Components/Icons/IconRenderer';
-import { TaxonomyBadge } from '@/Components/UI/Hud';
+import { ModuleCardsCarousel } from '@/Components/UI/ModuleCardsCarousel';
 import { TraderTypeCards } from '@/Components/UI/TraderTypeCards';
 import PublicLayout from '@/Layouts/PublicLayout';
-import type { Module, PageProps, Playbook, TraderType } from '@/types';
+import type { Module, PageProps, TraderType } from '@/types';
 import { Head } from '@inertiajs/react';
 
 interface Props extends PageProps {
     modules: Module[];
-    playbooks: Playbook[];
-    featuredPlaybooks: Playbook[];
     traderTypes: TraderType[];
 }
 
-const systemCards = [
-    {
-        title: 'Backtested Framework Logic',
-        description:
-            'Rules-based playbook architecture shaped through historical testing and disciplined deployment.',
-        icon: 'backtested-brain-circuit',
-        tone: 'violet',
-    },
-    {
-        title: 'Structured Execution Layer',
-        description:
-            'A coordinated framework that translates market context into repeatable execution.',
-        icon: 'command-cube',
-        tone: 'seafoam',
-    },
-    {
-        title: 'Versioned Access Model',
-        description:
-            'Playbooks are delivered through controlled versions with curated access and ongoing refinement.',
-        icon: 'versioned-layers',
-        tone: 'violet',
-    },
-] as const;
-
-export default function Home({ traderTypes }: Props) {
+export default function Home({ modules, traderTypes }: Props) {
     return (
         <PublicLayout>
             <Head title="Ticker-Tactix, LLC" />
@@ -56,7 +29,7 @@ export default function Home({ traderTypes }: Props) {
                         src="/design/assets/images/logo-ticker-tactix-2026.png"
                         alt="Ticker Tactix"
                     />
-                    <div className="">
+                    <div className="w-full">
                         <h1 className="text-seafoam-green font-heading text-5xl leading-[0.8] font-semibold uppercase sm:text-7xl lg:text-8xl">
                             <div style={{ lineHeight: 0.4 }}>
                                 <span className="brand-gradient-text-reverse font-heading text-main-blue text-2xl tracking-[0.12em] uppercase sm:text-4xl">
@@ -89,6 +62,7 @@ export default function Home({ traderTypes }: Props) {
                             traderTypes={traderTypes}
                             className="mt-10"
                         />
+                        <ModuleCardsCarousel modules={modules} />
 
                         <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
                             {/*<HudButton*/}
@@ -117,63 +91,5 @@ export default function Home({ traderTypes }: Props) {
                 </div>
             </section>
         </PublicLayout>
-    );
-}
-
-function TaxonomyList({ types }: { types: TraderType[] }) {
-    if (!types.length) {
-        return <span className="text-white/45">—</span>;
-    }
-
-    return (
-        <div className="flex flex-wrap gap-2">
-            {types.map((type) => (
-                <TaxonomyBadge
-                    key={type.id}
-                    label={type.name}
-                    color={type.color}
-                />
-            ))}
-        </div>
-    );
-}
-
-function SystemInfoCard({
-    title,
-    description,
-    icon,
-    tone,
-}: {
-    title: string;
-    description: string;
-    icon: string;
-    tone: 'seafoam' | 'violet';
-}) {
-    const isSeafoam = tone === 'seafoam';
-    const cardTone = isSeafoam
-        ? 'border-seafoam-green/70 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_0_28px_rgba(0,250,146,0.18)]'
-        : 'border-violet-light/70 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_0_28px_rgba(181,67,215,0.18)]';
-    const iconTone = isSeafoam
-        ? 'border-seafoam-green/70 bg-seafoam-green/10 text-seafoam-green shadow-[0_0_28px_rgba(0,250,146,0.2)]'
-        : 'border-violet-light/70 bg-violet-light/10 text-violet-light shadow-[0_0_28px_rgba(181,67,215,0.2)]';
-
-    return (
-        <article
-            className={`bg-panel-deep/92 flex min-h-32 items-center gap-6 rounded-[14px] border p-6 text-left lg:flex-col xl:flex-row ${cardTone}`}
-        >
-            <div
-                className={`flex h-20 w-20 shrink-0 items-center justify-center rounded-[14px] border ${iconTone}`}
-            >
-                <IconRenderer name={icon} className="h-12 w-12" />
-            </div>
-            <div>
-                <h3 className="text-md leading-tight font-semibold text-white">
-                    {title}
-                </h3>
-                <p className="mt-1 text-base leading-5 text-white/72">
-                    {description}
-                </p>
-            </div>
-        </article>
     );
 }

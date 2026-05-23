@@ -1,3 +1,4 @@
+import { IconRenderer } from '@/Components/Icons/IconRenderer';
 import { brandColor } from '@/lib/brand';
 import { accessLabel } from '@/lib/format';
 import { Link } from '@inertiajs/react';
@@ -104,11 +105,20 @@ export function GradientHeading({
     );
 }
 
-export function AccessBadge({ access }: { access: string }) {
+export function AccessBadge({
+    access,
+    showIcon = false,
+}: {
+    access: string;
+    showIcon?: boolean;
+}) {
     return (
         <span
-            className={`font-heading inline-flex items-center rounded-sm border px-3 py-1 text-[0.65rem] font-semibold tracking-[0.12em] uppercase ${toneClasses.blue}`}
+            className={`font-heading inline-flex ${showIcon ? 'items-start' : 'items-center'} gap-1.5 rounded-sm border px-3 py-1 text-[0.65rem] font-semibold tracking-[0.12em] uppercase ${toneClasses.blue}`}
         >
+            {showIcon ? (
+                <IconRenderer name="lock" className="h-4 w-4 shrink-0" />
+            ) : null}
             {accessLabel(access)}
         </span>
     );

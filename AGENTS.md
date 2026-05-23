@@ -27,6 +27,7 @@ Always-loaded instructions for Codex agents working in this repository. Keep thi
 - Discord auth implementation: `.codex/context/authentication-discord-laravel.md`.
 - QA and release checks: `.codex/checklists/`.
 - Project-local skills live in `.codex/skills`. When a task matches one of those skill areas, inspect `.codex/skills/README.md` first, then load only the relevant `SKILL.md`. Do not bulk-load all skill files into context.
+- For GSAP or React animation work, load the `gsap` and `gsap-react` skills; prefer scoped refs, `useGSAP`, and explicit cleanup.
 
 ## Core Domain
 
