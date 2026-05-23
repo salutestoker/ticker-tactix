@@ -63,7 +63,12 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
                 return;
             }
 
-            viewportElement.scrollLeft = setWidth;
+            let currentX = -setWidth;
+
+            gsap.set(trackElement, {
+                x: currentX,
+                force3D: true,
+            });
 
             if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
                 return;
@@ -71,23 +76,33 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
 
             let hoverPaused = false;
             let manualPaused = false;
-            let autoScrolling = false;
-            let lastAutoScrollAt = 0;
             let manualResumeTimeout: number | undefined;
             let resizeFrame: number | undefined;
             let pointerDown = false;
             let dragStarted = false;
             let suppressNextClick = false;
             let dragStartX = 0;
-            let dragStartScrollLeft = 0;
+            let dragStartTrackX = currentX;
             let activePointerId: number | null = null;
 
-            const wrapScrollPosition = () => {
-                if (viewportElement.scrollLeft >= setWidth * 2) {
-                    viewportElement.scrollLeft -= setWidth;
-                } else if (viewportElement.scrollLeft <= 0) {
-                    viewportElement.scrollLeft += setWidth;
+            const wrapTrackX = (value: number) => {
+                while (value <= setWidth * -2) {
+                    value += setWidth;
                 }
+
+                while (value > -setWidth) {
+                    value -= setWidth;
+                }
+
+                return value;
+            };
+
+            const setTrackX = (value: number) => {
+                currentX = wrapTrackX(value);
+                gsap.set(trackElement, {
+                    x: currentX,
+                    force3D: true,
+                });
             };
 
             const syncSetWidth = () => {
@@ -98,21 +113,7 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
                 }
 
                 setWidth = nextWidth;
-
-                if (
-                    viewportElement.scrollLeft < setWidth ||
-                    viewportElement.scrollLeft >= setWidth * 2
-                ) {
-                    viewportElement.scrollLeft = setWidth;
-                }
-            };
-
-            const pauseForManualScroll = () => {
-                manualPaused = true;
-                window.clearTimeout(manualResumeTimeout);
-                manualResumeTimeout = window.setTimeout(() => {
-                    manualPaused = false;
-                }, 1100);
+                setTrackX(currentX);
             };
 
             const releaseManualPause = (delay = 700) => {
@@ -122,12 +123,16 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
                 }, delay);
             };
 
-            const handlePointerEnter = () => {
-                hoverPaused = true;
+            const handlePointerEnter = (event: PointerEvent) => {
+                if (event.pointerType === 'mouse') {
+                    hoverPaused = true;
+                }
             };
 
-            const handlePointerLeave = () => {
-                hoverPaused = false;
+            const handlePointerLeave = (event: PointerEvent) => {
+                if (event.pointerType === 'mouse') {
+                    hoverPaused = false;
+                }
             };
 
             const handlePointerDown = (event: PointerEvent) => {
@@ -141,9 +146,13 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
                 suppressNextClick = false;
                 activePointerId = event.pointerId;
                 dragStartX = event.clientX;
-                dragStartScrollLeft = viewportElement.scrollLeft;
+                dragStartTrackX = currentX;
                 window.clearTimeout(manualResumeTimeout);
                 viewportElement.classList.add('cursor-grabbing');
+
+                if (!viewportElement.hasPointerCapture(event.pointerId)) {
+                    viewportElement.setPointerCapture(event.pointerId);
+                }
             };
 
             const handlePointerMove = (event: PointerEvent) => {
@@ -157,21 +166,10 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
                     return;
                 }
 
-                if (
-                    !dragStarted &&
-                    !viewportElement.hasPointerCapture(event.pointerId)
-                ) {
-                    viewportElement.setPointerCapture(event.pointerId);
-                }
-
                 dragStarted = true;
                 suppressNextClick = true;
                 event.preventDefault();
-
-                viewportElement.scrollLeft = dragStartScrollLeft - deltaX;
-                wrapScrollPosition();
-                dragStartX = event.clientX;
-                dragStartScrollLeft = viewportElement.scrollLeft;
+                setTrackX(dragStartTrackX + deltaX);
             };
 
             const handlePointerUp = (event: PointerEvent) => {
@@ -200,18 +198,6 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
                 suppressNextClick = false;
             };
 
-            const handleScroll = () => {
-                if (
-                    autoScrolling ||
-                    performance.now() - lastAutoScrollAt < 80
-                ) {
-                    return;
-                }
-
-                wrapScrollPosition();
-                pauseForManualScroll();
-            };
-
             const handleResize = () => {
                 window.cancelAnimationFrame(resizeFrame ?? 0);
                 resizeFrame = window.requestAnimationFrame(syncSetWidth);
@@ -222,13 +208,12 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
                     return;
                 }
 
-                autoScrolling = true;
-                lastAutoScrollAt = performance.now();
-                viewportElement.scrollLeft +=
-                    (autoScrollPixelsPerSecond * deltaTime) / 1000;
-                wrapScrollPosition();
-                autoScrolling = false;
+                setTrackX(
+                    currentX - (autoScrollPixelsPerSecond * deltaTime) / 1000,
+                );
             };
+
+            setTrackX(currentX);
 
             const resizeObserver = new ResizeObserver(handleResize);
             resizeObserver.observe(firstSetElement);
@@ -257,9 +242,6 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
                 handlePointerUp,
             );
             viewportElement.addEventListener('click', handleClickCapture, true);
-            viewportElement.addEventListener('scroll', handleScroll, {
-                passive: true,
-            });
 
             return () => {
                 gsap.ticker.remove(tick);
@@ -299,7 +281,6 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
                     handleClickCapture,
                     true,
                 );
-                viewportElement.removeEventListener('scroll', handleScroll);
             };
         },
         {
