@@ -230,7 +230,21 @@ function Footer() {
 
     return (
         <footer className="bg-main-blue-bright relative overflow-hidden text-white">
-            <div className="absolute inset-0 bg-[url('/design/assets/images/bg-footer.jpg')] bg-cover bg-center opacity-90" />
+            <video
+                className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-90"
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="metadata"
+                poster="/design/assets/images/bg-footer.jpg"
+                aria-hidden="true"
+            >
+                <source
+                    src="/design/assets/videos/bg-footer-loop.mp4"
+                    type="video/mp4"
+                />
+            </video>
             <div className="from-midnight-blue via-main-blue-bright/30 to-main-blue-bright/20 absolute inset-0 bg-gradient-to-b" />
             <div className="relative mx-auto max-w-6xl px-6 py-28 text-center">
                 {/*<img*/}
