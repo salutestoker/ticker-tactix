@@ -300,7 +300,7 @@ function DetailRow({
         <section
             className={`grid gap-5 px-5 py-6 sm:grid-cols-[260px_1fr] sm:px-7 ${isLast ? '' : 'border-main-blue/20 border-b'}`}
         >
-            <div className="flex items-center gap-4 sm:items-start">
+            <div className="flex w-3/4 items-center gap-4">
                 <span className={`${sectionIconClasses} ${toneClass}`}>
                     <IconRenderer name={icon} className="h-7 w-7" />
                 </span>
@@ -322,8 +322,8 @@ function FeatureItem({ feature }: { feature: ModuleFeature }) {
         featureToneClasses[feature.tone ?? ''] ?? featureToneClasses.green;
 
     return (
-        <div className="border-main-blue/15 grid gap-3 border-b pb-3 last:border-b-0 last:pb-0 md:grid-cols-[200px_1fr]">
-            <div className="flex items-center gap-3">
+        <div className="border-main-blue/15 gap-3 border-b pb-3 last:border-b-0 last:pb-0 md:grid-cols-[200px_1fr]">
+            <div className="mb-2 flex items-center gap-3">
                 <span
                     className={`flex h-11 w-16 items-center justify-center rounded-[8px] border ${toneClass}`}
                 >
@@ -333,7 +333,7 @@ function FeatureItem({ feature }: { feature: ModuleFeature }) {
                     {feature.label}
                 </span>
             </div>
-            <p className="text-white/70">{feature.description}</p>
+            <p className="px-3 text-white/70">{feature.description}</p>
         </div>
     );
 }

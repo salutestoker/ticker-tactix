@@ -18,7 +18,7 @@ export default function ModulesIndex({
         <PublicLayout>
             <Head title="Modules" />
             <PublicHeroFrame>
-                <div className="relative z-10 flex w-[102vw] translate-x-[-2%] -translate-y-[18%] justify-center mix-blend-lighten">
+                <div className="relative z-10 flex w-[102vw] translate-x-[-2%] -translate-y-[10%] justify-center mix-blend-lighten">
                     <img
                         src="/design/assets/images/bg-modules.png"
                         className=""

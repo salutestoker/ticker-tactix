@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Enums\AccessLevel;
 use App\Models\Market;
 use App\Models\Module;
 use App\Models\Playbook;
@@ -65,44 +64,32 @@ class DatabaseSeeder extends Seeder
             ),
         ]);
 
-        $moduleRows = [
-            ['Momentum Cycles', 'Measures directional momentum phase and trend strength, helping identify when conditions are aligned bullish or bearish.', 'NYSE BASE; NYSE CORE; NYSE PRO; CRYPTO CORE; CRYPTO PRO', 'All', AccessLevel::InviteOnlyIndicatorDiscord->value, 'v1.33', 'momentum-cycles'],
-            ['Sequence Pressure', 'Tracks directional exhaustion and pressure buildup to help identify when a move may be weakening or becoming vulnerable to recoil.', 'NYSE BASE; NYSE CORE; NYSE PRO; CRYPTO CORE; CRYPTO PRO', 'All', AccessLevel::InviteOnlyIndicatorDiscord->value, 'v1.44', 'sequence-pressure'],
-            ['Trend Tracer', 'Maps broader directional flow and trend posture to help determine whether market structure is supporting continuation or deterioration.', 'NYSE PRO', 'NYSE', AccessLevel::InviteOnlyIndicatorDiscord->value, 'v1.2', 'trend-tracer'],
-            ['Crypto Velocity Stats', 'Measures short-term crypto momentum statistics and directional acceleration across the selected asset and timeframe.', 'CRYPTO PRO', 'Crypto', AccessLevel::InviteOnlyIndicatorDiscord->value, 'v1.5', 'volatility-pulse'],
-            ['Info Box', 'Displays a compact market HUD with key breadth, futures, ticker, range, and volume context for fast decision support.', 'NYSE PRO', 'NYSE', AccessLevel::InviteOnlyIndicatorDiscord->value, 'v1.28', 'info-box'],
-            ['Info Line', 'Displays the same decision-support context as Info Box in a condensed horizontal format for users who prefer a streamlined HUD.', 'NYSE PRO', 'NYSE', AccessLevel::InviteOnlyIndicatorDiscord->value, 'v1.28', 'info-box'],
-            ['Crypto Info Box', 'Displays a crypto-specific HUD with market-cap, BTC futures, stablecoin dominance, ticker, range, and volume context.', 'CRYPTO PRO', 'Crypto', AccessLevel::InviteOnlyIndicatorDiscord->value, 'v1.49', 'crypto-info-box'],
-            ['Crypto Info Line', 'Displays the same crypto-specific context as Crypto Info Box in a compressed horizontal format for streamlined chart viewing.', 'CRYPTO PRO', 'Crypto', AccessLevel::InviteOnlyIndicatorDiscord->value, 'v1.49', 'crypto-info-box'],
-            ['Pulse', 'Measures participation quality and internal market flow to help confirm whether price movement is being supported by real engagement.', 'NYSE PRO; CRYPTO PRO', 'All', AccessLevel::InviteOnlyIndicatorDiscord->value, 'v1.32', 'pulse'],
-            ['Tide', 'Tracks broader market current and directional flow to help determine whether participation is supportive, fading, or shifting.', 'NYSE PRO; CRYPTO PRO', 'All', AccessLevel::InviteOnlyIndicatorDiscord->value, 'v1.6', 'participation-network'],
-            ['Range Rails', 'Maps expected range structure and buy/sell rails to help identify where price is stretched, reactive, or positioned for expansion.', 'NYSE PRO; CRYPTO PRO', 'All', AccessLevel::InviteOnlyIndicatorDiscord->value, 'v1.20', 'range-rails'],
-            ['AAVWAP', 'Anchors price to a meaningful reference point to show whether price is holding above or below an important value area.', 'NYSE PRO; CRYPTO PRO', 'All', AccessLevel::InviteOnlyIndicatorDiscord->value, 'v1.143', 'avwap-doc'],
-            ['Long WAP', 'Tracks longer-duration value positioning to help identify broader support, resistance, and higher-timeframe control.', 'NYSE BASE; NYSE CORE; CRYPTO CORE', 'All', AccessLevel::InviteOnlyIndicatorDiscord->value, 'v1.0', 'long-vwap-wave'],
-            ['Candle Color', 'Simplifies candle-state interpretation by visually classifying bar behavior based on the module’s directional logic.', 'NYSE PRO; CRYPTO PRO', 'All', AccessLevel::InviteOnlyIndicatorDiscord->value, 'v1.11', 'candle-color'],
-        ];
+        $catalog = require database_path('seeders/data/ticker_tactix_catalog.php');
+        $moduleRows = $catalog['modules'];
 
         $seededModules = collect();
 
-        foreach ($moduleRows as $index => [$title, $description, $traderTypeList, $marketName, $access, $version, $icon]) {
+        foreach ($moduleRows as $index => $row) {
+            $isActive = $row['is_active'];
+
             $module = Module::create([
-                'market_id' => $markets[$marketName]->id,
-                'icon' => $icon,
-                'title' => $title,
-                'slug' => Str::slug($title),
-                'description' => $description,
-                ...$this->moduleDetails($title, $description),
-                'version' => ltrim($version, 'v'),
-                'access' => $access,
-                'action_url' => null,
+                'market_id' => $markets[$row['market']]->id,
+                'icon' => $row['icon'],
+                'title' => $row['title'],
+                'slug' => Str::slug($row['title']),
+                'description' => $row['description'],
+                ...$this->moduleDetails($row),
+                'version' => $this->normalizeVersion($row['version']),
+                'access' => $row['access'],
+                'action_url' => $row['action_url'],
                 'sort_order' => ($index + 1) * 10,
                 'is_featured' => $index < 3,
-                'is_active' => true,
-                'published_at' => now(),
+                'is_active' => $isActive,
+                'published_at' => $isActive ? now() : null,
             ]);
 
-            $module->traderTypes()->sync($this->traderTypeIds($traderTypes, $traderTypeList));
-            $seededModules[$title] = $module;
+            $module->traderTypes()->sync($this->traderTypeIds($traderTypes, $row['trader_types']));
+            $seededModules[$row['title']] = $module;
         }
 
         $relatedModuleMap = [
@@ -128,37 +115,29 @@ class DatabaseSeeder extends Seeder
             );
         }
 
-        $playbookRows = [
-            ['NYSE Market Environment Daily Newsletter', 'Traders who want market context, sentiment, and volatility guidance before execution.', 'NYSE BASE', 'NYSE', 'Swing Trading', '~90 days', AccessLevel::DailyNewsletterDiscord->value, '$70/mo', 'market-data-bars'],
-            ['Crypto Market Environment Daily Newsletter', 'Crypto traders who want sentiment and volatility context before taking positions.', 'CRYPTO BASE', 'Crypto', 'Swing Trading', '~60 days', AccessLevel::DailyNewsletterDiscord->value, '$70/mo', 'crypto-info-box'],
-            ['Sigma Pro Engine (insert logo)', 'Crypto traders who want optimized trend-flip alerts through a partner community access model.', 'CRYPTO BASE', 'Crypto', 'System Alerts', '—', AccessLevel::PartnerCommunityAccess->value, 'External / Token-Gated', 'command-cube'],
-            ['NYSE ETF Environment Daily Newsletter', 'Investors targeting multi-week sector rotation opportunities.', 'NYSE CORE', 'NYSE', 'Swing Trading', '~90 days', AccessLevel::DailyNewsletterDiscord->value, '$125/mo', 'sector-rotation'],
-            ['XRP Turtle Playbook', 'Patient XRP traders looking for slower-developing momentum swings.', 'CRYPTO CORE', 'Crypto', 'Swing Trading', '~16 days', AccessLevel::AlertsGuidedDiscord->value, '$90/mo', 'turtle'],
-            ['SPY Scalp Playbook', 'Active traders focused on structured intraday momentum and higher-frequency execution.', 'NYSE PRO', 'NYSE', 'Day Trading', '~4 minutes', AccessLevel::AlertsGuidedDiscord->value, '$180/mo', 'spy-playbook'],
-            ['BTC Bunny Playbook', 'Short-term BTC traders seeking structured intraday momentum setups.', 'CRYPTO PRO', 'Crypto', 'Day Trading', '~10 hours', AccessLevel::AlertsGuidedDiscord->value, '$180/mo', 'bunny'],
-            ['SOL Bunny Playbook', 'Short-term SOL traders seeking structured intraday momentum setups.', 'CRYPTO PRO', 'Crypto', 'Day Trading', '~9 hours', AccessLevel::AlertsGuidedDiscord->value, 'Coming Soon', 'bunny'],
-            ['XRP Bunny Playbook', 'Short-term XRP traders seeking structured intraday momentum setups.', 'CRYPTO PRO', 'Crypto', 'Day Trading', '~16 hours', AccessLevel::AlertsGuidedDiscord->value, '$180/mo', 'bunny'],
-        ];
+        $playbookRows = $catalog['playbooks'];
 
-        foreach ($playbookRows as $index => [$title, $bestFor, $traderTypeList, $marketName, $tradingPace, $averageHold, $access, $price, $icon]) {
+        foreach ($playbookRows as $index => $row) {
+            $isActive = $row['is_active'];
+
             $playbook = Playbook::create([
-                'market_id' => $markets[$marketName]->id,
-                'icon' => $icon,
-                'title' => $title,
-                'slug' => Str::slug($title),
-                'access' => $access,
-                'best_for' => $bestFor,
-                'trading_pace' => $tradingPace,
-                'average_hold_time' => $averageHold,
-                'price' => $price,
-                'action_url' => null,
+                'market_id' => $markets[$row['market']]->id,
+                'icon' => $row['icon'],
+                'title' => $row['title'],
+                'slug' => Str::slug($row['title']),
+                'access' => $row['access'],
+                'best_for' => $row['best_for'],
+                'trading_pace' => $row['trading_pace'],
+                'average_hold_time' => $row['average_hold_time'],
+                'price' => $row['price'],
+                'action_url' => $row['action_url'],
                 'sort_order' => ($index + 1) * 10,
-                'is_featured' => in_array($title, ['XRP Turtle Playbook', 'BTC Bunny Playbook'], true),
-                'is_active' => true,
-                'published_at' => now(),
+                'is_featured' => in_array($row['title'], ['XRP Turtle Playbook', 'BTC Bunny Playbook'], true),
+                'is_active' => $isActive,
+                'published_at' => $isActive ? now() : null,
             ]);
 
-            $playbook->traderTypes()->sync($this->traderTypeIds($traderTypes, $traderTypeList));
+            $playbook->traderTypes()->sync($this->traderTypeIds($traderTypes, $row['trader_types']));
         }
     }
 
@@ -168,12 +147,21 @@ class DatabaseSeeder extends Seeder
      */
     private function traderTypeIds($traderTypes, string $traderTypeList): array
     {
-        return collect(explode(';', $traderTypeList))
+        return collect(preg_split('/[;,]/', $traderTypeList) ?: [])
             ->map(fn (string $name): string => trim($name))
             ->filter()
             ->map(fn (string $name): int => $traderTypes[$name]->id)
             ->values()
             ->all();
+    }
+
+    private function normalizeVersion(?string $version): ?string
+    {
+        if (! $version) {
+            return null;
+        }
+
+        return ltrim($version, 'vV');
     }
 
     /**
@@ -183,70 +171,155 @@ class DatabaseSeeder extends Seeder
      *     key_output: string,
      *     trading_pace: string,
      *     short_name: string,
-     *     price: string,
+     *     price: string|null,
      *     module_overview: string,
      *     core_features: list<array{label: string, description: string, icon: string, tone: string}>,
      *     customization_options: list<string>,
      *     best_used_for: list<string>,
-     *     summary: string
+     *     summary: string,
+     *     meta_title: string|null,
+     *     meta_description: string
      * }
      */
-    private function moduleDetails(string $title, string $description): array
+    private function moduleDetails(array $row): array
     {
-        $shortName = $this->shortModuleName($title);
+        $title = $row['title'];
+        $description = $row['description'];
+        $shortName = $row['short_name'] ?: $this->shortModuleName($title);
 
-        $defaults = [
-            'purpose' => $this->modulePurpose($title),
-            'layer' => 'Classification Layer',
-            'key_output' => $this->moduleKeyOutput($title),
-            'trading_pace' => 'ALL',
+        return [
+            'purpose' => $row['purpose'] ?: $this->modulePurpose($title),
+            'layer' => $row['layer'] ?: 'Classification Layer',
+            'key_output' => $row['key_output'] ?: $this->moduleKeyOutput($title),
+            'trading_pace' => $row['trading_pace'] ?: 'ALL',
             'short_name' => $shortName,
-            'price' => '$50/mo',
-            'module_overview' => "Ticker-Tactix {$title} ({$shortName}) translates live market behavior into a structured visual layer that helps traders quickly understand context, pressure, and directional quality without losing focus on price action.",
-            'core_features' => [
-                ['label' => 'Signal Layer', 'description' => 'Highlights the module’s primary read so the current state is easy to identify at a glance.', 'icon' => 'trend-tracer', 'tone' => 'blue'],
-                ['label' => 'Context Filter', 'description' => 'Adds structure around raw movement so stronger and weaker conditions are easier to separate.', 'icon' => 'direction-target', 'tone' => 'violet'],
-                ['label' => 'Visual State', 'description' => 'Uses color and compact HUD cues to make shifts in behavior immediately readable.', 'icon' => 'pulse', 'tone' => 'green'],
-                ['label' => 'Adaptive Background', 'description' => 'Optional shading reacts to the dominant state for faster trend and risk recognition.', 'icon' => 'market-data-bars', 'tone' => 'gold'],
-            ],
-            'customization_options' => [
+            'price' => $this->monthlyPrice($row['price']),
+            'module_overview' => $row['long_description'] ?: "Ticker-Tactix {$title} ({$shortName}) translates live market behavior into a structured visual layer that helps traders quickly understand context, pressure, and directional quality without losing focus on price action.",
+            'core_features' => $this->moduleCoreFeatures($row['core_features'], $title),
+            'customization_options' => $this->textList($row['customization_options']) ?: [
                 'Toggle visibility of supporting lines, markers, and background states.',
                 'Works across supported symbols and timeframes.',
             ],
-            'best_used_for' => [
+            'best_used_for' => $this->textList($row['best_used_for']) ?: [
                 'Confirming when market conditions support the current trade idea.',
                 'Reducing noisy decision-making with a consistent visual framework.',
                 'Adding multi-timeframe context before execution.',
             ],
-            'summary' => "Ticker-Tactix {$title} gives traders a focused way to read market structure, turning scattered price behavior into an organized module view for cleaner decision support.",
+            'summary' => $row['summary'] ?: "Ticker-Tactix {$title} gives traders a focused way to read market structure, turning scattered price behavior into an organized module view for cleaner decision support.",
+            'meta_title' => $row['long_name'],
+            'meta_description' => $row['short_description'] ?: $description,
         ];
+    }
 
-        if ($title !== 'Momentum Cycles') {
-            return $defaults;
+    private function monthlyPrice(?string $price): ?string
+    {
+        if (! $price) {
+            return null;
         }
 
-        return [
-            ...$defaults,
-            'purpose' => 'Direction',
-            'key_output' => 'Momentum Phase',
-            'module_overview' => 'Ticker-Tactix Momentum Cycles (T-T:MC) translates raw market motion into an elegant visual language of acceleration, deceleration, and reversal. By blending short and medium-term velocity measurements, it forms a momentum map that highlights the balance between force and direction inside every trend. Each cycle is rendered through adaptive color transitions, cross markers, and optional background shifts that make changes in market energy unmistakable at a glance.',
-            'core_features' => [
-                ['label' => 'Signal Line', 'description' => 'The heart of the indicator, capturing real-time changes in price strength and directional bias.', 'icon' => 'trend-tracer', 'tone' => 'blue'],
-                ['label' => 'Momentum Line', 'description' => 'A smoothed trail of recent momentum, providing structure and flow to the cycles.', 'icon' => 'momentum-cycles', 'tone' => 'violet'],
-                ['label' => 'Histogram Display', 'description' => 'Visualizes bullish and bearish phases, color-coded to distinguish rising and fading energy in both bullish and bearish zones.', 'icon' => 'market-data-bars', 'tone' => 'green'],
-                ['label' => 'Dynamic Background', 'description' => 'Optional shading reacts instantly to the prevailing momentum phase for immediate trend context.', 'icon' => 'data-pipeline', 'tone' => 'gold'],
-            ],
-            'customization_options' => [
-                'Toggle visibility of lines, histogram, dots, and background for a clean or detailed look.',
-                'Works across all symbols and timeframes.',
-            ],
-            'best_used_for' => [
-                'Identifying early momentum shifts before trend confirmation.',
-                'Visualizing cycle transitions to refine entry and exit timing.',
-                'Enhancing multi-timeframe confluence and directional confidence.',
-            ],
-            'summary' => 'Ticker-Tactix Momentum Cycles gives traders a visual framework to sense the rhythm of price action, transforming market noise into a readable cycle of strength and release.',
-        ];
+        if (str_starts_with($price, '$') || ! is_numeric($price)) {
+            return $price;
+        }
+
+        return '$'.rtrim(rtrim(number_format((float) $price, 2, '.', ''), '0'), '.').'/mo';
+    }
+
+    /**
+     * @return list<array{label: string, description: string, icon: string, tone: string}>
+     */
+    private function moduleCoreFeatures(?string $text, string $title): array
+    {
+        $items = $this->textList($text);
+
+        if ($items === []) {
+            return [
+                ['label' => 'Signal Layer', 'description' => 'Highlights the module’s primary read so the current state is easy to identify at a glance.', 'icon' => 'trend-tracer', 'tone' => 'blue'],
+                ['label' => 'Context Filter', 'description' => 'Adds structure around raw movement so stronger and weaker conditions are easier to separate.', 'icon' => 'direction-target', 'tone' => 'violet'],
+                ['label' => 'Visual State', 'description' => 'Uses color and compact HUD cues to make shifts in behavior immediately readable.', 'icon' => 'pulse', 'tone' => 'green'],
+                ['label' => 'Adaptive Background', 'description' => 'Optional shading reacts to the dominant state for faster trend and risk recognition.', 'icon' => 'market-data-bars', 'tone' => 'gold'],
+            ];
+        }
+
+        return collect($items)
+            ->map(function (string $item, int $index) use ($title): array {
+                [$label, $description] = $this->splitFeature($item);
+
+                return [
+                    'label' => $label,
+                    'description' => $description,
+                    'icon' => $this->featureIcon($title, $index),
+                    'tone' => ['blue', 'violet', 'green', 'gold'][$index % 4],
+                ];
+            })
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function textList(?string $text): array
+    {
+        if (! $text) {
+            return [];
+        }
+
+        $items = [];
+        $current = null;
+
+        foreach (preg_split('/\R/', trim($text)) ?: [] as $line) {
+            $line = trim($line);
+
+            if ($line === '') {
+                continue;
+            }
+
+            $isBullet = preg_match('/^[•\-]\s*/u', $line) === 1;
+            $line = preg_replace('/^[•\-]\s*/u', '', $line) ?: $line;
+
+            if ($isBullet || $current === null) {
+                if ($current !== null) {
+                    $items[] = $current;
+                }
+
+                $current = $line;
+
+                continue;
+            }
+
+            $current .= ' '.$line;
+        }
+
+        if ($current !== null) {
+            $items[] = $current;
+        }
+
+        return $items;
+    }
+
+    /**
+     * @return array{string, string}
+     */
+    private function splitFeature(string $item): array
+    {
+        $parts = preg_split('/\s+[–-]\s+/u', $item, 2);
+
+        if (count($parts) === 2) {
+            return [trim($parts[0]), trim($parts[1])];
+        }
+
+        return [Str::limit($item, 34, ''), $item];
+    }
+
+    private function featureIcon(string $title, int $index): string
+    {
+        return match ($title) {
+            'Momentum Cycles' => ['trend-tracer', 'momentum-cycles', 'market-data-bars', 'data-pipeline'][$index % 4],
+            'Sequence Pressure' => ['sequence-pressure', 'direction-target', 'goal-posts', 'market-data-bars'][$index % 4],
+            'Trend Tracer' => ['trend-tracer', 'market-data-bars', 'pulse', 'avwap-doc'][$index % 4],
+            'Range Rails' => ['range-rails', 'goal-posts', 'direction-target', 'market-data-bars'][$index % 4],
+            default => ['trend-tracer', 'direction-target', 'pulse', 'market-data-bars'][$index % 4],
+        };
     }
 
     private function shortModuleName(string $title): string

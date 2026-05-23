@@ -48,7 +48,7 @@ class PageController extends Controller
             'terms-of-service' => 'Terms of Service',
             'membership-agreement' => 'Membership Agreement',
             'privacy-policy' => 'Privacy Policy',
-            'risk-disclaimer' => 'Risk Disclaimer',
+            'financial-disclaimer' => 'Financial Disclaimer',
         ];
 
         abort_unless(isset($pages[$page]), 404);

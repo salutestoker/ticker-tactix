@@ -12,7 +12,7 @@ interface Props extends PageProps {
 export default function Home({ modules, traderTypes }: Props) {
     return (
         <PublicLayout>
-            <Head title="Ticker-Tactix, LLC" />
+            <Head title="Ticker-Tactix" />
             <section className="relative min-h-[980px] overflow-hidden px-6 pb-5">
                 <div className="absolute inset-0 h-[50vw] bg-[url('/design/assets/images/bg-hero.jpg')] bg-cover bg-bottom opacity-95 md:h-[80vh]" />
 

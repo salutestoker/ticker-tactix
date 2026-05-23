@@ -5,7 +5,7 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Ticker Tactix';
-const defaultPageTitle = 'Ticker-Tactix, LLC';
+const defaultPageTitle = 'Ticker-Tactix';
 const pages = import.meta.glob('./Pages/**/*.tsx') as Record<
     string,
     () => Promise<{ default: ResolvedComponent }>

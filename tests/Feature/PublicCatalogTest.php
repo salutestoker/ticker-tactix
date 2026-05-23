@@ -203,14 +203,14 @@ class PublicCatalogTest extends TestCase
                 ->where('title', 'Privacy Policy')
                 ->where('slug', 'privacy-policy'));
 
-        $this->get('/risk-disclaimer')
+        $this->get('/financial-disclaimer')
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Legal/Show')
-                ->where('title', 'Risk Disclaimer')
-                ->where('slug', 'risk-disclaimer'));
+                ->where('title', 'Financial Disclaimer')
+                ->where('slug', 'financial-disclaimer'));
 
-        $this->get('/financial-disclaimer')->assertRedirect('/risk-disclaimer');
+        $this->get('/risk-disclaimer')->assertRedirect('/financial-disclaimer');
     }
 
     public function test_public_detail_pages_respect_publish_state(): void

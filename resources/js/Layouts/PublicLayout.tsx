@@ -4,10 +4,11 @@ import { useEffect, useRef, useState, type PropsWithChildren } from 'react';
 
 const nav = [
     ['Home', 'home'],
-    ['Methodology', 'about'],
     ['What type of trader are you?', 'trader-types'],
+
     ['Modules', 'modules.index'],
     ['Playbooks', 'playbooks.index'],
+    ['Methodology', 'about'],
     ['Testimonials', 'testimonials'],
     ['Contact', 'contact'],
 ] as const;
@@ -148,7 +149,7 @@ function Footer() {
             title: 'System',
             links: [
                 {
-                    label: 'What Kind Of Trader Are You?',
+                    label: 'What type of trader are you?',
                     href: route('trader-types'),
                     external: false,
                 },
@@ -168,7 +169,7 @@ function Footer() {
                     external: false,
                 },
                 {
-                    label: 'Support',
+                    label: 'Email Support',
                     href: 'mailto:tickertactix@gmail.com',
                     external: true,
                 },
@@ -219,8 +220,8 @@ function Footer() {
                     external: false,
                 },
                 {
-                    label: 'Risk Disclaimer',
-                    href: route('legal.show', 'risk-disclaimer'),
+                    label: 'Financial Disclaimer',
+                    href: route('legal.show', 'financial-disclaimer'),
                     external: false,
                 },
             ],
@@ -232,11 +233,11 @@ function Footer() {
             <div className="absolute inset-0 bg-[url('/design/assets/images/bg-footer.jpg')] bg-cover bg-center opacity-90" />
             <div className="from-midnight-blue via-main-blue-bright/30 to-main-blue-bright/20 absolute inset-0 bg-gradient-to-b" />
             <div className="relative mx-auto max-w-6xl px-6 py-28 text-center">
-                <img
-                    className="mx-auto mb-12 h-28 w-auto object-contain"
-                    src="/design/assets/images/logo-ticker-tactix-2026.png"
-                    alt="Ticker Tactix"
-                />
+                {/*<img*/}
+                {/*    className="mx-auto mb-12 h-28 w-auto object-contain"*/}
+                {/*    src="/design/assets/images/logo-ticker-tactix-2026.png"*/}
+                {/*    alt="Ticker Tactix"*/}
+                {/*/>*/}
                 <div className="grid gap-10 border-y border-white/15 py-10 text-sm text-white/75 md:grid-cols-4">
                     {footerColumns.map((column) => (
                         <FooterColumn
@@ -252,7 +253,7 @@ function Footer() {
                     not&nbsp;<span className="text-violet-light">emotion</span>.
                 </p>
                 <p className="mt-6 text-xs text-white/50">
-                    © 2026 Ticker Tactix Galactic. All rights reserved.
+                    Copyright © 2026 Ticker-Tactix LLC.
                 </p>
             </div>
         </footer>

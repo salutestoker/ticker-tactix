@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     @php
-        $seoTitle = 'Ticker-Tactix, LLC';
+        $seoTitle = 'Ticker-Tactix';
         $seoDescription = 'Trade with structure not emotion. A rules-based market operating system for traders who value structure over signals.';
         $seoSiteName = 'Ticker-Tactix';
         $seoCanonicalUrl = request()->fullUrl();
