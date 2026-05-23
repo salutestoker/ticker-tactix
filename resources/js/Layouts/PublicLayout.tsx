@@ -231,7 +231,7 @@ function Footer() {
     return (
         <footer className="bg-main-blue-bright relative overflow-hidden text-white">
             <video
-                className="pointer-events-none absolute inset-0 opacity-90 max-md:top-full max-md:w-[420%] max-md:max-w-none max-md:-translate-y-full md:h-full md:w-full md:object-cover"
+                className="pointer-events-none absolute inset-0 opacity-90 max-md:top-full max-md:w-[460%] max-md:max-w-none max-md:-translate-y-full md:h-full md:w-full md:object-cover"
                 autoPlay
                 loop
                 muted
