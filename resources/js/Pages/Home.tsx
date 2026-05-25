@@ -107,10 +107,10 @@ export default function Home({ modules, traderTypes }: Props) {
                             className="mt-10"
                         />
 
-                        <div className="bg-midnight-blue relative z-20 mt-6 w-full py-5 mix-blend-lighten">
+                        <div className="bg-midnight-blue relative z-10 mt-6 w-full py-5">
                             <img
                                 src="/design/assets/images/bg-home-how-ticker-tactix-works.png"
-                                className="mx-auto"
+                                className="mx-auto mix-blend-lighten"
                                 alt=""
                             />
                         </div>
