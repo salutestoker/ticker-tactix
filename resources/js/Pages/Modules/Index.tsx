@@ -33,8 +33,8 @@ export default function ModulesIndex({
                     </h1>
                     <p className="mx-auto mt-5 max-w-2xl text-center text-lg text-white/75">
                         Specialized components that power the Ticker-Tactix
-                        system. Each module has a unique role in producing
-                        high-probability signals.
+                        system. Each module serves a defined role in organizing
+                        market context, trend, participation, and structure.
                     </p>
                     <HudPanel className="mt-10 overflow-hidden">
                         <div className="overflow-x-auto">
