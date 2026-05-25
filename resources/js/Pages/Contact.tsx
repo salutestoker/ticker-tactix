@@ -18,7 +18,7 @@ export default function Contact() {
                     </p>
                     <HudButton
                         className="mt-12 w-[300px] max-w-full p-8"
-                        href="mailto:support@tickertactix.test"
+                        href="mailto:tickertactix@gmail.com"
                         external
                         tone="blue"
                     >
