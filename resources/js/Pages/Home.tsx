@@ -1,6 +1,9 @@
 import { Eyebrow, HudButton } from '@/Components/UI/Hud';
 import { ModuleCardsCarousel } from '@/Components/UI/ModuleCardsCarousel';
-import { TraderTypeCards } from '@/Components/UI/TraderTypeCards';
+import {
+    TraderTypeCards,
+    TraderTypeLegend,
+} from '@/Components/UI/TraderTypeCards';
 import PublicLayout from '@/Layouts/PublicLayout';
 import type { Module, PageProps, TraderType } from '@/types';
 import { Head } from '@inertiajs/react';
@@ -92,6 +95,9 @@ export default function Home({ modules, traderTypes }: Props) {
                                 alt=""
                             />
                         </div>
+
+                        <TraderTypeLegend />
+
                         <ModuleCardsCarousel modules={modules} />
 
                         <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">

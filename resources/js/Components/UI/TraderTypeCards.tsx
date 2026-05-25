@@ -74,10 +74,7 @@ export function TraderTypeCards({
     return (
         <div className={className}>
             {isHomeRoute ? (
-                <>
-                    {cardsGrid}
-                    <TraderTypeLegend className="mt-10" />
-                </>
+                <>{cardsGrid}</>
             ) : (
                 <>
                     <TraderTypeLegend />
