@@ -84,6 +84,14 @@ export default function Home({ modules, traderTypes }: Props) {
                             traderTypes={traderTypes}
                             className="mt-10"
                         />
+
+                        <div className="relative z-10 mt-6 w-full py-5 mix-blend-lighten">
+                            <img
+                                src="/design/assets/images/bg-home-how-ticker-tactix-works.png"
+                                className="mx-auto"
+                                alt=""
+                            />
+                        </div>
                         <ModuleCardsCarousel modules={modules} />
 
                         <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
@@ -101,14 +109,6 @@ export default function Home({ modules, traderTypes }: Props) {
                             {/*    Explore Playbooks*/}
                             {/*</HudButton>*/}
                         </div>
-                    </div>
-
-                    <div className="relative z-10 mt-6 w-full py-5 mix-blend-lighten">
-                        <img
-                            src="/design/assets/images/bg-home-how-ticker-tactix-works.png"
-                            className="mx-auto"
-                            alt=""
-                        />
                     </div>
                 </div>
             </section>
