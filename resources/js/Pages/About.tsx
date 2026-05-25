@@ -26,6 +26,12 @@ export default function About() {
                         constrain risk, reduce emotional override, and repeat
                         the same decision process under pressure.
                     </p>
+
+                    <p className="mx-auto mt-4 max-w-2xl max-w-[500px] text-base text-white/80">
+                        Custom indicators, structured playbooks, and disciplined
+                        market frameworks for traders who want decision support,
+                        not hype.
+                    </p>
                 </div>
                 <div className="mx-auto my-20 max-w-5xl text-center">
                     <Eyebrow>Rules-Based Market Operations</Eyebrow>

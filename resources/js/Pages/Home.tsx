@@ -52,11 +52,6 @@ export default function Home({ modules, traderTypes }: Props) {
                             A rules-based market operating system for traders
                             who value structure over signals.
                         </p>
-                        <p className="mx-auto mt-4 max-w-2xl max-w-[500px] text-base text-white/80">
-                            Custom indicators, structured playbooks, and
-                            disciplined market frameworks for traders who want
-                            decision support, not hype.
-                        </p>
 
                         <TraderTypeCards
                             traderTypes={traderTypes}
