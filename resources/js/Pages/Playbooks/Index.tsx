@@ -9,7 +9,7 @@ import {
 import { PublicHeroFrame } from '@/Components/UI/PublicHero';
 import PublicLayout from '@/Layouts/PublicLayout';
 import type { PageProps, Playbook, TraderType } from '@/types';
-import { Head, router } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 
 export default function PlaybooksIndex({
     playbooks,
@@ -58,6 +58,9 @@ export default function PlaybooksIndex({
                                         <th className="px-3 py-4 sm:px-6 sm:py-5">
                                             Price
                                         </th>
+                                        <th className="px-3 py-4 sm:px-6 sm:py-5">
+                                            Action
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -91,7 +94,7 @@ export default function PlaybooksIndex({
                                                 }
                                             }}
                                         >
-                                            <td className="min-w-[300px] px-3 py-4 font-medium text-white sm:px-6 sm:py-5">
+                                            <td className="min-w-[250px] px-3 py-4 font-medium text-white sm:px-6 sm:py-5">
                                                 <span className="font-heading text-sm tracking-[0.08em] text-white uppercase">
                                                     {playbook.title}
                                                 </span>
@@ -142,8 +145,17 @@ export default function PlaybooksIndex({
                                             <td className="hidden w-full min-w-[300px] px-6 py-5 text-white/75 md:table-cell">
                                                 {playbook.best_for}
                                             </td>
-                                            <td className="font-heading text-seafoam-green px-3 py-4 sm:px-6 sm:py-5">
+                                            <td className="font-heading px-3 py-4 text-lg text-white sm:px-6 sm:py-5">
                                                 {playbook.price || '—'}
+                                            </td>
+                                            <td className="px-3 py-4 sm:px-6 sm:py-5">
+                                                <ActionLink
+                                                    href={route(
+                                                        'playbooks.show',
+                                                        playbook.slug,
+                                                    )}
+                                                    label={`Explore ${playbook.title}`}
+                                                />
                                             </td>
                                         </tr>
                                     ))}
@@ -154,6 +166,21 @@ export default function PlaybooksIndex({
                 </div>
             </PublicHeroFrame>
         </PublicLayout>
+    );
+}
+
+function ActionLink({ href, label }: { href: string; label: string }) {
+    return (
+        <Link
+            href={href}
+            aria-label={label}
+            className="font-heading border-main-blue/60 bg-main-blue/10 hover:border-main-blue hover:bg-main-blue/20 focus-visible:ring-seafoam-green inline-flex min-h-10 items-center justify-center rounded-sm border px-4 py-2 text-xs font-semibold tracking-[0.14em] text-sky-300 uppercase transition hover:text-white focus-visible:ring-2 focus-visible:outline-none"
+            onClick={(event) => event.stopPropagation()}
+            onKeyDown={(event) => event.stopPropagation()}
+        >
+            Explore
+            <IconRenderer name="chevron-right" className={`h-5 w-5`} />
+        </Link>
     );
 }
 

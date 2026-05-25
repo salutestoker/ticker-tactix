@@ -208,7 +208,7 @@ export default function ModulesShow({
                                         label="Price"
                                         value={module.price}
                                         tone="green"
-                                        valueClassName="font-heading text-xl text-seafoam-green"
+                                        valueClassName="font-heading text-xl text-white"
                                     />
                                 </dl>
 
