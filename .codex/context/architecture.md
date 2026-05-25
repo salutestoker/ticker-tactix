@@ -27,7 +27,7 @@
 ## Public Routes
 
 - `/` homepage
-- `/about`
+- `/methodology`
 - `/modules`
 - `/modules/{module:slug}`
 - `/playbooks`

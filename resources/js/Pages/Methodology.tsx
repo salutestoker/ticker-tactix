@@ -3,7 +3,7 @@ import { PublicHeroFrame } from '@/Components/UI/PublicHero';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { Head } from '@inertiajs/react';
 
-export default function About() {
+export default function Methodology() {
     return (
         <PublicLayout>
             <Head title="Methodology" />

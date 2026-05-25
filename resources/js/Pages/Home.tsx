@@ -1,3 +1,4 @@
+import { Eyebrow, HudButton } from '@/Components/UI/Hud';
 import { ModuleCardsCarousel } from '@/Components/UI/ModuleCardsCarousel';
 import { TraderTypeCards } from '@/Components/UI/TraderTypeCards';
 import PublicLayout from '@/Layouts/PublicLayout';
@@ -13,8 +14,8 @@ export default function Home({ modules, traderTypes }: Props) {
     return (
         <PublicLayout>
             <Head title="Ticker-Tactix" />
-            <section className="relative min-h-[980px] overflow-hidden px-6 pb-5">
-                <div className="absolute inset-0 h-[50vw] bg-[url('/design/assets/images/bg-hero.jpg')] bg-cover bg-bottom opacity-95 md:h-[80vh]" />
+            <section className="relative min-h-screen overflow-hidden px-6">
+                <div className="absolute inset-0 h-[30vw] bg-[url('/design/assets/images/bg-hero.jpg')] bg-cover bg-bottom opacity-95" />
 
                 <img
                     className="absolute top-[15%] left-1/2 min-h-[80vw] w-full max-w-[2100px] min-w-300 -translate-x-1/2"
@@ -23,9 +24,9 @@ export default function Home({ modules, traderTypes }: Props) {
                 />
 
                 <div className="via-midnight-blue/80 to-midnight-blue absolute inset-0 bg-gradient-to-b from-transparent" />
-                <div className="relative mx-auto mt-[20vw] flex max-w-7xl flex-col items-center text-center md:mt-[260px]">
+                <div className="relative mx-auto mt-[12vw] flex max-w-7xl flex-col items-center text-center">
                     <img
-                        className="h-40 w-auto max-w-none md:h-80"
+                        className="h-40 w-auto max-w-none md:h-60"
                         src="/design/assets/images/logo-ticker-tactix-2026.png"
                         alt="Ticker Tactix"
                     />
@@ -48,10 +49,40 @@ export default function Home({ modules, traderTypes }: Props) {
                         {/*    who value structure over signals.*/}
                         {/*</p>*/}
 
-                        <p className="font-mono-display mx-auto mt-8 max-w-2xl text-lg leading-8 tracking-[0.12em] text-white/80 uppercase">
+                        <p className="font-mono-display mx-auto mt-8 mb-8 max-w-2xl text-lg leading-8 tracking-[0.12em] text-white/80 uppercase">
                             A rules-based market operating system for traders
                             who value structure over signals.
                         </p>
+
+                        <HudButton
+                            href="#trader-types"
+                            variant="solid"
+                        >
+                            What type of trader are you?
+                        </HudButton>
+                    </div>
+                </div>
+            </section>
+            <section id="trader-types" className="scroll-mt-24 px-6 pb-5">
+                <div>
+                    <div>
+                        <div className="mt-10">
+                            <Eyebrow>Get Started</Eyebrow>
+                            <h1 className="font-heading text-center text-4xl leading-none font-semibold uppercase sm:text-5xl lg:text-6xl">
+                                <span className="text-violet">
+                                    What type of
+                                </span>{' '}
+                                <span className="text-seafoam-green block">
+                                    trader are you?
+                                </span>
+                            </h1>
+                            <p className="mx-auto mt-5 max-w-2xl text-center text-lg text-white/75">
+                                Start by choosing your trader type. Each path
+                                connects you to the modules and playbooks
+                                designed for your market, pace, and level of
+                                execution structure.
+                            </p>
+                        </div>
 
                         <TraderTypeCards
                             traderTypes={traderTypes}

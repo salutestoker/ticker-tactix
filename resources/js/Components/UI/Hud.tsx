@@ -42,6 +42,14 @@ export function HudButton({
     ].join(' ');
 
     if (href) {
+        if (href.startsWith('#')) {
+            return (
+                <a className={classes} href={href}>
+                    {children}
+                </a>
+            );
+        }
+
         if (external) {
             return (
                 <a

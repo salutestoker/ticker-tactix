@@ -8,7 +8,7 @@ const nav = [
 
     ['Modules', 'modules.index'],
     ['Playbooks', 'playbooks.index'],
-    ['Methodology', 'about'],
+    ['Methodology', 'methodology'],
     ['Testimonials', 'testimonials'],
     ['Contact', 'contact'],
 ] as const;
@@ -165,7 +165,7 @@ function Footer() {
                 },
                 {
                     label: 'Methodology',
-                    href: route('about'),
+                    href: route('methodology'),
                     external: false,
                 },
                 {

@@ -20,9 +20,9 @@ class PageController extends Controller
         ]);
     }
 
-    public function about(): Response
+    public function methodology(): Response
     {
-        return Inertia::render('About');
+        return Inertia::render('Methodology');
     }
 
     public function traderTypes(): Response
