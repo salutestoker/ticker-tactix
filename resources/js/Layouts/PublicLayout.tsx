@@ -266,7 +266,13 @@ function Footer() {
                     <span className="text-seafoam-green">structure</span>,
                     not&nbsp;<span className="text-violet-light">emotion</span>.
                 </p>
-                <p className="mt-6 text-xs text-white/50">
+                <p className="mx-auto mt-6 max-w-xl text-xs text-white/60">
+                    Ticker-Tactix LLC provides educational software tools for
+                    financial market analysis. Nothing on this website
+                    constitutes financial advice. Trading involves risk and
+                    users are responsible for their own decisions.
+                </p>
+                <p className="mt-4 text-xs text-white/60 uppercase">
                     Copyright © 2026 Ticker-Tactix LLC.
                 </p>
             </div>

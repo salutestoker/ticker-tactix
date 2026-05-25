@@ -1,9 +1,4 @@
-import {
-    Eyebrow,
-    GradientHeading,
-    HudButton,
-    HudPanel,
-} from '@/Components/UI/Hud';
+import { Eyebrow, GradientHeading, HudButton } from '@/Components/UI/Hud';
 import { PublicHeroFrame } from '@/Components/UI/PublicHero';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { Head } from '@inertiajs/react';
@@ -15,35 +10,20 @@ export default function Contact() {
             <PublicHeroFrame>
                 <div className="mx-auto max-w-4xl text-center">
                     <Eyebrow>Contact</Eyebrow>
-                    <GradientHeading>Open A Channel</GradientHeading>
+                    <GradientHeading>CONTACT TICKER-TACTIX</GradientHeading>
                     <p className="mx-auto mt-8 max-w-2xl text-lg leading-8 text-white/75">
-                        Reach out for module access, playbook questions,
-                        partnership access, or Discord community support.
+                        For module access, playbook questions, partnership
+                        inquiries, or member support, send us a message and
+                        we’ll route your inquiry to the appropriate channel.
                     </p>
-                    <HudPanel className="mt-12 p-8">
-                        <div className="grid gap-5 sm:grid-cols-3">
-                            <HudButton
-                                href="https://discord.com"
-                                external
-                                tone="green"
-                            >
-                                Discord
-                            </HudButton>
-                            <HudButton
-                                href="mailto:support@tickertactix.test"
-                                external
-                                tone="blue"
-                            >
-                                Email
-                            </HudButton>
-                            <HudButton
-                                href={route('playbooks.index')}
-                                tone="violet"
-                            >
-                                Playbooks
-                            </HudButton>
-                        </div>
-                    </HudPanel>
+                    <HudButton
+                        className="mt-12 w-[300px] max-w-full p-8"
+                        href="mailto:support@tickertactix.test"
+                        external
+                        tone="blue"
+                    >
+                        Email
+                    </HudButton>
                 </div>
             </PublicHeroFrame>
         </PublicLayout>
