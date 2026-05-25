@@ -21,7 +21,7 @@ export default function TraderTypes({ traderTypes }: TraderTypesProps) {
                         alt=""
                     />
                 </div>
-                <div className="mx-auto mt-[-35%] max-w-6xl text-center">
+                <div className="mx-auto mt-[-30%] max-w-6xl text-center">
                     <Eyebrow>Framework Fit</Eyebrow>
                     <h1 className="font-heading leading-none font-semibold tracking-[0.06em] text-white uppercase drop-shadow-[0_0_26px_rgba(125,211,252,0.32)]">
                         <span className="text-seafoam-green mr-3 inline-block text-7xl sm:text-8xl lg:text-9xl">
