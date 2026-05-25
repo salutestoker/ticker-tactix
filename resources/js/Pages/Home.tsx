@@ -14,17 +14,16 @@ export default function Home({ modules, traderTypes }: Props) {
     return (
         <PublicLayout>
             <Head title="Ticker-Tactix" />
+            <img
+                className="absolute top-[15%] left-1/2 z-10 min-h-[80vw] w-full max-w-[2100px] min-w-300 -translate-x-1/2 opacity-30"
+                src="/design/assets/images/bg-abduction.png"
+                alt=""
+            />
             <section className="relative min-h-screen overflow-hidden px-6">
                 <div className="absolute inset-0 h-[30vw] bg-[url('/design/assets/images/bg-hero.jpg')] bg-cover bg-bottom opacity-95" />
 
-                <img
-                    className="absolute top-[15%] left-1/2 min-h-[80vw] w-full max-w-[2100px] min-w-300 -translate-x-1/2"
-                    src="/design/assets/images/bg-abduction.png"
-                    alt=""
-                />
-
-                <div className="via-midnight-blue/80 to-midnight-blue absolute inset-0 bg-gradient-to-b from-transparent" />
-                <div className="relative mx-auto mt-[12vw] flex max-w-7xl flex-col items-center text-center">
+                {/*<div className="via-midnight-blue/80 to-midnight-blue absolute inset-0 bg-gradient-to-b from-transparent" />*/}
+                <div className="relative z-20 mx-auto mt-[12vw] flex max-w-7xl flex-col items-center text-center">
                     <img
                         className="h-40 w-auto max-w-none md:h-60"
                         src="/design/assets/images/logo-ticker-tactix-2026.png"
@@ -54,16 +53,13 @@ export default function Home({ modules, traderTypes }: Props) {
                             who value structure over signals.
                         </p>
 
-                        <HudButton
-                            href="#trader-types"
-                            variant="solid"
-                        >
+                        <HudButton href="#trader-types" variant="solid">
                             What type of trader are you?
                         </HudButton>
                     </div>
                 </div>
             </section>
-            <section id="trader-types" className="scroll-mt-24 px-6 pb-5">
+            <section id="trader-types" className="scroll-mt-15 px-6 pb-5">
                 <div>
                     <div>
                         <div className="mt-10">

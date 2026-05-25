@@ -254,9 +254,7 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
                     return;
                 }
 
-                if (
-                    Math.abs(momentumVelocity) >= minMomentumPixelsPerSecond
-                ) {
+                if (Math.abs(momentumVelocity) >= minMomentumPixelsPerSecond) {
                     setTrackX(currentX + (momentumVelocity * deltaTime) / 1000);
                     momentumVelocity *= Math.pow(
                         momentumDecayPerFrame,
@@ -366,7 +364,7 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
     return (
         <div
             ref={scope}
-            className="relative mt-14 [margin-right:calc(50%_-_50vw)] [margin-left:calc(50%_-_50vw)] w-screen max-w-none overflow-hidden py-4"
+            className="relative [margin-right:calc(50%_-_50vw)] [margin-left:calc(50%_-_50vw)] w-screen max-w-none overflow-hidden py-4"
         >
             <div
                 ref={viewport}
