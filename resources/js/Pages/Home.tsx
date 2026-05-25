@@ -15,7 +15,7 @@ export default function Home({ modules, traderTypes }: Props) {
         <PublicLayout>
             <Head title="Ticker-Tactix" />
             <img
-                className="absolute top-[15%] left-1/2 z-10 min-h-[80vw] w-full max-w-[2100px] min-w-300 -translate-x-1/2 opacity-30"
+                className="absolute top-[15%] left-1/2 z-10 min-h-[80vw] w-[min(100vw,2100px)] max-w-none -translate-x-1/2 opacity-30"
                 src="/design/assets/images/bg-abduction.png"
                 alt=""
             />
