@@ -62,7 +62,10 @@ export default function Home({ modules, traderTypes }: Props) {
                     </div>
                 </div>
             </section>
-            <section id="trader-types" className="scroll-mt-15 px-6 pb-5">
+            <section
+                id="trader-types"
+                className="relative z-20 scroll-mt-15 px-6 pb-5"
+            >
                 <div>
                     <div>
                         <div className="mt-10">
@@ -81,6 +84,22 @@ export default function Home({ modules, traderTypes }: Props) {
                                 designed for your market, pace, and level of
                                 execution structure.
                             </p>
+
+                            <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
+                                <HudButton
+                                    href={route('trader-types')}
+                                    variant="solid"
+                                >
+                                    Find Your Trader Type
+                                </HudButton>
+                                <HudButton
+                                    href={route('methodology')}
+                                    tone="violet"
+                                    variant="solid"
+                                >
+                                    Explore the System
+                                </HudButton>
+                            </div>
                         </div>
 
                         <TraderTypeCards
@@ -99,22 +118,6 @@ export default function Home({ modules, traderTypes }: Props) {
                         <TraderTypeLegend />
 
                         <ModuleCardsCarousel modules={modules} />
-
-                        <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
-                            {/*<HudButton*/}
-                            {/*    href={route('modules.index')}*/}
-                            {/*    variant="solid"*/}
-                            {/*>*/}
-                            {/*    Explore Modules*/}
-                            {/*</HudButton>*/}
-                            {/*<HudButton*/}
-                            {/*    href={route('playbooks.index')}*/}
-                            {/*    tone="violet"*/}
-                            {/*    variant="solid"*/}
-                            {/*>*/}
-                            {/*    Explore Playbooks*/}
-                            {/*</HudButton>*/}
-                        </div>
                     </div>
                 </div>
             </section>
