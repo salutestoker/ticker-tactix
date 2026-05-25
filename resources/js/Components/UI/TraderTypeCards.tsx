@@ -94,14 +94,14 @@ export function TraderTypeLegend({ className = '' }: { className?: string }) {
                 icon="composite-engine"
                 label="Modules"
                 href={route('modules.index')}
-                copy="TradingView indicators + Discord module channels."
+                copy="Decision-support tools that organize market context, trend, participation, and structure."
                 tone="green"
             />
             <Legend
                 icon="chat"
                 label="Playbooks"
                 href={route('playbooks.index')}
-                copy="Alert-guided Discord strategy channels."
+                copy="Structured execution frameworks delivered through guided Discord strategy channels."
                 tone="violet"
             />
         </div>

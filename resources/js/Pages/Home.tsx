@@ -114,8 +114,9 @@ export default function Home({ modules, traderTypes }: Props) {
                                 alt=""
                             />
                         </div>
-
-                        <TraderTypeLegend />
+                        <div className="relative z-20">
+                            <TraderTypeLegend />
+                        </div>
 
                         <ModuleCardsCarousel modules={modules} />
                     </div>
