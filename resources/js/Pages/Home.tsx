@@ -56,9 +56,25 @@ export default function Home({ modules, traderTypes }: Props) {
                             who value structure over signals.
                         </p>
 
-                        <HudButton href="#trader-types" variant="solid">
-                            What type of trader are you?
-                        </HudButton>
+                        <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
+                            <HudButton
+                                href={route('trader-types')}
+                                variant="solid"
+                            >
+                                Find Your Trader Type
+                            </HudButton>
+                            <HudButton
+                                href={route('methodology')}
+                                tone="violet"
+                                variant="solid"
+                            >
+                                Explore the System
+                            </HudButton>
+                        </div>
+
+                        {/*<HudButton href="#trader-types" variant="solid">*/}
+                        {/*    What type of trader are you?*/}
+                        {/*</HudButton>*/}
                     </div>
                 </div>
             </section>
@@ -84,22 +100,6 @@ export default function Home({ modules, traderTypes }: Props) {
                                 designed for your market, pace, and level of
                                 execution structure.
                             </p>
-
-                            <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
-                                <HudButton
-                                    href={route('trader-types')}
-                                    variant="solid"
-                                >
-                                    Find Your Trader Type
-                                </HudButton>
-                                <HudButton
-                                    href={route('methodology')}
-                                    tone="violet"
-                                    variant="solid"
-                                >
-                                    Explore the System
-                                </HudButton>
-                            </div>
                         </div>
 
                         <TraderTypeCards
