@@ -9,6 +9,8 @@ type PlaybookForm = {
     market_id: string;
     trader_type_ids: number[];
     icon: string;
+    logo: File | null;
+    remove_logo: boolean;
     title: string;
     slug: string;
     access: string;
@@ -39,13 +41,15 @@ export default function PlaybookFormPage({
     const attachedTraderTypes =
         playbook?.trader_types ?? playbook?.traderTypes ?? [];
 
-    const { data, setData, post, put, processing, errors } =
+    const { data, setData, post, processing, errors, transform } =
         useForm<PlaybookForm>({
             market_id: playbook?.market_id
                 ? String(playbook.market_id)
                 : String(markets[0]?.id ?? ''),
             trader_type_ids: attachedTraderTypes.map((type) => type.id),
             icon: playbook?.icon || '',
+            logo: null,
+            remove_logo: false,
             title: playbook?.title || '',
             slug: playbook?.slug || '',
             access:
@@ -68,9 +72,19 @@ export default function PlaybookFormPage({
 
     function submit(event: FormEvent) {
         event.preventDefault();
-        playbook
-            ? put(route('admin.playbooks.update', playbook.id))
-            : post(route('admin.playbooks.store'));
+
+        if (playbook) {
+            transform((payload) => ({ ...payload, _method: 'put' }));
+            post(route('admin.playbooks.update', playbook.id), {
+                forceFormData: true,
+            });
+
+            return;
+        }
+
+        post(route('admin.playbooks.store'), {
+            forceFormData: true,
+        });
     }
 
     return (
@@ -108,6 +122,52 @@ export default function PlaybookFormPage({
                                 </option>
                             ))}
                         </select>
+                    </Field>
+                    <Field label="Logo Upload" error={errors.logo}>
+                        <div className="mt-2 grid gap-3">
+                            {playbook?.logo_url &&
+                            !data.remove_logo &&
+                            !data.logo ? (
+                                <div className="border-main-blue/30 bg-panel-deep/70 flex items-center gap-4 rounded-sm border p-3">
+                                    <img
+                                        className="size-14 rounded-sm border border-white/10 object-contain p-1"
+                                        src={playbook.logo_url}
+                                        alt=""
+                                    />
+                                    <span className="font-body text-sm tracking-normal text-white/70 normal-case">
+                                        Current logo
+                                    </span>
+                                </div>
+                            ) : null}
+                            <input
+                                className={fileInput}
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp"
+                                onChange={(e) => {
+                                    const logo = e.target.files?.[0] ?? null;
+
+                                    setData('logo', logo);
+
+                                    if (logo) {
+                                        setData('remove_logo', false);
+                                    }
+                                }}
+                            />
+                            {data.logo ? (
+                                <span className="font-body text-sm tracking-normal text-white/70 normal-case">
+                                    Selected: {data.logo.name}
+                                </span>
+                            ) : null}
+                            {playbook?.logo_url && !data.logo ? (
+                                <Check
+                                    label="Remove current logo"
+                                    checked={data.remove_logo}
+                                    onChange={(checked) =>
+                                        setData('remove_logo', checked)
+                                    }
+                                />
+                            ) : null}
+                        </div>
                     </Field>
                     <Field label="Icon" error={errors.icon}>
                         <IconSelector
@@ -261,6 +321,8 @@ export default function PlaybookFormPage({
 
 const input =
     'mt-2 w-full rounded-sm border border-main-blue/35 bg-panel-deep px-4 py-3 text-white outline-none focus:border-seafoam-green';
+const fileInput =
+    'w-full rounded-sm border border-dashed border-main-blue/35 bg-panel-deep px-4 py-3 text-sm text-white file:mr-4 file:rounded-sm file:border-0 file:bg-main-blue/20 file:px-3 file:py-2 file:font-mono-display file:text-xs file:tracking-[0.12em] file:text-white file:uppercase hover:border-main-blue/60';
 const textarea = `${input} min-h-32`;
 
 function Field({
@@ -273,15 +335,15 @@ function Field({
     children: ReactNode;
 }) {
     return (
-        <label className="font-mono-display block text-xs tracking-[0.16em] text-white/80 uppercase">
-            {label}
+        <div className="font-mono-display block text-xs tracking-[0.16em] text-white/80 uppercase">
+            <span>{label}</span>
             {children}
             {error ? (
                 <span className="font-body text-violet-light mt-2 block text-sm tracking-normal normal-case">
                     {error}
                 </span>
             ) : null}
-        </label>
+        </div>
     );
 }
 

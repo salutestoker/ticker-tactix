@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 class Playbook extends Model
 {
@@ -17,6 +18,7 @@ class Playbook extends Model
     protected $fillable = [
         'market_id',
         'icon',
+        'logo_path',
         'title',
         'slug',
         'access',
@@ -31,6 +33,10 @@ class Playbook extends Model
         'published_at',
         'meta_title',
         'meta_description',
+    ];
+
+    protected $appends = [
+        'logo_url',
     ];
 
     protected function casts(): array
@@ -52,6 +58,15 @@ class Playbook extends Model
     public function traderTypes(): BelongsToMany
     {
         return $this->belongsToMany(TraderType::class)->withTimestamps();
+    }
+
+    public function getLogoUrlAttribute(): ?string
+    {
+        if (! $this->logo_path) {
+            return null;
+        }
+
+        return Storage::disk((string) config('filesystems.playbook_logo_disk', 'public'))->url($this->logo_path);
     }
 
     #[Scope]

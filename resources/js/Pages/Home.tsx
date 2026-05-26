@@ -23,10 +23,27 @@ export default function Home({ modules, traderTypes }: Props) {
                 alt=""
             />
             <section className="relative min-h-screen overflow-hidden px-6">
-                <div className="absolute inset-0 h-[30vw] bg-[url('/design/assets/images/bg-hero.jpg')] bg-cover bg-bottom opacity-95" />
+                <div className="absolute inset-0 h-[52vw] opacity-60 md:h-[30vw]">
+                    <video
+                        className="pointer-events-none absolute inset-0 h-full w-full object-cover object-bottom max-md:max-w-none"
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        preload="metadata"
+                        poster="/design/assets/images/bg-footer.jpg"
+                        aria-hidden="true"
+                    >
+                        <source
+                            src="/design/assets/videos/compressed/bg-hero-loop.mp4"
+                            type="video/mp4"
+                        />
+                    </video>
 
-                {/*<div className="via-midnight-blue/80 to-midnight-blue absolute inset-0 bg-gradient-to-b from-transparent" />*/}
-                <div className="relative z-20 mx-auto mt-[12vw] flex max-w-7xl flex-col items-center text-center">
+                    <div className="brand-gradient-midnight-blue absolute bottom-0 h-full w-full"></div>
+                </div>
+
+                <div className="relative z-20 mx-auto mt-[25vw] flex max-w-7xl flex-col items-center text-center md:mt-[12vw]">
                     <img
                         className="h-40 w-auto max-w-none md:h-60"
                         src="/design/assets/images/logo-ticker-tactix-2026.png"
@@ -106,6 +123,12 @@ export default function Home({ modules, traderTypes }: Props) {
                             traderTypes={traderTypes}
                             className="mt-10"
                         />
+
+                        <p className="mx-auto mt-4 mb-8 text-center leading-8 text-white/80">
+                            Ticker-Tactix organizes market decisions into layers
+                            so traders can move from raw data to structured
+                            execution.
+                        </p>
 
                         <div className="bg-midnight-blue relative z-10 mt-6 w-full py-5">
                             <img

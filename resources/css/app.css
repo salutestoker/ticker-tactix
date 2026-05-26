@@ -108,6 +108,10 @@ textarea {
     --text-gradient: linear-gradient(180deg, #0012cb 0%, #010929 100%);
 }
 
+.brand-gradient-midnight-blue {
+    background: linear-gradient(180deg, #01092900 0%, #010929 100%);
+}
+
 .brand-gradient-text-vertical {
     --text-gradient: linear-gradient(180deg, #00fa92 0%, #00d5ff 50%, #b543d7 100%);
 }

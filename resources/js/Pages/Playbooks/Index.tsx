@@ -7,8 +7,9 @@ import {
     TaxonomyBadge,
 } from '@/Components/UI/Hud';
 import { PublicHeroFrame } from '@/Components/UI/PublicHero';
+import { RotatingTaxonomyBadges } from '@/Components/UI/RotatingTaxonomyBadges';
 import PublicLayout from '@/Layouts/PublicLayout';
-import type { PageProps, Playbook, TraderType } from '@/types';
+import type { PageProps, Playbook } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 
 export default function PlaybooksIndex({
@@ -20,7 +21,7 @@ export default function PlaybooksIndex({
             <PublicHeroFrame>
                 <div className="relative z-10 flex w-[102vw] translate-x-[-2%] -translate-y-[10%] justify-center mix-blend-lighten">
                     <img
-                        src="/design/assets/images/bg-playbooks.png"
+                        src="/design/assets/images/bg-playbooks.jpg"
                         className=""
                         alt=""
                     />
@@ -94,30 +95,43 @@ export default function PlaybooksIndex({
                                                 }
                                             }}
                                         >
-                                            <td className="min-w-[250px] px-3 py-4 font-medium text-white sm:px-6 sm:py-5">
-                                                <span className="font-heading text-sm tracking-[0.08em] text-white uppercase">
-                                                    {playbook.title}
-                                                </span>
-                                            </td>
-                                            <td className="min-w-[300px] px-3 py-4 sm:px-6 sm:py-5">
-                                                <div className="flex flex-wrap gap-2">
-                                                    {(
-                                                        playbook.trader_types ??
-                                                        playbook.traderTypes ??
-                                                        []
-                                                    ).map(
-                                                        (type: TraderType) => (
-                                                            <TaxonomyBadge
-                                                                key={type.id}
-                                                                label={
-                                                                    type.name
+                                            <td className="min-w-[330px] px-3 py-4 font-medium text-white sm:px-6 sm:py-5">
+                                                <div className="text-seafoam-green flex items-center gap-4">
+                                                    {playbook.logo_url && (
+                                                        <div className="border-seafoam-green bg-midnight-blue h-12 w-12 overflow-hidden rounded-full border p-2">
+                                                            <img
+                                                                className="h-full w-full object-cover mix-blend-lighten"
+                                                                src={
+                                                                    playbook.logo_url
                                                                 }
-                                                                color={
-                                                                    type.color
-                                                                }
+                                                                alt=""
                                                             />
-                                                        ),
+                                                        </div>
                                                     )}
+                                                    {playbook.icon && (
+                                                        <div className="border-seafoam-green bg-midnight-blue flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border">
+                                                            <IconRenderer
+                                                                name={
+                                                                    playbook.icon
+                                                                }
+                                                                className="h-6 w-6 object-cover"
+                                                            />
+                                                        </div>
+                                                    )}
+                                                    <span className="font-heading w-[calc(100%-55px)] text-sm tracking-[0.08em] text-white uppercase">
+                                                        {playbook.title}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="px-3 py-4 sm:px-6 sm:py-5">
+                                                <div className="flex flex-wrap gap-2">
+                                                    <RotatingTaxonomyBadges
+                                                        types={
+                                                            playbook.trader_types ??
+                                                            playbook.traderTypes ??
+                                                            []
+                                                        }
+                                                    />
                                                 </div>
                                             </td>
                                             <td className="hidden px-6 py-5 md:table-cell">

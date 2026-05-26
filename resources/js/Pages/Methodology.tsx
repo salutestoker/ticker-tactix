@@ -33,7 +33,7 @@ export default function Methodology() {
             <PublicHeroFrame>
                 <div className="relative z-10 flex w-[102vw] translate-x-[-2%] -translate-y-[10%] justify-center mix-blend-lighten">
                     <img
-                        src="/design/assets/images/bg-methodology.png"
+                        src="/design/assets/images/bg-methodology.jpg"
                         className=""
                         alt=""
                     />

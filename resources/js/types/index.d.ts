@@ -86,6 +86,8 @@ export interface Playbook {
     id: number;
     market_id: number;
     icon?: string | null;
+    logo_path?: string | null;
+    logo_url?: string | null;
     title: string;
     slug: string;
     access: AccessValue;

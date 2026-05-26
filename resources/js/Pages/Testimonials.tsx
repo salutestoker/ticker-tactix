@@ -17,7 +17,7 @@ export default function Testimonials() {
             <PublicHeroFrame className="px-4 pt-32 pb-24 sm:px-6 lg:pt-36 lg:pb-28">
                 <div className="relative z-10 flex w-[102vw] translate-x-[-2%] -translate-y-[18%] justify-center mix-blend-lighten">
                     <img
-                        src="/design/assets/images/bg-testimonials.png"
+                        src="/design/assets/images/bg-testimonials.jpg"
                         className=""
                         alt=""
                     />

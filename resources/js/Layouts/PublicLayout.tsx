@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type PropsWithChildren } from 'react';
 
 const nav = [
     ['Home', 'home'],
-    ['What type of trader are you?', 'trader-types'],
+    ['Trader Types', 'trader-types'],
 
     ['Modules', 'modules.index'],
     ['Playbooks', 'playbooks.index'],
@@ -149,7 +149,7 @@ function Footer() {
             title: 'System',
             links: [
                 {
-                    label: 'What type of trader are you?',
+                    label: 'Trader Types',
                     href: route('trader-types'),
                     external: false,
                 },
@@ -241,7 +241,7 @@ function Footer() {
                 aria-hidden="true"
             >
                 <source
-                    src="/design/assets/videos/bg-footer-loop.mp4"
+                    src="/design/assets/videos/compressed/bg-footer-loop.mp4"
                     type="video/mp4"
                 />
             </video>
