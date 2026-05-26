@@ -9,7 +9,7 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Artisan::command('storage:probe {disk? : Filesystem disk to test}', function (?string $disk = null): int {
-    $disk ??= (string) config('filesystems.playbook_logo_disk', config('filesystems.default'));
+    $disk ??= (string) config('filesystems.catalog_media_disk', config('filesystems.default'));
     $path = 'storage-probes/'.now()->format('YmdHis').'-'.bin2hex(random_bytes(4)).'.txt';
 
     $this->line("Testing disk [{$disk}] with path [{$path}]...");

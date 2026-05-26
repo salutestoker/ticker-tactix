@@ -15,12 +15,17 @@ return [
 
     'default' => env('FILESYSTEM_DISK', 'local'),
 
+    'catalog_media_disk' => env('CATALOG_MEDIA_DISK')
+        ?: (env('FILESYSTEM_DISK') === 'local' ? 'public' : (env('FILESYSTEM_DISK') ?: 'public')),
+
     'playbook_logo_disk' => env('PLAYBOOK_LOGO_DISK')
+        ?: env('CATALOG_MEDIA_DISK')
         ?: (env('FILESYSTEM_DISK') === 'local' ? 'public' : (env('FILESYSTEM_DISK') ?: 'public')),
 
     'playbook_logo_directory' => env('PLAYBOOK_LOGO_DIRECTORY', 'playbook-logos'),
 
     'module_image_disk' => env('MODULE_IMAGE_DISK')
+        ?: env('CATALOG_MEDIA_DISK')
         ?: (env('FILESYSTEM_DISK') === 'local' ? 'public' : (env('FILESYSTEM_DISK') ?: 'public')),
 
     'module_image_directory' => env('MODULE_IMAGE_DIRECTORY', 'module-images'),

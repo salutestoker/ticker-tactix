@@ -66,7 +66,7 @@ class Playbook extends Model
             return null;
         }
 
-        return Storage::disk((string) config('filesystems.playbook_logo_disk', 'public'))->url($this->logo_path);
+        return Storage::disk((string) config('filesystems.catalog_media_disk', 'public'))->url($this->logo_path);
     }
 
     #[Scope]

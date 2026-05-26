@@ -146,7 +146,7 @@ class PlaybookController extends Controller
 
     private function logoDisk(): string
     {
-        return (string) config('filesystems.playbook_logo_disk', 'public');
+        return (string) config('filesystems.catalog_media_disk', 'public');
     }
 
     private function logoDirectory(): string

@@ -75,6 +75,7 @@ class AdminCatalogTest extends TestCase
                 'market_id' => $market->id,
                 'trader_type_ids' => [$traderType->id],
                 'icon' => 'market-data-bars',
+                'logo' => UploadedFile::fake()->create('market-environment.jpg', 12, 'image/jpeg'),
                 'title' => 'Market Environment',
                 'slug' => '',
                 'access' => AccessLevel::DailyNewsletterDiscord->value,
@@ -94,6 +95,7 @@ class AdminCatalogTest extends TestCase
 
         $playbook = Playbook::where('slug', 'market-environment')->firstOrFail();
 
+        Storage::disk('public')->assertExists($playbook->logo_path);
         $this->assertDatabaseHas(Playbook::class, [
             'title' => 'Market Environment',
             'slug' => 'market-environment',
