@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Market;
 use App\Models\Module;
 use App\Models\TraderType;
+use App\Services\CatalogSpreadsheetSyncService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -48,6 +49,7 @@ class ModuleController extends Controller
 
         $module->traderTypes()->sync($data['trader_type_ids']);
         $module->relatedModules()->sync($data['related_module_ids'] ?? []);
+        $this->exportCatalogSpreadsheets();
 
         return redirect()->route('admin.modules.index')->with('success', 'Module created.');
     }
@@ -76,6 +78,7 @@ class ModuleController extends Controller
         ]));
         $module->traderTypes()->sync($data['trader_type_ids']);
         $module->relatedModules()->sync($data['related_module_ids'] ?? []);
+        $this->exportCatalogSpreadsheets();
 
         return redirect()->route('admin.modules.index')->with('success', 'Module updated.');
     }
@@ -83,6 +86,7 @@ class ModuleController extends Controller
     public function destroy(Module $module): RedirectResponse
     {
         $module->delete();
+        $this->exportCatalogSpreadsheets();
 
         return redirect()->route('admin.modules.index')->with('success', 'Module archived.');
     }
@@ -167,5 +171,10 @@ class ModuleController extends Controller
             ->filter()
             ->values()
             ->all();
+    }
+
+    private function exportCatalogSpreadsheets(): void
+    {
+        app(CatalogSpreadsheetSyncService::class)->exportAll();
     }
 }

@@ -1,0 +1,151 @@
+id,market_slug,trader_type_slugs,related_module_slugs,icon,title,slug,description,purpose,layer,key_output,trading_pace,short_name,price,module_overview,core_features,customization_options,best_used_for,summary,version,access,action_url,sort_order,is_featured,is_active,published_at,meta_title,meta_description
+43,all,nyse-base|nyse-core|crypto-core|nyse-pro|crypto-pro,sequence-pressure|trend-tracer|pulse|long-wap,momentum-cycles,"Momentum Cycles",momentum-cycles,"Measures directional momentum phase and trend strength, helping identify when conditions are aligned bullish or bearish.",Direction,"Classification Layer","Momentum Phase",ALL,T-T:MC,$50/mo,"Ticker-Tactix Momentum Cycles (T-T:MC) translates raw market motion into an elegant visual language of acceleration, deceleration, and reversal.
+
+By blending short and medium-term velocity measurements, it forms a momentum map that highlights the balance between force and direction inside every trend. Each cycle is rendered through adaptive color transitions, cross markers, and optional background shifts that make changes in market energy unmistakable at a glance.
+","Signal Line | The heart of the indicator, capturing real-time changes in price strength and directional bias. | trend-tracer | blue
+Momentum Line | A smoothed trail of recent momentum, providing structure and flow to the cycles. | momentum-cycles | violet
+Histogram Display | Visualizes bullish & bearish phases, color-coded to distinguish rising and fading energy in both bullish and bearish zones. | market-data-bars | green
+Dynamic Background | Optional shading reacts instantly to the prevailing momentum phase for immediate trend context. | data-pipeline | gold","Toggle visibility of lines, histogram, dots, and background for a clean or detailed look.
+Works across all symbols and timeframes.","Identifying early momentum shifts before trend confirmation.
+Visualizing cycle transitions to refine entry and exit timing.
+Enhancing multi-timeframe confluence and directional confidence.","Ticker-Tactix Momentum Cycles gives traders a visual framework to sense the rhythm of price action — transforming market noise into a readable cycle of strength and release.
+",1.33,"Invite-Only Indicator + Discord",,10,1,0,,"Ticker-Tactix Momentum Cycles","Measures directional momentum phase and trend strength, helping identify when conditions are aligned bullish or bearish."
+44,all,nyse-base|nyse-core|crypto-core|nyse-pro|crypto-pro,momentum-cycles|trend-tracer|range-rails|candle-color,sequence-pressure,"Sequence Pressure",sequence-pressure,"Tracks directional exhaustion and pressure buildup to help identify when a move may be weakening or becoming vulnerable to recoil.",Direction,"Classification Layer","Exhaustion State",ALL,T-T:Pressure,$50/mo,"Ticker-Tactix Sequence Pressure (T-T:Pressure) is a precision timing instrument built around one of the market’s most quietly respected exhaustion rhythms.
+
+Instead of measuring velocity or trend strength, Sequence Pressure  focuses on structural pressure inside price itself — tracking when a move has quietly fulfilled its internal sequence and is statistically vulnerable to reaction. The result is a minimalist set of signals that appear only when the market reaches a true state of imbalance.
+
+No noise. No over plotting. Just high-impact moments.","Warnings | Early exhaustion signals as pressure builds. | sequence-pressure | blue
+Triggers | Full sequence completion markers where reactions often ignite. | direction-target | violet
+Dual-Side Detection | Tracks both bullish and bearish sequences in parallel. | goal-posts | green
+Chart-Native Labels | Clean numeric markers printed directly on price. | market-data-bars | gold","Toggle Buy & Sell sequences independently.
+Optional label visibility for clean or detailed chart views.
+Full alert support for automated monitoring.","Identifying trend fatigue before reversals become obvious.
+Timing pullback entries inside extended moves.
+Spotting exhaustion during parabolic expansions.
+Enhancing confluence with momentum, VWAP, or key levels.","Ticker-Tactix Sequence Pressure doesn’t chase momentum — it waits for it to run out of room.
+Simple on the surface. Dangerous in the right hands.
+",1.44,"Invite-Only Indicator + Discord",https://buy.stripe.com/4gMeVd7a0d2G97Y12U28801,20,1,1,"2026-05-23 02:26:49","Ticker-Tactix Sequence Pressure","Ticker-Tactix Sequence Pressure is a precision timing module designed to detect when directional moves have reached structural maturity."
+45,nyse,nyse-pro,momentum-cycles|sequence-pressure|tide|aavwap,trend-tracer,"Trend Tracer",trend-tracer,"Maps broader directional flow and trend posture to help determine whether market structure is supporting continuation or deterioration.",Direction,"Participation & Flow Layer","Trend Bias","DAY TRADING",T-T:TT,$20/mo,"Ticker-Tactix Trend Tracer (T-T:TT) is a precision intraday breadth-mapping tool built to answer one critical question: Is the market actually trending… or just moving?
+
+It systematically tracks ADD (Advance-Decline) behavior from the prior session close through every key intraday checkpoint, converting raw breadth data into a structured, time-based trend narrative you can trust.
+
+No interpretation. No hindsight. Just verified progression.","Anchors to Yesterday’s Close (15:5 | Anchors to Yesterday’s Close (15:59 ET) Establishes a true baseline before today’s session begins — eliminating overnight distortion. | trend-tracer | blue
+Tracks ADD at Fixed Intraday Inter | Tracks ADD at Fixed Intraday Intervals Measures ADD at precise, repeatable checkpoints starting minutes after the open and continuing every 30 minutes through the close. | market-data-bars | violet
+Quantifies Momentum, Not Just Dire | Quantifies Momentum, Not Just Direction Each reading is compared to the prior checkpoint, revealing whether breadth is accelerating, stalling, or reversing. | pulse | green
+Normalizes Movement Using ADR (14) | Normalizes Movement Using ADR (14) Breadth deltas are expressed as a percentage of ADD’s 14-session average range — so you know whether a move is meaningful or just noise. | avwap-doc | gold
+Session-Aware, Time-Zone Safe All | Session-Aware, Time-Zone Safe All readings are anchored to market time, not chart time, and displayed cleanly in your preferred local time zone. | trend-tracer | blue
+Visual Confirmation on Chart Optio | Visual Confirmation on Chart Optional source markers print exactly when each breadth reading occurs — no guessing, no misalignment. | market-data-bars | violet","Whether an early push has real follow-through
+When breadth expansion is weakening before price reacts
+If trend continuation is being earned or fading
+When late-day moves are supported… or hollow This is how you separate trend days from chop days in real time.","Index & futures traders validating trend strength
+Options traders deciding when conviction deserves size
+Day traders filtering fake continuation
+Swing traders identifying institutional follow-through","T-T:Trend Tracer doesn’t call the move.
+It tells you whether the market is actually backing it.
+When breadth confirms, you press. When it doesn’t, you protect. That’s the edge.",1.2,"Invite-Only Indicator + Discord",,30,1,1,"2026-05-23 02:26:00","Ticker-Tactix Trend Tracer","Ticker-Tactix Trend Tracer (T-T:TT) converts intraday breadth into a structured, time-based trend narrative.
+
+Trend Tracer tracks overall strength from the prior close through fixed intraday checkpoints, normalizing each move against historical breadth ranges to separate real trend from noise."
+46,crypto,crypto-pro,crypto-info-box|crypto-info-line|pulse|range-rails,volatility-pulse,"Crypto Velocity Stats",crypto-velocity-stats,"Measures short-term crypto momentum statistics and directional acceleration across the selected asset and timeframe.",Direction,"Participation & Flow Layer","Velocity Profile","DAY TRADING",T-T:CVS,$20/mo,"Ticker-Tactix Crypto Velocity Stats (T-T:CVS) is a precision intraday momentum-mapping tool built to answer one critical question: Is crypto actually accelerating… or just fluctuating?
+
+It systematically tracks short-term directional movement across the selected crypto asset and timeframe, converting raw price behavior into a structured velocity narrative you can trust.
+
+No guesswork. No hindsight. Just verified velocity.","Anchors Momentum to Structured Tim | Anchors Momentum to Structured Time-Based Readings Measures crypto movement at precise, repeatable intervals so momentum can be evaluated through progression, not emotion. | trend-tracer | blue
+Tracks Velocity at Fixed Intraday | Tracks Velocity at Fixed Intraday Checkpoints Monitors how price is advancing or deteriorating across each measurement window, building a clean sequence of momentum development throughout the session. | direction-target | violet
+Quantifies Acceleration, Not Just | Quantifies Acceleration, Not Just Direction Each reading is compared to the prior reading, revealing whether momentum is expanding, fading, or reversing beneath the surface. | pulse | green
+Converts Raw Movement into Structu | Converts Raw Movement into Structured Statistics Transforms price behavior into a readable velocity framework so traders can distinguish meaningful expansion from random fluctuation. | market-data-bars | gold
+Built for 24/7 Crypto Conditions D | Built for 24/7 Crypto Conditions Designed specifically for crypto markets, where momentum can build, persist, and fail outside traditional market hours. | trend-tracer | blue
+Visual Confirmation on Chart Displ | Visual Confirmation on Chart Displays momentum statistics cleanly on chart so traders can evaluate current velocity without relying on subjective interpretation. | direction-target | violet","Toggle visibility of supporting lines, markers, and background states.
+Works across supported symbols and timeframes.","Crypto traders evaluating short-term momentum quality
+Intraday traders identifying expansion before it becomes obvious
+Traders filtering weak continuation and low-quality breakouts
+Momentum-focused traders who want structure behind acceleration","Ticker-Tactix Crypto Velocity Stats gives traders a focused way to read market structure, turning scattered price behavior into an organized module view for cleaner decision support.",1.14,"Invite-Only Indicator + Discord",,40,0,1,"2026-05-23 02:26:49","Ticker-Tactix Crypto Velocity Stats","Measures short-term crypto momentum statistics and directional acceleration across the selected asset and timeframe."
+47,nyse,nyse-pro,,info-box,"Info Box",info-box,"Displays a compact market HUD with key breadth, futures, ticker, range, and volume context for fast decision support.",HUD,"Participation & Flow Layer","Market Context Panel","DAY TRADING",T-T:InfoBox,$50/mo,"Ticker-Tactix Info Box (T-T:InfoBox) is a precision-built market intelligence HUD designed for traders who don’t guess — they confirm.
+
+It quietly overlays your chart with the most important forces moving the tape: breadth, index alignment, volatility pressure, participation strength, and real-time capital flow from the stocks that actually move the world.
+
+No clutter. No noise. Just instant context where it matters most — at the moment of decision.","Market Internals (ADD + ADDQ) | Know immediately if the market is being carried by a few names… or lifted by real participation. | trend-tracer | blue
+Index Confirmation (ES + NQ) | Instantly spot alignment, stall, or divergence between the engines of price. | direction-target | violet
+FATMAAN Power Flow | Live composite behavior of META, AAPL, TSLA, MSFT, AMZN, GOOGL & NVDA— the stocks that bend the market around them. | pulse | green
+Volatility Pressure | Real-time expansion context so you know when energy is building… or fading. | market-data-bars | gold
+Participation Strength | Volume displayed with instant session context vs normal conditions. | trend-tracer | blue
+Live Ticker Readout | Your active symbol’s performance is always in view. | direction-target | violet
+Directional Bias Arrows | Quick visual tells without thinking. | pulse | green","T-T:InfoBox doesn’t compete with your chart. It sits beside it like a co-pilot — feeding you what most traders only realize after the move. No digging through panels. No bouncing between dashboards. Your market truth is always one glance away.","Futures & options traders who demand confirmation before size
+Scalpers who thrive on alignment and velocity
+Day traders filtering fake breakouts vs real expansion
+Swing traders timing entries with institutional participation","T-T:InfoBox doesn’t predict. It positions you where prediction isn’t necessary.
+When the market speaks…you’ll already be listening.
+",1.28,"Invite-Only Indicator + Discord",,50,0,1,"2026-05-23 02:26:49","Ticker-Tactix Info Box","Displays a compact market HUD with key breadth, futures, ticker, range, and volume context for fast decision support."
+48,nyse,nyse-pro,,info-box,"Info Line",info-line,"Displays the same decision-support context as Info Box in a condensed horizontal format for users who prefer a streamlined HUD.",HUD,"Participation & Flow Layer","Market Context Line","DAY TRADING",T-T:InfoLine,$50/mo,"Ticker-Tactix Info Line (T-T:InfoLine) is a precision-built market intelligence HUD designed for traders who don’t guess — they confirm.
+
+It quietly overlays your chart with the most important forces moving the tape: breadth, index alignment, volatility pressure, participation strength, and real-time capital flow from the stocks that actually move the world.
+
+No clutter. No noise. Just instant context where it matters most — at the moment of decision.","Market Internals (ADD + ADDQ) | Know immediately if the market is being carried by a few names… or lifted by real participation. | trend-tracer | blue
+Index Confirmation (ES + NQ) | Instantly spot alignment, stall, or divergence between the engines of price. | direction-target | violet
+FATMAAN Power Flow | Live composite behavior of META, AAPL, TSLA, MSFT, AMZN, GOOGL & NVDA— the stocks that bend the market around them. | pulse | green
+Volatility Pressure | Real-time expansion context so you know when energy is building… or fading. | market-data-bars | gold
+Participation Strength | Volume displayed with instant session context vs normal conditions. | trend-tracer | blue
+Live Ticker Readout | Your active symbol’s performance is always in view. | direction-target | violet
+Directional Bias Arrows | Quick visual tells without thinking. | pulse | green","T-T:InfoLine doesn’t compete with your chart. It sits beside it like a co-pilot — feeding you what most traders only realize after the move. No digging through panels. No bouncing between dashboards. Your market truth is always one glance away.","Futures & options traders who demand confirmation before size
+Scalpers who thrive on alignment and velocity
+Day traders filtering fake breakouts vs real expansion
+Swing traders timing entries with institutional participation","T-T:InfoLine doesn’t predict. It positions you where prediction isn’t necessary.
+When the market speaks…you’ll already be listening.
+",1.28,"Invite-Only Indicator + Discord",,60,0,1,"2026-05-23 02:26:49","Ticker-Tactix Info Line","Displays the same decision-support context as Info Box in a condensed horizontal format for users who prefer a streamlined HUD."
+49,crypto,crypto-pro,,crypto-info-box,"Crypto Info Box",crypto-info-box,"Displays a crypto-specific HUD with market-cap, BTC futures, stablecoin dominance, ticker, range, and volume context.",HUD,"Participation & Flow Layer","Crypto Context Panel","DAY TRADING",T-T:CryptoInfoBox,$50/mo,"Ticker-Tactix Crypto Info Box is a precision-built market intelligence HUD for traders who don’t guess, they confirm.
+
+Info Box overlays your chart with the forces that actually move the market: breadth, index alignment, volatility pressure, participation, and capital flow — without clutter or distraction.","Market internals BTC alignment Cry | Market internals BTC alignment Crypto Top 8 power flow Volatility and participation context Directional bias arrows Keeps you aligned with crypto market structure Eliminates dashboard hopping | trend-tracer | blue","Text output sizing Positioning and display toggles Symbol-aware live updates","Instant confirmation before committing size Clarity during fast decision windows Acts as a co-pilot, not a replacement Always visible, never intrusive","Ticker-Tactix Crypto Info Box gives traders a focused way to read market structure, turning scattered price behavior into an organized module view for cleaner decision support.",1.49,"Invite-Only Indicator + Discord",https://buy.stripe.com/9B600j65W6Eidoeh1S28804,70,0,1,"2026-05-23 02:26:50","Ticker-Tactix Crypto Info Box","Ticker-Tactix Crypto Info Box is a precision-built market intelligence HUD for crypto traders who don’t guess, they confirm."
+50,crypto,crypto-pro,,crypto-info-box,"Crypto Info Line",crypto-info-line,"Displays the same crypto-specific context as Crypto Info Box in a compressed horizontal format for streamlined chart viewing.",HUD,"Participation & Flow Layer","Crypto Contect Line","DAY TRADING",T-T:CryptoInfoLine,$50/mo,"Ticker-Tactix Crypto Info Line is a precision-built market intelligence HUD for traders who don’t guess, they confirm.
+
+Info Line overlays your chart with the forces that actually move the market: breadth, index alignment, volatility pressure, participation, and capital flow — without clutter or distraction.","Market internals BTC alignment Cry | Market internals BTC alignment Crypto Top 8 power flow Volatility and participation context Directional bias arrows Keeps you aligned with crypto market structure Eliminates dashboard hopping | trend-tracer | blue","Text output sizing Positioning and display toggles Symbol-aware live updates","Instant confirmation before committing size Clarity during fast decision windows Acts as a co-pilot, not a replacement Always visible, never intrusive","Ticker-Tactix Crypto Info Line gives traders a focused way to read market structure, turning scattered price behavior into an organized module view for cleaner decision support.",1.49,"Invite-Only Indicator + Discord",https://buy.stripe.com/9B600j65W6Eidoeh1S28804,80,0,1,"2026-05-23 02:26:50","Ticker-Tactix Crypto Info Line","Ticker-Tactix Crypto Info Line is a precision-built market intelligence HUD for crypto traders who don’t guess, they confirm."
+51,all,nyse-pro|crypto-pro,momentum-cycles|tide|range-rails|candle-color,pulse,Pulse,pulse,"Measures participation quality and internal market flow to help confirm whether price movement is being supported by real engagement.",Direction,"Participation & Flow Layer","Participation Scale","DAY TRADING",T-T:Pulse,$50/mo,"Ticker-Tactix Pulse gives traders a new way to see what’s really happening inside each move.
+Instead of building candles by time, Pulse creates them from a fixed number of ticks—so every candle represents equal trading activity, not equal minutes. This design exposes subtle shifts in momentum, strength, and participation as they happen.","Builds OHLC candles from a custom | Builds OHLC candles from a custom tick count | trend-tracer | blue
+Displays real-time volume for ever | Displays real-time volume for every pulse | direction-target | violet
+Colors price bodies, wicks, and vo | Colors price bodies, wicks, and volume bars for clear directional feedback | pulse | green
+Calculates current, minimum, maxim | Calculates current, minimum, maximum, and average volume values automatically | market-data-bars | gold","Toggle visibility of supporting lines, markers, and background states.
+Works across supported symbols and timeframes.","To study market rhythm and volume flow in greater detail
+To spot exhaustion, breakout momentum, or reversal pulses
+To analyze movement independently of the clock","Ticker-Tactix Pulse is ideal for traders who want a clearer picture of how each burst of trading energy drives price—capturing the true pulse of the market in real time.",1.32,"Invite-Only Indicator + Discord",,90,0,0,,"Ticker-Tactix Pulse","Ticker-Tactix Pulse (T-T:Pulse) shows the market’s heartbeat by converting raw ticks into custom candles. Each “Pulse” candle forms after a set number of trades, revealing price flow and volume activity that normal time-based charts overlook."
+52,all,nyse-pro|crypto-pro,,participation-network,Tide,tide,"Tracks broader market current and directional flow to help determine whether participation is supportive, fading, or shifting.","Breadth Cue","Participation & Flow Layer","Flow State","DAY TRADING",T-T:Tide,$15/mo,"Ticker-Tactix Tide (T-T:Tide) translates live market behavior into a structured visual layer that helps traders quickly understand context, pressure, and directional quality without losing focus on price action.","Signal Layer | Highlights the module’s primary read so the current state is easy to identify at a glance. | trend-tracer | blue
+Context Filter | Adds structure around raw movement so stronger and weaker conditions are easier to separate. | direction-target | violet
+Visual State | Uses color and compact HUD cues to make shifts in behavior immediately readable. | pulse | green
+Adaptive Background | Optional shading reacts to the dominant state for faster trend and risk recognition. | market-data-bars | gold","Toggle visibility of supporting lines, markers, and background states.
+Works across supported symbols and timeframes.","Confirming when market conditions support the current trade idea.
+Reducing noisy decision-making with a consistent visual framework.
+Adding multi-timeframe context before execution.","Ticker-Tactix Tide gives traders a focused way to read market structure, turning scattered price behavior into an organized module view for cleaner decision support.",1.6,"Invite-Only Indicator + Discord",,100,0,0,,"Ticker-Tactix Tide","Tracks broader market current and directional flow to help determine whether participation is supportive, fading, or shifting."
+53,all,nyse-pro|crypto-pro,pulse|aavwap|long-wap|candle-color,range-rails,"Range Rails",range-rails,"Maps expected range structure and buy/sell rails to help identify where price is stretched, reactive, or positioned for expansion.",Levels,"Volatility & Structure Layer","Rail Zones","DAY TRADING",T-T:RangeRails,$50/mo,"Ticker-Tactix Range Rails (T-T:Range Rails) is a range-structure module built to help traders understand where price is trading relative to both expected value and intraday expansion zones.
+
+At its core, the tool uses a proprietary calculation to define a broader fair-price area, then overlays live buy and sell rails that map where price is stretching beyond that balance during the current session.
+
+This creates a cleaner decision framework for traders who want to understand:
+where price is balanced
+where price is extended
+where opportunity may begin to improve
+and when the market is moving beyond its normal rhythm","Expected Range Box based on propri | Expected Range Box based on proprietary calculations Live Buy Rails for downside expansion zones Live Sell Rails for upside expansion zones Session-aware updates as price evolves throughout the day Clear labels and zone visualization for fast decision support | range-rails | blue","Adjust vertical marker colors, styles, and trigger thresholds.
+Toggle rangerails and labels for minimal or detailed chart views.","intraday structure analysis identifying buy and sell opportunity zones monitoring expansion away from fair price combining with momentum tools for better execution timing","Ticker-Tactix Range Rails gives structure to the session by separating fair price from actionable expansion.
+",1.2,"Invite-Only Indicator + Discord",https://buy.stripe.com/8x200jcuk0fU2JA7ri28803,110,0,1,"2026-05-23 02:26:50","Ticker-Tactix Range Rails","Ticker-Tactix Range Rails is a range-structure module built to help traders understand where price is trading relative to both expected value and intraday expansion zones."
+54,all,nyse-pro|crypto-pro,,avwap-doc,AAVWAP,aavwap,"Anchors price to a meaningful reference point to show whether price is holding above or below an important value area.",Levels,"Volatility & Structure Layer","Anchored Value Reference","DAY TRADING",T-T:AAVWAP,$50/mo,"Ticker-Tactix AAVWAP (T-T:AAVWAP) translates live market behavior into a structured visual layer that helps traders quickly understand context, pressure, and directional quality without losing focus on price action.","Signal Layer | Highlights the module’s primary read so the current state is easy to identify at a glance. | trend-tracer | blue
+Context Filter | Adds structure around raw movement so stronger and weaker conditions are easier to separate. | direction-target | violet
+Visual State | Uses color and compact HUD cues to make shifts in behavior immediately readable. | pulse | green
+Adaptive Background | Optional shading reacts to the dominant state for faster trend and risk recognition. | market-data-bars | gold","Toggle visibility of supporting lines, markers, and background states.
+Works across supported symbols and timeframes.","Confirming when market conditions support the current trade idea.
+Reducing noisy decision-making with a consistent visual framework.
+Adding multi-timeframe context before execution.","Ticker-Tactix AAVWAP gives traders a focused way to read market structure, turning scattered price behavior into an organized module view for cleaner decision support.",1.143,"Invite-Only Indicator + Discord",,120,0,0,,"Ticker-Tactix AAVWAP","Anchors price to a meaningful reference point to show whether price is holding above or below an important value area."
+55,all,nyse-base|nyse-core|crypto-core,,long-vwap-wave,"Long WAP",long-wap,"Tracks longer-duration value positioning to help identify broader support, resistance, and higher-timeframe control.",Levels,"Volatility & Structure Layer","Long-Term Value Position","SWING TRADING",T-T:LongWAP,$30/mo,"Ticker-Tactix Long WAP (T-T:LongWAP) translates live market behavior into a structured visual layer that helps traders quickly understand context, pressure, and directional quality without losing focus on price action.","Signal Layer | Highlights the module’s primary read so the current state is easy to identify at a glance. | trend-tracer | blue
+Context Filter | Adds structure around raw movement so stronger and weaker conditions are easier to separate. | direction-target | violet
+Visual State | Uses color and compact HUD cues to make shifts in behavior immediately readable. | pulse | green
+Adaptive Background | Optional shading reacts to the dominant state for faster trend and risk recognition. | market-data-bars | gold","Toggle visibility of supporting lines, markers, and background states.
+Works across supported symbols and timeframes.","Confirming when market conditions support the current trade idea.
+Reducing noisy decision-making with a consistent visual framework.
+Adding multi-timeframe context before execution.","Ticker-Tactix Long WAP gives traders a focused way to read market structure, turning scattered price behavior into an organized module view for cleaner decision support.",1,"Invite-Only Indicator + Discord",,130,0,0,,"Ticker-Tactix Long WAP","Tracks longer-duration value positioning to help identify broader support, resistance, and higher-timeframe control."
+56,all,nyse-pro|crypto-pro,,candle-color,"Candle Color",candle-color,"Simplifies candle-state interpretation by visually classifying bar behavior based on the module’s directional logic.","Breadth Cue","Volatility & Structure Layer","Bar State/Directional Color","DAY TRADING",T-T:CC,$10/mo,"Ticker-Tactix Candle Color (T-T:CC) distills market breadth into a subtle yet powerful visual cue by conditioning candle wicks on NYSE Advance-Decline (ADD) extremes.
+
+Rather than altering price structure or candle bodies, the indicator applies precise wick-only coloring to reflect underlying participation strength. This approach preserves raw price action while quietly revealing when broad market forces are decisively aligned or diverging from local price behavior.
+
+By isolating high-conviction breadth regimes, T-T:CC provides immediate contextual awareness without clutter, making it ideal for traders who value clarity and restraint.","Breadth-Driven Wick Coloring | Candle wicks turn green when ADD exceeds bullish thresholds and red when ADD falls below bearish thresholds, signaling dominant market participation. | trend-tracer | blue
+Non-Intrusive Design | Wick-only visualization leaves candle bodies and borders untouched, preserving native price structure. | direction-target | violet
+Real-Time Breadth Sync | ADD data is dynamically aligned to the active chart timeframe for accurate intraday context. | pulse | green","Adjustable bullish and bearish ADD thresholds.
+Compatible with all symbols and timeframes.
+Designed to layer seamlessly with price-based indicators and volume tools.","Identifying high-confidence directional regimes driven by market breadth.
+Detecting participation divergence during price extensions, consolidations, or false breakouts.
+Enhancing trade filtering and bias alignment for index, ETF, and options strategies.","Ticker-Tactix Candle Color delivers breadth awareness with surgical precision — allowing traders to see market participation without distorting the price narrative.
+",1.11,"Invite-Only Indicator + Discord",,140,0,0,,"Ticker-Tactix Candle Color","Simplifies candle-state interpretation by visually classifying bar behavior based on the module’s directional logic."

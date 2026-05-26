@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Market;
 use App\Models\Playbook;
 use App\Models\TraderType;
+use App\Services\CatalogSpreadsheetSyncService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -50,6 +51,7 @@ class PlaybookController extends Controller
         $playbook = Playbook::create(Arr::except($data, ['trader_type_ids']));
 
         $playbook->traderTypes()->sync($data['trader_type_ids']);
+        $this->exportCatalogSpreadsheets();
 
         return redirect()->route('admin.playbooks.index')->with('success', 'Playbook created.');
     }
@@ -82,6 +84,7 @@ class PlaybookController extends Controller
 
         $playbook->update(Arr::except($data, ['trader_type_ids']));
         $playbook->traderTypes()->sync($data['trader_type_ids']);
+        $this->exportCatalogSpreadsheets();
 
         return redirect()->route('admin.playbooks.index')->with('success', 'Playbook updated.');
     }
@@ -89,6 +92,7 @@ class PlaybookController extends Controller
     public function destroy(Playbook $playbook): RedirectResponse
     {
         $playbook->delete();
+        $this->exportCatalogSpreadsheets();
 
         return redirect()->route('admin.playbooks.index')->with('success', 'Playbook archived.');
     }
@@ -128,7 +132,6 @@ class PlaybookController extends Controller
         $path = Storage::disk($this->logoDisk())->putFile(
             $this->logoDirectory(),
             $logo,
-            ['visibility' => 'public'],
         );
 
         abort_if($path === false, 500, 'Unable to store playbook logo.');
@@ -153,5 +156,10 @@ class PlaybookController extends Controller
     private function logoDirectory(): string
     {
         return trim((string) config('filesystems.playbook_logo_directory', 'playbook-logos'), '/');
+    }
+
+    private function exportCatalogSpreadsheets(): void
+    {
+        app(CatalogSpreadsheetSyncService::class)->exportAll();
     }
 }
