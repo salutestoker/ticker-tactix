@@ -71,18 +71,7 @@ export function TraderTypeCards({
         </div>
     );
 
-    return (
-        <div className={className}>
-            {isHomeRoute ? (
-                <>{cardsGrid}</>
-            ) : (
-                <>
-                    <TraderTypeLegend />
-                    {cardsGrid}
-                </>
-            )}
-        </div>
-    );
+    return <div className={className}>{cardsGrid}</div>;
 }
 
 export function TraderTypeLegend({ className = '' }: { className?: string }) {
@@ -278,7 +267,7 @@ function Legend({
     return (
         <Link
             href={href}
-            className="group flex gap-3 text-left transition hover:text-white md:items-center md:justify-center"
+            className="group flex gap-3 text-left transition hover:text-white md:items-start md:justify-center"
         >
             <span
                 className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-[12px] border transition group-hover:scale-105 ${toneClass}`}
@@ -291,7 +280,7 @@ function Legend({
                 >
                     {label}
                 </span>
-                <span className="block">{copy}</span>
+                <span className="block max-w-[92%]">{copy}</span>
             </span>
         </Link>
     );

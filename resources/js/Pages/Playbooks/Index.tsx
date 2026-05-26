@@ -7,8 +7,8 @@ import {
     TaxonomyBadge,
 } from '@/Components/UI/Hud';
 import { PublicHeroFrame } from '@/Components/UI/PublicHero';
-import { RotatingTaxonomyBadges } from '@/Components/UI/RotatingTaxonomyBadges';
 import PublicLayout from '@/Layouts/PublicLayout';
+import { TaxonomyList } from '@/Pages/Modules/Index';
 import type { PageProps, Playbook } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 
@@ -54,7 +54,7 @@ export default function PlaybooksIndex({
                                             Market
                                         </th>
                                         <th className="hidden px-6 py-5 md:table-cell">
-                                            Best For
+                                            Designed For
                                         </th>
                                         <th className="px-3 py-4 sm:px-6 sm:py-5">
                                             Price
@@ -126,7 +126,7 @@ export default function PlaybooksIndex({
                                             </td>
                                             <td className="px-3 py-4 sm:px-6 sm:py-5">
                                                 <div className="flex flex-wrap gap-2">
-                                                    <RotatingTaxonomyBadges
+                                                    <TaxonomyList
                                                         types={
                                                             playbook.trader_types ??
                                                             playbook.traderTypes ??
@@ -157,7 +157,7 @@ export default function PlaybooksIndex({
                                                     </span>
                                                 )}
                                             </td>
-                                            <td className="hidden w-full min-w-[300px] px-6 py-5 text-white/75 md:table-cell">
+                                            <td className="hidden min-w-[230px] px-6 py-5 text-white/75 md:table-cell">
                                                 {playbook.best_for}
                                             </td>
                                             <td className="font-heading px-3 py-4 text-lg text-white sm:px-6 sm:py-5">
