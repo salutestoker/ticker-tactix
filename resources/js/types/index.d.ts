@@ -52,6 +52,8 @@ export interface Module {
     id: number;
     market_id: number;
     icon?: string | null;
+    image_path?: string | null;
+    image_url?: string | null;
     title: string;
     slug: string;
     description?: string | null;

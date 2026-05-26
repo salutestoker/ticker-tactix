@@ -128,7 +128,6 @@ class PlaybookController extends Controller
         $path = Storage::disk($this->logoDisk())->putFile(
             $this->logoDirectory(),
             $logo,
-            ['visibility' => 'public'],
         );
 
         abort_if($path === false, 500, 'Unable to store playbook logo.');

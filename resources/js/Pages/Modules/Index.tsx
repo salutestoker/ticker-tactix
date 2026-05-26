@@ -98,13 +98,31 @@ export default function ModulesIndex({
                                                 }
                                             }}
                                         >
-                                            <td className="px-3 py-4 sm:px-6 sm:py-5">
-                                                <div className="text-seafoam-green flex items-center gap-4">
-                                                    <IconRenderer
-                                                        name={module.icon}
-                                                        className="h-8 w-8"
-                                                    />
-                                                    <span className="font-heading text-sm tracking-[0.08em] text-white uppercase">
+                                            <td className="min-w-[330px] px-3 py-4 font-medium text-white sm:px-6 sm:py-5">
+                                                <div className="flex items-center gap-4">
+                                                    {module.image_url && (
+                                                        <div className="border-main-blue-bright/60 bg-midnight-blue h-12 w-12 overflow-hidden rounded-full border">
+                                                            <img
+                                                                className="h-full w-full object-cover mix-blend-lighten"
+                                                                src={
+                                                                    module.image_url
+                                                                }
+                                                                alt=""
+                                                            />
+                                                        </div>
+                                                    )}
+                                                    {module.icon &&
+                                                        !module.image_url && (
+                                                            <div className="border-main-blue-bright/60 bg-midnight-blue flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border">
+                                                                <IconRenderer
+                                                                    name={
+                                                                        module.icon
+                                                                    }
+                                                                    className="text-seafoam-green objec-c h-6 w-6"
+                                                                />
+                                                            </div>
+                                                        )}
+                                                    <span className="font-heading w-[calc(100%-55px)] text-sm tracking-[0.08em] text-white uppercase">
                                                         {module.title}
                                                     </span>
                                                 </div>

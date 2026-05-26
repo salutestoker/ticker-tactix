@@ -9,6 +9,8 @@ use App\Models\Playbook;
 use App\Models\TraderType;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class AdminCatalogTest extends TestCase
@@ -26,6 +28,8 @@ class AdminCatalogTest extends TestCase
 
     public function test_admin_can_create_catalog_records(): void
     {
+        Storage::fake('public');
+
         $admin = User::factory()->create(['is_admin' => true]);
         [$market, $traderType] = $this->catalogTaxonomies();
 
@@ -35,6 +39,7 @@ class AdminCatalogTest extends TestCase
                 'trader_type_ids' => [$traderType->id],
                 'related_module_ids' => [],
                 'icon' => 'momentum-cycles',
+                'image' => UploadedFile::fake()->create('momentum-cycles.jpg', 12, 'image/jpeg'),
                 'title' => 'Momentum Cycles',
                 'slug' => '',
                 'description' => 'Identify momentum phase and trend strength.',
@@ -52,6 +57,7 @@ class AdminCatalogTest extends TestCase
 
         $module = Module::where('slug', 'momentum-cycles')->firstOrFail();
 
+        Storage::disk('public')->assertExists($module->image_path);
         $this->assertDatabaseHas(Module::class, [
             'title' => 'Momentum Cycles',
             'slug' => 'momentum-cycles',

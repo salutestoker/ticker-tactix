@@ -108,16 +108,17 @@ export default function PlaybooksIndex({
                                                             />
                                                         </div>
                                                     )}
-                                                    {playbook.icon && (
-                                                        <div className="border-seafoam-green bg-midnight-blue flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border">
-                                                            <IconRenderer
-                                                                name={
-                                                                    playbook.icon
-                                                                }
-                                                                className="h-6 w-6 object-cover"
-                                                            />
-                                                        </div>
-                                                    )}
+                                                    {playbook.icon &&
+                                                        !playbook.logo_url && (
+                                                            <div className="border-seafoam-green bg-midnight-blue flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border">
+                                                                <IconRenderer
+                                                                    name={
+                                                                        playbook.icon
+                                                                    }
+                                                                    className="h-6 w-6 object-cover"
+                                                                />
+                                                            </div>
+                                                        )}
                                                     <span className="font-heading w-[calc(100%-55px)] text-sm tracking-[0.08em] text-white uppercase">
                                                         {playbook.title}
                                                     </span>

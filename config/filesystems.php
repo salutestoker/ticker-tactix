@@ -20,6 +20,11 @@ return [
 
     'playbook_logo_directory' => env('PLAYBOOK_LOGO_DIRECTORY', 'playbook-logos'),
 
+    'module_image_disk' => env('MODULE_IMAGE_DISK')
+        ?: (env('FILESYSTEM_DISK') === 'local' ? 'public' : (env('FILESYSTEM_DISK') ?: 'public')),
+
+    'module_image_directory' => env('MODULE_IMAGE_DIRECTORY', 'module-images'),
+
     /*
     |--------------------------------------------------------------------------
     | Filesystem Disks
