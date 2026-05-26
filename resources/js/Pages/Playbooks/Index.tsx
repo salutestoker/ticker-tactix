@@ -36,6 +36,11 @@ export default function PlaybooksIndex({
                         repeatable trading structure.
                     </p>
                     <PlaybookPrimer />
+
+                    <p className="font-heading text-seafoam-green mx-auto my-20 max-w-4xl text-center text-sm leading-7 font-semibold tracking-[0.24em] uppercase sm:text-base">
+                        Use the matrix below to compare playbooks by market,
+                        access type, trader profile, and deployment style.
+                    </p>
                     <HudPanel className="mt-12 overflow-hidden">
                         <div className="overflow-x-auto">
                             <table className="min-w-full text-left text-sm">

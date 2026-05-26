@@ -94,6 +94,7 @@ export interface Playbook {
     slug: string;
     access: AccessValue;
     best_for?: string | null;
+    long_description?: string | null;
     trading_pace?: string | null;
     average_hold_time?: string | null;
     price?: string | null;

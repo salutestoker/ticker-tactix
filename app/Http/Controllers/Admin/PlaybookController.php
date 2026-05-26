@@ -106,6 +106,7 @@ class PlaybookController extends Controller
             'slug' => ['nullable', 'string', 'max:255', Rule::unique('playbooks', 'slug')->ignore($playbook)],
             'access' => ['required', Rule::enum(AccessLevel::class)],
             'best_for' => ['nullable', 'string'],
+            'long_description' => ['nullable', 'string'],
             'trading_pace' => ['nullable', 'string', 'max:255'],
             'average_hold_time' => ['nullable', 'string', 'max:255'],
             'price' => ['nullable', 'string', 'max:255'],

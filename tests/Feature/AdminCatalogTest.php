@@ -80,6 +80,7 @@ class AdminCatalogTest extends TestCase
                 'slug' => '',
                 'access' => AccessLevel::DailyNewsletterDiscord->value,
                 'best_for' => 'Context before execution.',
+                'long_description' => "Context before execution.\nRepeat the same process every time.",
                 'trading_pace' => 'Daily',
                 'average_hold_time' => '1-3 days',
                 'price' => '$70/mo',
@@ -102,6 +103,7 @@ class AdminCatalogTest extends TestCase
             'market_id' => $market->id,
             'price' => '$70/mo',
             'action_url' => 'https://example.com/playbooks/market-environment',
+            'long_description' => "Context before execution.\nRepeat the same process every time.",
         ]);
         $this->assertDatabaseHas('playbook_trader_type', [
             'playbook_id' => $playbook->id,

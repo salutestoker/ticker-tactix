@@ -23,6 +23,7 @@ class Playbook extends Model
         'slug',
         'access',
         'best_for',
+        'long_description',
         'trading_pace',
         'average_hold_time',
         'price',
