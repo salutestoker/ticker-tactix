@@ -15,7 +15,8 @@ return [
 
     'default' => env('FILESYSTEM_DISK', 'local'),
 
-    'playbook_logo_disk' => env('PLAYBOOK_LOGO_DISK', 'public'),
+    'playbook_logo_disk' => env('PLAYBOOK_LOGO_DISK')
+        ?: (env('FILESYSTEM_DISK') === 'local' ? 'public' : (env('FILESYSTEM_DISK') ?: 'public')),
 
     'playbook_logo_directory' => env('PLAYBOOK_LOGO_DIRECTORY', 'playbook-logos'),
 
@@ -69,11 +70,10 @@ return [
             'key' => env('AWS_ACCESS_KEY_ID'),
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
             'region' => env('AWS_DEFAULT_REGION'),
-            'bucket' => env('TICKER_TACTIX_PUBLIC_BUCKET', 'ticker_tactix_public'),
+            'bucket' => env('TICKER_TACTIX_PUBLIC_BUCKET') ?: env('AWS_BUCKET') ?: 'ticker_tactix_public',
             'url' => env('AWS_URL'),
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
-            'visibility' => 'public',
             'throw' => false,
             'report' => false,
         ],
