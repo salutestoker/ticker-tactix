@@ -13,10 +13,10 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', [PageController::class, 'home'])->name('home');
-Route::redirect('/about', '/methodology', 301);
-Route::get('/methodology', [PageController::class, 'methodology'])->name('methodology');
+Route::redirect('/about', '/system', 301);
+Route::redirect('/methodology', '/system', 301);
+Route::get('/system', [PageController::class, 'system'])->name('system');
 Route::get('/trader-types', [PageController::class, 'traderTypes'])->name('trader-types');
-Route::get('/testimonials', [PageController::class, 'testimonials'])->name('testimonials');
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
 Route::get('/modules', [ModuleController::class, 'index'])->name('modules.index');
 Route::get('/modules/{module:slug}', [ModuleController::class, 'show'])->name('modules.show');

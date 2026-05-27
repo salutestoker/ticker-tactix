@@ -8,7 +8,7 @@ import { PublicHeroFrame } from '@/Components/UI/PublicHero';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { Head } from '@inertiajs/react';
 
-const methodologyPillars = [
+const systemPillars = [
     {
         title: 'Structure First',
         copy: 'Every playbook begins with regime, trend, volatility, and participation context before execution is considered.',
@@ -26,10 +26,10 @@ const methodologyPillars = [
     },
 ];
 
-export default function Methodology() {
+export default function System() {
     return (
         <PublicLayout>
-            <Head title="Methodology" />
+            <Head title="System" />
             <PublicHeroFrame>
                 <div className="relative z-10 flex w-[102vw] translate-x-[-2%] -translate-y-[10%] justify-center mix-blend-lighten">
                     <img
@@ -39,9 +39,9 @@ export default function Methodology() {
                     />
                 </div>
                 <div className="mx-auto max-w-5xl text-center">
-                    <Eyebrow>Methodology</Eyebrow>
+                    <Eyebrow>System</Eyebrow>
                     <GradientHeading>
-                        Rules-Based Market Operations
+                        Rules-Based Market&nbsp;Operations
                     </GradientHeading>
 
                     <p className="font-heading text-seafoam-green mx-auto mt-5 max-w-4xl text-sm leading-7 font-semibold tracking-[0.24em] uppercase sm:text-base">
@@ -67,7 +67,7 @@ export default function Methodology() {
                 </div>
 
                 <div className="mx-auto mt-16 grid max-w-6xl gap-6 md:grid-cols-3">
-                    {methodologyPillars.map(({ title, copy, tone }, index) => (
+                    {systemPillars.map(({ title, copy, tone }, index) => (
                         <HudPanel key={title} className="relative p-7">
                             <div className="font-heading text-main-blue mb-5 text-xs tracking-[0.24em] uppercase">
                                 Layer 0{index + 1}

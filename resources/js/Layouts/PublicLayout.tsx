@@ -8,8 +8,7 @@ const nav = [
 
     ['Modules', 'modules.index'],
     ['Playbooks', 'playbooks.index'],
-    ['Methodology', 'methodology'],
-    ['Testimonials', 'testimonials'],
+    ['System', 'system'],
     ['Contact', 'contact'],
 ] as const;
 
@@ -164,8 +163,8 @@ function Footer() {
                     external: false,
                 },
                 {
-                    label: 'Methodology',
-                    href: route('methodology'),
+                    label: 'System',
+                    href: route('system'),
                     external: false,
                 },
                 {
@@ -182,11 +181,6 @@ function Footer() {
                     label: 'Economic Calendar',
                     href: 'https://tradingeconomics.com/calendar',
                     external: true,
-                },
-                {
-                    label: 'Testimonials',
-                    href: route('testimonials'),
-                    external: false,
                 },
             ],
         },
@@ -236,8 +230,6 @@ function Footer() {
                 loop
                 muted
                 playsInline
-                preload="metadata"
-                poster="/design/assets/images/bg-footer.jpg"
                 aria-hidden="true"
             >
                 <source

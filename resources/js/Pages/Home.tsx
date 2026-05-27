@@ -31,7 +31,6 @@ export default function Home({ modules, traderTypes }: Props) {
                         muted
                         playsInline
                         preload="metadata"
-                        poster="/design/assets/images/bg-footer.jpg"
                         aria-hidden="true"
                     >
                         <source
@@ -81,7 +80,7 @@ export default function Home({ modules, traderTypes }: Props) {
                                 Find Your Trader Type
                             </HudButton>
                             <HudButton
-                                href={route('methodology')}
+                                href={route('system')}
                                 tone="violet"
                                 variant="solid"
                             >

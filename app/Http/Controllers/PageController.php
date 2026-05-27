@@ -20,9 +20,9 @@ class PageController extends Controller
         ]);
     }
 
-    public function methodology(): Response
+    public function system(): Response
     {
-        return Inertia::render('Methodology');
+        return Inertia::render('System');
     }
 
     public function traderTypes(): Response
@@ -30,11 +30,6 @@ class PageController extends Controller
         return Inertia::render('TraderTypes', [
             'traderTypes' => $this->activeTraderTypes(),
         ]);
-    }
-
-    public function testimonials(): Response
-    {
-        return Inertia::render('Testimonials');
     }
 
     public function contact(): Response
