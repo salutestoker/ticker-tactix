@@ -48,7 +48,7 @@ export default function System() {
                         Structure First. Signal Discipline. Deployment Ready.
                     </p>
 
-                    <div className="mx-auto mt-10 max-w-xl text-center">
+                    <div className="mx-auto mt-10 max-w-4xl text-center">
                         <p className="mt-8 text-lg leading-8 text-white/75">
                             Ticker-Tactix organizes market decisions into
                             modules, categories, and deployable playbooks so
@@ -84,9 +84,15 @@ export default function System() {
                     ))}
                 </div>
 
-                <HudPanel className="mx-auto mt-14 max-w-4xl p-8 text-center sm:p-10">
+                <div className="relative mx-auto my-15 max-w-7xl mix-blend-lighten md:my-30">
+                    <img src="/design/assets/images/bg-system.jpg" alt="" />
+                    <div className="brand-gradient-midnight-blue-reverse absolute top-0 h-1/3 w-full"></div>
+                    <div className="brand-gradient-midnight-blue absolute bottom-0 h-1/3 w-full"></div>
+                </div>
+
+                <HudPanel className="mx-auto mt-14 max-w-6xl p-8 text-center sm:p-10">
                     <h2 className="font-heading text-2xl leading-tight font-semibold tracking-[0.08em] text-white uppercase sm:text-4xl">
-                        Build Decisions Around Structure
+                        Build Decisions Around&nbsp;Structure
                     </h2>
                     <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-white/72">
                         Explore the system layers behind Ticker-Tactix, then
