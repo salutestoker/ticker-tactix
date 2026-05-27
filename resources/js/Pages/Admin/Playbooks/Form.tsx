@@ -20,7 +20,6 @@ type PlaybookForm = {
     average_hold_time: string;
     price: string;
     action_url: string;
-    sort_order: number;
     is_featured: boolean;
     is_active: boolean;
     published_at: string;
@@ -63,7 +62,6 @@ export default function PlaybookFormPage({
             average_hold_time: playbook?.average_hold_time || '',
             price: playbook?.price || '',
             action_url: playbook?.action_url || '',
-            sort_order: playbook?.sort_order ?? 0,
             is_featured: playbook?.is_featured ?? false,
             is_active: playbook?.is_active ?? true,
             published_at: playbook?.published_at?.slice(0, 16) || '',
@@ -230,17 +228,6 @@ export default function PlaybookFormPage({
                             placeholder="https://..."
                         />
                     </Field>
-                    <Field label="Sort Order" error={errors.sort_order}>
-                        <input
-                            className={input}
-                            value={data.sort_order}
-                            type="number"
-                            min="0"
-                            onChange={(e) =>
-                                setData('sort_order', Number(e.target.value))
-                            }
-                        />
-                    </Field>
                     <Field label="Published At" error={errors.published_at}>
                         <input
                             className={input}
@@ -266,6 +253,12 @@ export default function PlaybookFormPage({
                                 setData('is_featured', checked)
                             }
                         />
+                    </div>
+                    <div className="xl:col-span-2">
+                        <p className="font-body text-sm tracking-normal text-white/55 normal-case">
+                            Reorder playbooks from the list page. The front end
+                            uses that order automatically.
+                        </p>
                     </div>
                     <Field
                         label="Trader Types"

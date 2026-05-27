@@ -10,6 +10,7 @@ use App\Models\TraderType;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -43,6 +44,10 @@ class ModuleController extends Controller
         $image = $data['image'] ?? null;
 
         unset($data['image'], $data['remove_image']);
+
+        if (! array_key_exists('sort_order', $data) || $data['sort_order'] === null) {
+            $data['sort_order'] = $this->nextSortOrder();
+        }
 
         if ($image instanceof UploadedFile) {
             $data['image_path'] = $this->storeImage($image);
@@ -141,7 +146,7 @@ class ModuleController extends Controller
             'version' => ['nullable', 'numeric', 'min:0'],
             'access' => ['required', Rule::enum(AccessLevel::class)],
             'action_url' => ['nullable', 'url', 'max:2048'],
-            'sort_order' => ['required', 'integer', 'min:0'],
+            'sort_order' => ['nullable', 'integer', 'min:0'],
             'is_featured' => ['required', 'boolean'],
             'is_active' => ['required', 'boolean'],
             'published_at' => ['nullable', 'date'],
@@ -156,6 +161,27 @@ class ModuleController extends Controller
         $data['best_used_for'] = $this->parseLines($data['best_used_for_text'] ?? '');
 
         return $data;
+    }
+
+    public function reorder(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'ordered_ids' => ['required', 'array', 'min:1'],
+            'ordered_ids.*' => ['integer', 'distinct', 'exists:modules,id'],
+        ]);
+
+        $orderedIds = array_values(array_unique($data['ordered_ids']));
+        $modules = Module::whereKey($orderedIds)->get()->keyBy('id');
+
+        abort_if($modules->count() !== count($orderedIds), 422, 'Unable to reorder modules.');
+
+        DB::transaction(function () use ($orderedIds, $modules): void {
+            foreach ($orderedIds as $index => $id) {
+                $modules[$id]->updateQuietly(['sort_order' => $index]);
+            }
+        });
+
+        return back()->with('success', 'Module order updated.');
     }
 
     /**
@@ -217,6 +243,11 @@ class ModuleController extends Controller
     private function imageDisk(): string
     {
         return (string) config('filesystems.module_image_disk', 'public');
+    }
+
+    private function nextSortOrder(): int
+    {
+        return ((int) Module::max('sort_order')) + 1;
     }
 
     private function imageDirectory(): string

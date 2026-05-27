@@ -1,3 +1,4 @@
+import { IconRenderer } from '@/Components/Icons/IconRenderer';
 import {
     AccessBadge,
     GradientHeading,
@@ -60,6 +61,7 @@ export default function PlaybooksShow({ playbook }: { playbook: Playbook }) {
                                     ))}
                                 </dd>
                             </div>
+
                             <Meta
                                 label="Trading Pace"
                                 value={playbook.trading_pace}
@@ -68,27 +70,50 @@ export default function PlaybooksShow({ playbook }: { playbook: Playbook }) {
                                 label="Average Hold"
                                 value={playbook.average_hold_time}
                             />
+                            <Meta
+                                label="Delivery"
+                                value="Alerts + Guided Discord"
+                            />
+
+                            <Meta label="Access" value="Subscription" />
                             <Meta label="Price" value={playbook.price} />
                         </dl>
-                        {playbook.action_url ? (
-                            <HudButton
-                                href={playbook.action_url}
-                                external
-                                className="mt-8 w-full"
-                                variant="solid"
-                            >
-                                Subscribe
-                            </HudButton>
-                        ) : (
-                            <HudButton
-                                type="button"
-                                disabled
-                                className="mt-8 w-full"
-                                variant="solid"
-                            >
-                                Coming Soon
-                            </HudButton>
-                        )}
+                        {playbook.slug !== 'sigma-pro-engine' &&
+                            (playbook.action_url ? (
+                                <HudButton
+                                    href={playbook.action_url}
+                                    external
+                                    className="mt-8 w-full"
+                                    variant="solid"
+                                >
+                                    Subscribe
+                                </HudButton>
+                            ) : (
+                                <HudButton
+                                    type="button"
+                                    disabled
+                                    className="mt-8 w-full"
+                                    variant="solid"
+                                >
+                                    Coming Soon
+                                </HudButton>
+                            ))}
+
+                        {playbook.slug === 'sigma-pro-engine' &&
+                            playbook.action_url && (
+                                <HudButton
+                                    href={playbook.action_url}
+                                    external
+                                    className="mt-8 w-full"
+                                    variant="solid"
+                                >
+                                    Explore{' '}
+                                    <IconRenderer
+                                        name="chevron-right"
+                                        className={`h-5 w-5`}
+                                    />
+                                </HudButton>
+                            )}
                     </HudPanel>
                 </div>
             </PublicHeroFrame>

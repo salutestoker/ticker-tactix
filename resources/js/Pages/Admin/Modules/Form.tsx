@@ -29,7 +29,6 @@ type ModuleForm = {
     version: string;
     access: string;
     action_url: string;
-    sort_order: number;
     is_featured: boolean;
     is_active: boolean;
     published_at: string;
@@ -86,7 +85,6 @@ export default function ModuleFormPage({
                 accessOptions[0]?.value ||
                 'Invite-Only Indicator + Discord',
             action_url: module?.action_url || '',
-            sort_order: module?.sort_order ?? 0,
             is_featured: module?.is_featured ?? false,
             is_active: module?.is_active ?? true,
             published_at: module?.published_at?.slice(0, 16) || '',
@@ -282,17 +280,6 @@ export default function ModuleFormPage({
                             onChange={(e) => setData('price', e.target.value)}
                         />
                     </Field>
-                    <Field label="Sort Order" error={errors.sort_order}>
-                        <input
-                            className={input}
-                            value={data.sort_order}
-                            type="number"
-                            min="0"
-                            onChange={(e) =>
-                                setData('sort_order', Number(e.target.value))
-                            }
-                        />
-                    </Field>
                     <Field label="Published At" error={errors.published_at}>
                         <input
                             className={input}
@@ -318,6 +305,12 @@ export default function ModuleFormPage({
                                 setData('is_featured', checked)
                             }
                         />
+                    </div>
+                    <div className="xl:col-span-2">
+                        <p className="font-body text-sm tracking-normal text-white/55 normal-case">
+                            Reorder modules from the list page. The front end
+                            uses that order automatically.
+                        </p>
                     </div>
                     <Field
                         label="Trader Types"

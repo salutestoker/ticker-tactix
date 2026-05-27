@@ -42,11 +42,14 @@ export default function ModulesShow({
                 <div className="relative mx-auto max-w-7xl">
                     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_390px] lg:items-start">
                         <main>
-                            <div className="text-seafoam-green mb-5 flex flex-wrap items-center gap-4">
-                                <IconRenderer
-                                    name={module.icon}
-                                    className="h-12 w-12"
-                                />
+                            <div className="text-seafoam-green mb-2 flex flex-wrap items-center gap-1">
+                                {module.image_url && (
+                                    <img
+                                        className="ml-[-20px] max-w-[100px] mix-blend-lighten"
+                                        src={module.image_url}
+                                        alt=""
+                                    />
+                                )}
                                 <AccessBadge access={module.access} />
                             </div>
 
@@ -199,7 +202,7 @@ export default function ModulesShow({
                                     </div>
                                     <SidebarMeta
                                         icon="lock"
-                                        label="Access"
+                                        label="Delivery"
                                         value={module.access}
                                         tone="green"
                                     />
@@ -367,16 +370,16 @@ function SidebarTaxonomy({
     children: ReactNode;
 }) {
     return (
-        <div className="grid grid-cols-[36px_1fr] gap-4">
-            <IconRenderer
-                name={icon}
-                className="text-seafoam-green mt-1 h-7 w-7"
-            />
+        <div className="gap-4">
+            {/*<IconRenderer*/}
+            {/*    name={icon}*/}
+            {/*    className="text-seafoam-green mt-1 h-7 w-7"*/}
+            {/*/>*/}
             <div>
                 <dt className="font-heading text-xs tracking-[0.16em] text-white/45 uppercase">
                     {label}
                 </dt>
-                <dd className="mt-2">{children}</dd>
+                <dd className="mt-2 text-sm">{children}</dd>
             </div>
         </div>
     );
@@ -387,7 +390,7 @@ function SidebarMeta({
     label,
     value,
     tone,
-    valueClassName = 'text-lg leading-6 text-white',
+    valueClassName = ' leading-6 text-white',
 }: {
     icon: string;
     label: string;
@@ -405,13 +408,15 @@ function SidebarMeta({
                 : 'text-sky-300';
 
     return (
-        <div className="grid grid-cols-[36px_1fr] gap-4">
-            <IconRenderer name={icon} className={`${toneClass} mt-1 h-7 w-7`} />
+        <div className="gap-4">
+            {/*<IconRenderer name={icon} className={`${toneClass} mt-1 h-7 w-7`} />*/}
             <div>
                 <dt className="font-heading text-xs tracking-[0.16em] text-white/45 uppercase">
                     {label}
                 </dt>
-                <dd className={`mt-1 ${valueClassName}`}>{value || '—'}</dd>
+                <dd className={`mt-1 text-sm ${valueClassName}`}>
+                    {value || '—'}
+                </dd>
             </div>
         </div>
     );

@@ -10,6 +10,7 @@ use App\Models\TraderType;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -42,6 +43,10 @@ class PlaybookController extends Controller
         $logo = $data['logo'] ?? null;
 
         unset($data['logo'], $data['remove_logo']);
+
+        if (! array_key_exists('sort_order', $data) || $data['sort_order'] === null) {
+            $data['sort_order'] = $this->nextSortOrder();
+        }
 
         if ($logo instanceof UploadedFile) {
             $data['logo_path'] = $this->storeLogo($logo);
@@ -111,7 +116,7 @@ class PlaybookController extends Controller
             'average_hold_time' => ['nullable', 'string', 'max:255'],
             'price' => ['nullable', 'string', 'max:255'],
             'action_url' => ['nullable', 'url', 'max:2048'],
-            'sort_order' => ['required', 'integer', 'min:0'],
+            'sort_order' => ['nullable', 'integer', 'min:0'],
             'is_featured' => ['required', 'boolean'],
             'is_active' => ['required', 'boolean'],
             'published_at' => ['nullable', 'date'],
@@ -122,6 +127,27 @@ class PlaybookController extends Controller
         $data['slug'] = $data['slug'] ?: Str::slug($data['title']);
 
         return $data;
+    }
+
+    public function reorder(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'ordered_ids' => ['required', 'array', 'min:1'],
+            'ordered_ids.*' => ['integer', 'distinct', 'exists:playbooks,id'],
+        ]);
+
+        $orderedIds = array_values(array_unique($data['ordered_ids']));
+        $playbooks = Playbook::whereKey($orderedIds)->get()->keyBy('id');
+
+        abort_if($playbooks->count() !== count($orderedIds), 422, 'Unable to reorder playbooks.');
+
+        DB::transaction(function () use ($orderedIds, $playbooks): void {
+            foreach ($orderedIds as $index => $id) {
+                $playbooks[$id]->updateQuietly(['sort_order' => $index]);
+            }
+        });
+
+        return back()->with('success', 'Playbook order updated.');
     }
 
     private function storeLogo(UploadedFile $logo): string
@@ -153,5 +179,10 @@ class PlaybookController extends Controller
     private function logoDirectory(): string
     {
         return trim((string) config('filesystems.playbook_logo_directory', 'playbook-logos'), '/');
+    }
+
+    private function nextSortOrder(): int
+    {
+        return ((int) Playbook::max('sort_order')) + 1;
     }
 }

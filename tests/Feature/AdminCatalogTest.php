@@ -111,6 +111,90 @@ class AdminCatalogTest extends TestCase
         ]);
     }
 
+    public function test_admin_can_reorder_modules_and_playbooks(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        [$market, $traderType] = $this->catalogTaxonomies();
+
+        $moduleA = Module::create([
+            'market_id' => $market->id,
+            'title' => 'First Module',
+            'slug' => 'first-module',
+            'access' => AccessLevel::InviteOnlyIndicatorDiscord,
+            'sort_order' => 10,
+            'is_featured' => false,
+            'is_active' => true,
+            'published_at' => now(),
+        ]);
+        $moduleA->traderTypes()->attach($traderType);
+
+        $moduleB = Module::create([
+            'market_id' => $market->id,
+            'title' => 'Second Module',
+            'slug' => 'second-module',
+            'access' => AccessLevel::InviteOnlyIndicatorDiscord,
+            'sort_order' => 20,
+            'is_featured' => false,
+            'is_active' => true,
+            'published_at' => now(),
+        ]);
+        $moduleB->traderTypes()->attach($traderType);
+
+        $this->actingAs($admin)
+            ->post(route('admin.modules.reorder'), [
+                'ordered_ids' => [$moduleB->id, $moduleA->id],
+            ])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas(Module::class, [
+            'id' => $moduleB->id,
+            'sort_order' => 0,
+        ]);
+        $this->assertDatabaseHas(Module::class, [
+            'id' => $moduleA->id,
+            'sort_order' => 1,
+        ]);
+
+        $playbookA = Playbook::create([
+            'market_id' => $market->id,
+            'title' => 'First Playbook',
+            'slug' => 'first-playbook',
+            'access' => AccessLevel::DailyNewsletterDiscord,
+            'sort_order' => 10,
+            'is_featured' => false,
+            'is_active' => true,
+            'published_at' => now(),
+        ]);
+        $playbookA->traderTypes()->attach($traderType);
+
+        $playbookB = Playbook::create([
+            'market_id' => $market->id,
+            'title' => 'Second Playbook',
+            'slug' => 'second-playbook',
+            'access' => AccessLevel::DailyNewsletterDiscord,
+            'sort_order' => 20,
+            'is_featured' => false,
+            'is_active' => true,
+            'published_at' => now(),
+        ]);
+        $playbookB->traderTypes()->attach($traderType);
+
+        $this->actingAs($admin)
+            ->post(route('admin.playbooks.reorder'), [
+                'ordered_ids' => [$playbookB->id, $playbookA->id],
+            ])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas(Playbook::class, [
+            'id' => $playbookB->id,
+            'sort_order' => 0,
+        ]);
+        $this->assertDatabaseHas(Playbook::class, [
+            'id' => $playbookA->id,
+            'sort_order' => 1,
+        ]);
+    }
+
     public function test_admin_can_create_taxonomies(): void
     {
         $admin = User::factory()->create(['is_admin' => true]);

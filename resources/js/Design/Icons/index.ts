@@ -11,6 +11,7 @@ import { CompositeEngine } from './composite-engine';
 import { CryptoInfoBox } from './crypto-info-box';
 import { DataPipeline } from './data-pipeline';
 import { DirectionTarget } from './direction-target';
+import { DragHandle } from './drag-handle';
 import { ExecutionOptimizer } from './execution-optimizer';
 import { GoalPosts } from './goal-posts';
 import { InfoBox } from './info-box';
@@ -67,6 +68,7 @@ export const tickerTactixIcons = {
     'data-pipeline': DataPipeline,
     'sentiment-tracker': SentimentTracker,
     'liquidity-scanner': LiquidityScanner,
+    'drag-handle': DragHandle,
     'execution-optimizer': ExecutionOptimizer,
     'backtest-validator': BacktestValidator,
     'composite-engine': CompositeEngine,

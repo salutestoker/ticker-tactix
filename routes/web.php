@@ -43,7 +43,9 @@ Route::middleware(['auth', 'admin'])
     ->group(function (): void {
         Route::get('/', AdminDashboardController::class)->name('dashboard');
         Route::resource('modules', AdminModuleController::class)->except(['show']);
+        Route::post('modules/reorder', [AdminModuleController::class, 'reorder'])->name('modules.reorder');
         Route::resource('playbooks', AdminPlaybookController::class)->except(['show']);
+        Route::post('playbooks/reorder', [AdminPlaybookController::class, 'reorder'])->name('playbooks.reorder');
         Route::resource('markets', AdminMarketController::class)->except(['show']);
         Route::resource('trader-types', AdminTraderTypeController::class)->except(['show']);
     });

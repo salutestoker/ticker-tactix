@@ -23,7 +23,7 @@ export default function Home({ modules, traderTypes }: Props) {
                 alt=""
             />
             <section className="relative min-h-screen overflow-hidden px-6">
-                <div className="absolute inset-0 h-[52vw] opacity-60 md:h-[30vw]">
+                <div className="absolute inset-0 h-[52vw] opacity-90 md:h-[30vw]">
                     <video
                         className="pointer-events-none absolute inset-0 h-full w-full object-cover object-bottom max-md:max-w-none"
                         autoPlay
