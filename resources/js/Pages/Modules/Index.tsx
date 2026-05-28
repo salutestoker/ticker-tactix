@@ -1,10 +1,5 @@
 import { IconRenderer } from '@/Components/Icons/IconRenderer';
-import {
-    AccessBadge,
-    Eyebrow,
-    HudPanel,
-    TaxonomyBadge,
-} from '@/Components/UI/Hud';
+import { Eyebrow, HudPanel, TaxonomyBadge } from '@/Components/UI/Hud';
 import { PublicHeroFrame } from '@/Components/UI/PublicHero';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { formatVersion } from '@/lib/format';
@@ -36,6 +31,13 @@ export default function ModulesIndex({
                         system. Each module serves a defined role in organizing
                         market context, trend, participation, and structure.
                     </p>
+
+                    <div className="border-main-blue-bright/40 mx-auto mb-5 max-w-2xl border-b pt-2 pb-5"></div>
+                    <p className="font-heading text-seafoam-green mx-auto mt-5 max-w-xl text-center text-sm leading-7 font-semibold tracking-[0.24em] uppercase sm:text-base">
+                        Not sure where to start? <br />
+                        Begin with your trader type.
+                    </p>
+
                     <HudPanel className="mt-10 overflow-hidden">
                         <div className="overflow-x-auto">
                             <table className="min-w-full border-collapse text-left text-sm">
@@ -53,9 +55,9 @@ export default function ModulesIndex({
                                         <th className="hidden px-6 py-5 md:table-cell">
                                             Market
                                         </th>
-                                        <th className="hidden px-6 py-5 md:table-cell">
-                                            Access
-                                        </th>
+                                        {/*<th className="hidden px-6 py-5 md:table-cell">*/}
+                                        {/*    Access*/}
+                                        {/*</th>*/}
                                         <th className="hidden px-6 py-5 md:table-cell">
                                             Version
                                         </th>
@@ -98,13 +100,31 @@ export default function ModulesIndex({
                                                 }
                                             }}
                                         >
-                                            <td className="px-3 py-4 sm:px-6 sm:py-5">
-                                                <div className="text-seafoam-green flex items-center gap-4">
-                                                    <IconRenderer
-                                                        name={module.icon}
-                                                        className="h-8 w-8"
-                                                    />
-                                                    <span className="font-heading text-sm tracking-[0.08em] text-white uppercase">
+                                            <td className="min-w-[250px] px-3 py-4 font-medium text-white sm:px-6 sm:py-5">
+                                                <div className="flex items-center gap-4">
+                                                    {module.image_url && (
+                                                        <div className="border-main-blue-bright/60 bg-midnight-blue h-12 w-12 overflow-hidden rounded-full border">
+                                                            <img
+                                                                className="h-full w-full object-cover mix-blend-lighten"
+                                                                src={
+                                                                    module.image_url
+                                                                }
+                                                                alt=""
+                                                            />
+                                                        </div>
+                                                    )}
+                                                    {module.icon &&
+                                                        !module.image_url && (
+                                                            <div className="border-main-blue-bright/60 bg-midnight-blue flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border">
+                                                                <IconRenderer
+                                                                    name={
+                                                                        module.icon
+                                                                    }
+                                                                    className="text-seafoam-green objec-c h-6 w-6"
+                                                                />
+                                                            </div>
+                                                        )}
+                                                    <span className="font-heading w-[calc(100%-75px)] text-sm tracking-[0.08em] text-white uppercase">
                                                         {module.title}
                                                     </span>
                                                 </div>
@@ -137,11 +157,11 @@ export default function ModulesIndex({
                                                     </span>
                                                 )}
                                             </td>
-                                            <td className="hidden px-6 py-5 md:table-cell">
-                                                <AccessBadge
-                                                    access={module.access}
-                                                />
-                                            </td>
+                                            {/*<td className="hidden px-6 py-5 md:table-cell">*/}
+                                            {/*    <AccessBadge*/}
+                                            {/*        access={module.access}*/}
+                                            {/*    />*/}
+                                            {/*</td>*/}
                                             <td className="text-seafoam-green hidden px-6 py-5 md:table-cell">
                                                 {formatVersion(module.version)}
                                             </td>
@@ -184,7 +204,7 @@ function ActionLink({ href, label }: { href: string; label: string }) {
     );
 }
 
-function TaxonomyList({ types }: { types: TraderType[] }) {
+export function TaxonomyList({ types }: { types: TraderType[] }) {
     if (!types.length) {
         return <span className="text-white/45">—</span>;
     }

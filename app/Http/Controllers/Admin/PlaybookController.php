@@ -11,6 +11,7 @@ use App\Services\CatalogSpreadsheetSyncService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -43,6 +44,10 @@ class PlaybookController extends Controller
         $logo = $data['logo'] ?? null;
 
         unset($data['logo'], $data['remove_logo']);
+
+        if (! array_key_exists('sort_order', $data) || $data['sort_order'] === null) {
+            $data['sort_order'] = $this->nextSortOrder();
+        }
 
         if ($logo instanceof UploadedFile) {
             $data['logo_path'] = $this->storeLogo($logo);
@@ -110,11 +115,12 @@ class PlaybookController extends Controller
             'slug' => ['nullable', 'string', 'max:255', Rule::unique('playbooks', 'slug')->ignore($playbook)],
             'access' => ['required', Rule::enum(AccessLevel::class)],
             'best_for' => ['nullable', 'string'],
+            'long_description' => ['nullable', 'string'],
             'trading_pace' => ['nullable', 'string', 'max:255'],
             'average_hold_time' => ['nullable', 'string', 'max:255'],
             'price' => ['nullable', 'string', 'max:255'],
             'action_url' => ['nullable', 'url', 'max:2048'],
-            'sort_order' => ['required', 'integer', 'min:0'],
+            'sort_order' => ['nullable', 'integer', 'min:0'],
             'is_featured' => ['required', 'boolean'],
             'is_active' => ['required', 'boolean'],
             'published_at' => ['nullable', 'date'],
@@ -125,6 +131,28 @@ class PlaybookController extends Controller
         $data['slug'] = $data['slug'] ?: Str::slug($data['title']);
 
         return $data;
+    }
+
+    public function reorder(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'ordered_ids' => ['required', 'array', 'min:1'],
+            'ordered_ids.*' => ['integer', 'distinct', 'exists:playbooks,id'],
+        ]);
+
+        $orderedIds = array_values(array_unique($data['ordered_ids']));
+        $playbooks = Playbook::whereKey($orderedIds)->get()->keyBy('id');
+
+        abort_if($playbooks->count() !== count($orderedIds), 422, 'Unable to reorder playbooks.');
+
+        DB::transaction(function () use ($orderedIds, $playbooks): void {
+            foreach ($orderedIds as $index => $id) {
+                $playbooks[$id]->updateQuietly(['sort_order' => $index]);
+            }
+        });
+        $this->exportCatalogSpreadsheets();
+
+        return back()->with('success', 'Playbook order updated.');
     }
 
     private function storeLogo(UploadedFile $logo): string
@@ -150,7 +178,7 @@ class PlaybookController extends Controller
 
     private function logoDisk(): string
     {
-        return (string) config('filesystems.playbook_logo_disk', 'public');
+        return (string) config('filesystems.catalog_media_disk', 'public');
     }
 
     private function logoDirectory(): string
@@ -161,5 +189,10 @@ class PlaybookController extends Controller
     private function exportCatalogSpreadsheets(): void
     {
         app(CatalogSpreadsheetSyncService::class)->exportAll();
+    }
+
+    private function nextSortOrder(): int
+    {
+        return ((int) Playbook::max('sort_order')) + 1;
     }
 }

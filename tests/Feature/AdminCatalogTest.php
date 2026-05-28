@@ -9,6 +9,8 @@ use App\Models\Playbook;
 use App\Models\TraderType;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class AdminCatalogTest extends TestCase
@@ -26,6 +28,8 @@ class AdminCatalogTest extends TestCase
 
     public function test_admin_can_create_catalog_records(): void
     {
+        Storage::fake('public');
+
         $admin = User::factory()->create(['is_admin' => true]);
         [$market, $traderType] = $this->catalogTaxonomies();
 
@@ -35,6 +39,7 @@ class AdminCatalogTest extends TestCase
                 'trader_type_ids' => [$traderType->id],
                 'related_module_ids' => [],
                 'icon' => 'momentum-cycles',
+                'image' => UploadedFile::fake()->create('momentum-cycles.jpg', 12, 'image/jpeg'),
                 'title' => 'Momentum Cycles',
                 'slug' => '',
                 'description' => 'Identify momentum phase and trend strength.',
@@ -52,6 +57,7 @@ class AdminCatalogTest extends TestCase
 
         $module = Module::where('slug', 'momentum-cycles')->firstOrFail();
 
+        Storage::disk('public')->assertExists($module->image_path);
         $this->assertDatabaseHas(Module::class, [
             'title' => 'Momentum Cycles',
             'slug' => 'momentum-cycles',
@@ -69,10 +75,12 @@ class AdminCatalogTest extends TestCase
                 'market_id' => $market->id,
                 'trader_type_ids' => [$traderType->id],
                 'icon' => 'market-data-bars',
+                'logo' => UploadedFile::fake()->create('market-environment.jpg', 12, 'image/jpeg'),
                 'title' => 'Market Environment',
                 'slug' => '',
                 'access' => AccessLevel::DailyNewsletterDiscord->value,
                 'best_for' => 'Context before execution.',
+                'long_description' => "Context before execution.\nRepeat the same process every time.",
                 'trading_pace' => 'Daily',
                 'average_hold_time' => '1-3 days',
                 'price' => '$70/mo',
@@ -88,16 +96,102 @@ class AdminCatalogTest extends TestCase
 
         $playbook = Playbook::where('slug', 'market-environment')->firstOrFail();
 
+        Storage::disk('public')->assertExists($playbook->logo_path);
         $this->assertDatabaseHas(Playbook::class, [
             'title' => 'Market Environment',
             'slug' => 'market-environment',
             'market_id' => $market->id,
             'price' => '$70/mo',
             'action_url' => 'https://example.com/playbooks/market-environment',
+            'long_description' => "Context before execution.\nRepeat the same process every time.",
         ]);
         $this->assertDatabaseHas('playbook_trader_type', [
             'playbook_id' => $playbook->id,
             'trader_type_id' => $traderType->id,
+        ]);
+    }
+
+    public function test_admin_can_reorder_modules_and_playbooks(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        [$market, $traderType] = $this->catalogTaxonomies();
+
+        $moduleA = Module::create([
+            'market_id' => $market->id,
+            'title' => 'First Module',
+            'slug' => 'first-module',
+            'access' => AccessLevel::InviteOnlyIndicatorDiscord,
+            'sort_order' => 10,
+            'is_featured' => false,
+            'is_active' => true,
+            'published_at' => now(),
+        ]);
+        $moduleA->traderTypes()->attach($traderType);
+
+        $moduleB = Module::create([
+            'market_id' => $market->id,
+            'title' => 'Second Module',
+            'slug' => 'second-module',
+            'access' => AccessLevel::InviteOnlyIndicatorDiscord,
+            'sort_order' => 20,
+            'is_featured' => false,
+            'is_active' => true,
+            'published_at' => now(),
+        ]);
+        $moduleB->traderTypes()->attach($traderType);
+
+        $this->actingAs($admin)
+            ->post(route('admin.modules.reorder'), [
+                'ordered_ids' => [$moduleB->id, $moduleA->id],
+            ])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas(Module::class, [
+            'id' => $moduleB->id,
+            'sort_order' => 0,
+        ]);
+        $this->assertDatabaseHas(Module::class, [
+            'id' => $moduleA->id,
+            'sort_order' => 1,
+        ]);
+
+        $playbookA = Playbook::create([
+            'market_id' => $market->id,
+            'title' => 'First Playbook',
+            'slug' => 'first-playbook',
+            'access' => AccessLevel::DailyNewsletterDiscord,
+            'sort_order' => 10,
+            'is_featured' => false,
+            'is_active' => true,
+            'published_at' => now(),
+        ]);
+        $playbookA->traderTypes()->attach($traderType);
+
+        $playbookB = Playbook::create([
+            'market_id' => $market->id,
+            'title' => 'Second Playbook',
+            'slug' => 'second-playbook',
+            'access' => AccessLevel::DailyNewsletterDiscord,
+            'sort_order' => 20,
+            'is_featured' => false,
+            'is_active' => true,
+            'published_at' => now(),
+        ]);
+        $playbookB->traderTypes()->attach($traderType);
+
+        $this->actingAs($admin)
+            ->post(route('admin.playbooks.reorder'), [
+                'ordered_ids' => [$playbookB->id, $playbookA->id],
+            ])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas(Playbook::class, [
+            'id' => $playbookB->id,
+            'sort_order' => 0,
+        ]);
+        $this->assertDatabaseHas(Playbook::class, [
+            'id' => $playbookA->id,
+            'sort_order' => 1,
         ]);
     }
 

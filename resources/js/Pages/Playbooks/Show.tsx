@@ -1,3 +1,4 @@
+import { IconRenderer } from '@/Components/Icons/IconRenderer';
 import {
     AccessBadge,
     GradientHeading,
@@ -5,12 +6,23 @@ import {
     HudPanel,
     TaxonomyBadge,
 } from '@/Components/UI/Hud';
+import { MobilePurchaseHud } from '@/Components/UI/MobilePurchaseHud';
 import { PublicHeroFrame } from '@/Components/UI/PublicHero';
 import PublicLayout from '@/Layouts/PublicLayout';
 import type { Playbook } from '@/types';
 import { Head } from '@inertiajs/react';
 
 export default function PlaybooksShow({ playbook }: { playbook: Playbook }) {
+    const actionChildren =
+        playbook.slug === 'sigma-pro-engine' ? (
+            <>
+                Explore{' '}
+                <IconRenderer name="chevron-right" className="h-5 w-5" />
+            </>
+        ) : (
+            'Subscribe'
+        );
+
     return (
         <PublicLayout>
             <Head title={playbook.meta_title || playbook.title} />
@@ -21,21 +33,23 @@ export default function PlaybooksShow({ playbook }: { playbook: Playbook }) {
                         <GradientHeading className="mt-6">
                             {playbook.title}
                         </GradientHeading>
-                        <p className="mt-8 text-xl leading-9 text-white/78">
-                            {playbook.best_for}
-                        </p>
+                        <ParagraphCopy
+                            className="mt-8 space-y-6"
+                            text={playbook.best_for ?? ''}
+                        />
+                        <MobilePurchaseHud
+                            price={playbook.price}
+                            actionUrl={playbook.action_url}
+                            actionChildren={actionChildren}
+                        />
                         <HudPanel className="mt-10 p-8">
                             <h2 className="font-heading text-seafoam-green text-xl tracking-[0.14em] uppercase">
-                                Deployment Profile
+                                Description
                             </h2>
-                            <p className="mt-5 leading-8 text-white/70">
-                                This playbook is tuned for{' '}
-                                {playbook.market?.name || 'multi-market'}{' '}
-                                conditions with a typical hold time of{' '}
-                                {playbook.average_hold_time ||
-                                    'variable duration'}
-                                .
-                            </p>
+                            <ParagraphCopy
+                                className="mt-5 text-sm leading-8 text-white/70"
+                                text={playbook.long_description?.trim() ?? ''}
+                            />
                         </HudPanel>
                     </div>
                     <HudPanel className="h-fit p-6">
@@ -63,6 +77,7 @@ export default function PlaybooksShow({ playbook }: { playbook: Playbook }) {
                                     ))}
                                 </dd>
                             </div>
+
                             <Meta
                                 label="Trading Pace"
                                 value={playbook.trading_pace}
@@ -71,27 +86,54 @@ export default function PlaybooksShow({ playbook }: { playbook: Playbook }) {
                                 label="Average Hold"
                                 value={playbook.average_hold_time}
                             />
-                            <Meta label="Price" value={playbook.price} />
+                            <Meta
+                                label="Delivery"
+                                value="Alerts + Guided Discord"
+                            />
+
+                            <Meta label="Access" value="Subscription" />
+                            <div className="max-md:hidden">
+                                <Meta label="Price" value={playbook.price} />
+                            </div>
                         </dl>
-                        {playbook.action_url ? (
-                            <HudButton
-                                href={playbook.action_url}
-                                external
-                                className="mt-8 w-full"
-                                variant="solid"
-                            >
-                                Subscribe
-                            </HudButton>
-                        ) : (
-                            <HudButton
-                                type="button"
-                                disabled
-                                className="mt-8 w-full"
-                                variant="solid"
-                            >
-                                Coming Soon
-                            </HudButton>
-                        )}
+                        <div className="max-md:hidden">
+                            {playbook.slug !== 'sigma-pro-engine' &&
+                                (playbook.action_url ? (
+                                    <HudButton
+                                        href={playbook.action_url}
+                                        external
+                                        className="mt-8 w-full"
+                                        variant="solid"
+                                    >
+                                        Subscribe
+                                    </HudButton>
+                                ) : (
+                                    <HudButton
+                                        type="button"
+                                        disabled
+                                        className="mt-8 w-full"
+                                        variant="solid"
+                                    >
+                                        Coming Soon
+                                    </HudButton>
+                                ))}
+
+                            {playbook.slug === 'sigma-pro-engine' &&
+                                playbook.action_url && (
+                                    <HudButton
+                                        href={playbook.action_url}
+                                        external
+                                        className="mt-8 w-full"
+                                        variant="solid"
+                                    >
+                                        Explore{' '}
+                                        <IconRenderer
+                                            name="chevron-right"
+                                            className="h-5 w-5"
+                                        />
+                                    </HudButton>
+                                )}
+                        </div>
                     </HudPanel>
                 </div>
             </PublicHeroFrame>
@@ -131,6 +173,33 @@ function TaxonomyMeta({
                     <span className="text-white">—</span>
                 )}
             </dd>
+        </div>
+    );
+}
+
+function ParagraphCopy({
+    text,
+    className,
+}: {
+    text: string;
+    className?: string;
+}) {
+    const paragraphs = text
+        .split(/\r\n|\r|\n+/)
+        .map((paragraph) => paragraph.trim())
+        .filter(Boolean);
+
+    if (!paragraphs.length) {
+        return null;
+    }
+
+    return (
+        <div className={className}>
+            {paragraphs.map((paragraph, index) => (
+                <p key={`${index}-${paragraph}`} className="mb-2 text-white/78">
+                    {paragraph}
+                </p>
+            ))}
         </div>
     );
 }

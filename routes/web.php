@@ -9,14 +9,16 @@ use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PlaybookController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TraderTypeController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', [PageController::class, 'home'])->name('home');
-Route::redirect('/about', '/methodology', 301);
-Route::get('/methodology', [PageController::class, 'methodology'])->name('methodology');
+Route::redirect('/about', '/system', 301);
+Route::redirect('/methodology', '/system', 301);
+Route::get('/system', [PageController::class, 'system'])->name('system');
 Route::get('/trader-types', [PageController::class, 'traderTypes'])->name('trader-types');
-Route::get('/testimonials', [PageController::class, 'testimonials'])->name('testimonials');
+Route::get('/trader-types/{traderType:slug}', [TraderTypeController::class, 'show'])->name('trader-types.show');
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
 Route::get('/modules', [ModuleController::class, 'index'])->name('modules.index');
 Route::get('/modules/{module:slug}', [ModuleController::class, 'show'])->name('modules.show');
@@ -43,7 +45,9 @@ Route::middleware(['auth', 'admin'])
     ->group(function (): void {
         Route::get('/', AdminDashboardController::class)->name('dashboard');
         Route::resource('modules', AdminModuleController::class)->except(['show']);
+        Route::post('modules/reorder', [AdminModuleController::class, 'reorder'])->name('modules.reorder');
         Route::resource('playbooks', AdminPlaybookController::class)->except(['show']);
+        Route::post('playbooks/reorder', [AdminPlaybookController::class, 'reorder'])->name('playbooks.reorder');
         Route::resource('markets', AdminMarketController::class)->except(['show']);
         Route::resource('trader-types', AdminTraderTypeController::class)->except(['show']);
     });

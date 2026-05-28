@@ -52,6 +52,8 @@ export interface Module {
     id: number;
     market_id: number;
     icon?: string | null;
+    image_path?: string | null;
+    image_url?: string | null;
     title: string;
     slug: string;
     description?: string | null;
@@ -92,6 +94,7 @@ export interface Playbook {
     slug: string;
     access: AccessValue;
     best_for?: string | null;
+    long_description?: string | null;
     trading_pace?: string | null;
     average_hold_time?: string | null;
     price?: string | null;
@@ -122,4 +125,5 @@ export type PageProps<
         success?: string | null;
         error?: string | null;
     };
+    traderFitTraderTypes?: TraderType[];
 };

@@ -15,11 +15,11 @@ type PlaybookForm = {
     slug: string;
     access: string;
     best_for: string;
+    long_description: string;
     trading_pace: string;
     average_hold_time: string;
     price: string;
     action_url: string;
-    sort_order: number;
     is_featured: boolean;
     is_active: boolean;
     published_at: string;
@@ -57,11 +57,11 @@ export default function PlaybookFormPage({
                 accessOptions[0]?.value ||
                 'Daily Newsletter + Discord',
             best_for: playbook?.best_for || '',
+            long_description: playbook?.long_description || '',
             trading_pace: playbook?.trading_pace || '',
             average_hold_time: playbook?.average_hold_time || '',
             price: playbook?.price || '',
             action_url: playbook?.action_url || '',
-            sort_order: playbook?.sort_order ?? 0,
             is_featured: playbook?.is_featured ?? false,
             is_active: playbook?.is_active ?? true,
             published_at: playbook?.published_at?.slice(0, 16) || '',
@@ -228,17 +228,6 @@ export default function PlaybookFormPage({
                             placeholder="https://..."
                         />
                     </Field>
-                    <Field label="Sort Order" error={errors.sort_order}>
-                        <input
-                            className={input}
-                            value={data.sort_order}
-                            type="number"
-                            min="0"
-                            onChange={(e) =>
-                                setData('sort_order', Number(e.target.value))
-                            }
-                        />
-                    </Field>
                     <Field label="Published At" error={errors.published_at}>
                         <input
                             className={input}
@@ -265,6 +254,12 @@ export default function PlaybookFormPage({
                             }
                         />
                     </div>
+                    <div className="xl:col-span-2">
+                        <p className="font-body text-sm tracking-normal text-white/55 normal-case">
+                            Reorder playbooks from the list page. The front end
+                            uses that order automatically.
+                        </p>
+                    </div>
                     <Field
                         label="Trader Types"
                         error={
@@ -285,6 +280,19 @@ export default function PlaybookFormPage({
                             onChange={(e) =>
                                 setData('best_for', e.target.value)
                             }
+                        />
+                    </Field>
+                    <Field
+                        label="Long Description"
+                        error={errors.long_description}
+                    >
+                        <textarea
+                            className={textarea}
+                            value={data.long_description}
+                            onChange={(e) =>
+                                setData('long_description', e.target.value)
+                            }
+                            placeholder="Use line breaks to create paragraphs."
                         />
                     </Field>
                     <Field label="Meta Title" error={errors.meta_title}>

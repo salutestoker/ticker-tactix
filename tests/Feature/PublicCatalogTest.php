@@ -17,17 +17,17 @@ class PublicCatalogTest extends TestCase
 
     public function test_homepage_renders_social_metadata(): void
     {
-        $description = 'Trade with structure not emotion. A rules-based market operating system for traders who value structure over signals. Custom indicators, structured playbooks, and disciplined market frameworks for traders who want decision support, not hype.';
-        $imageUrl = url('/design/assets/images/open-graph/ticker-tactix-2026.png');
+        $description = 'Trade with structure not emotion. A rules-based market operating system for traders who value structure over signals.';
+        $imageUrl = url('/design/assets/images/open-graph/ticker-tactix-2026--compressed.jpg');
 
         $this->get('/')
             ->assertOk()
-            ->assertSee('<title inertia>Ticker-Tactix, LLC</title>', false)
+            ->assertSee('<title inertia>Ticker-Tactix</title>', false)
             ->assertSee('<meta name="description" content="'.$description.'">', false)
             ->assertSee('<link rel="canonical" href="'.url('/').'">', false)
             ->assertSee('<meta property="og:type" content="website">', false)
             ->assertSee('<meta property="og:site_name" content="Ticker-Tactix">', false)
-            ->assertSee('<meta property="og:title" content="Ticker-Tactix, LLC">', false)
+            ->assertSee('<meta property="og:title" content="Ticker-Tactix">', false)
             ->assertSee('<meta property="og:description" content="'.$description.'">', false)
             ->assertSee('<meta property="og:url" content="'.url('/').'">', false)
             ->assertSee('<meta property="og:image" content="'.$imageUrl.'">', false)
@@ -35,7 +35,7 @@ class PublicCatalogTest extends TestCase
             ->assertSee('<meta property="og:image:height" content="1722">', false)
             ->assertSee('<meta property="og:image:alt" content="Ticker-Tactix hero artwork with the headline Trade with Structure Not Emotion.">', false)
             ->assertSee('<meta name="twitter:card" content="summary_large_image">', false)
-            ->assertSee('<meta name="twitter:title" content="Ticker-Tactix, LLC">', false)
+            ->assertSee('<meta name="twitter:title" content="Ticker-Tactix">', false)
             ->assertSee('<meta name="twitter:description" content="'.$description.'">', false)
             ->assertSee('<meta name="twitter:image" content="'.$imageUrl.'">', false)
             ->assertSee('<meta name="twitter:image:alt" content="Ticker-Tactix hero artwork with the headline Trade with Structure Not Emotion.">', false);
@@ -103,6 +103,7 @@ class PublicCatalogTest extends TestCase
             'slug' => 'market-environment',
             'access' => AccessLevel::DailyNewsletterDiscord,
             'best_for' => 'Context before execution.',
+            'long_description' => "Context before execution.\nRepeat the same process every time.",
             'price' => '$70/mo',
             'sort_order' => 10,
             'is_featured' => true,
@@ -117,6 +118,7 @@ class PublicCatalogTest extends TestCase
             'slug' => 'active-unpublished-playbook',
             'access' => AccessLevel::DailyNewsletterDiscord,
             'best_for' => 'Active associated playbook.',
+            'long_description' => "Active associated playbook.\nKeep it private.",
             'price' => '$70/mo',
             'sort_order' => 15,
             'is_featured' => false,
@@ -131,6 +133,7 @@ class PublicCatalogTest extends TestCase
             'slug' => 'inactive-playbook',
             'access' => AccessLevel::DailyNewsletterDiscord,
             'best_for' => 'Inactive playbook.',
+            'long_description' => 'Inactive playbook.',
             'price' => '$70/mo',
             'sort_order' => 20,
             'is_featured' => true,
@@ -177,10 +180,16 @@ class PublicCatalogTest extends TestCase
                 ->where('traderTypes.0.playbooks.0.title', 'Market Environment')
                 ->where('traderTypes.0.playbooks.1.title', 'Active Unpublished Playbook'));
 
-        $this->get('/testimonials')
+        $this->get('/trader-types/nyse-core')
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
-                ->component('Testimonials'));
+                ->component('TraderTypes/Show')
+                ->where('traderType.slug', 'nyse-core')
+                ->has('traderType.modules', 2)
+                ->where('traderType.modules.0.title', 'Momentum Cycles')
+                ->where('traderType.modules.1.title', 'Sequence Pressure')
+                ->has('traderType.playbooks', 1)
+                ->where('traderType.playbooks.0.title', 'Market Environment'));
 
         $this->get('/terms-of-service')
             ->assertOk()
@@ -246,6 +255,7 @@ class PublicCatalogTest extends TestCase
             'title' => 'Market Environment',
             'slug' => 'market-environment',
             'access' => AccessLevel::DailyNewsletterDiscord,
+            'long_description' => "Context before execution.\nRepeat the same process every time.",
             'price' => '$70/mo',
             'sort_order' => 10,
             'is_featured' => true,
@@ -266,7 +276,23 @@ class PublicCatalogTest extends TestCase
                 ->component('Playbooks/Show')
                 ->where('playbook.slug', 'market-environment'));
 
+        $this->get('/trader-types/nyse-core')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('TraderTypes/Show')
+                ->where('traderType.slug', 'nyse-core'));
+
+        $inactiveTraderType = TraderType::create([
+            'name' => 'Inactive Trader Type',
+            'slug' => 'inactive-trader-type',
+            'color' => 'violet-light',
+            'icon' => 'command-cube',
+            'sort_order' => 20,
+            'is_active' => false,
+        ]);
+
         $this->get('/modules/private-module')->assertNotFound();
+        $this->get('/trader-types/'.$inactiveTraderType->slug)->assertNotFound();
     }
 
     /**

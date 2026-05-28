@@ -6,6 +6,7 @@ import {
     HudPanel,
     TaxonomyBadge,
 } from '@/Components/UI/Hud';
+import { MobilePurchaseHud } from '@/Components/UI/MobilePurchaseHud';
 import { PublicHeroFrame } from '@/Components/UI/PublicHero';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { formatVersion } from '@/lib/format';
@@ -42,11 +43,14 @@ export default function ModulesShow({
                 <div className="relative mx-auto max-w-7xl">
                     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_390px] lg:items-start">
                         <main>
-                            <div className="text-seafoam-green mb-5 flex flex-wrap items-center gap-4">
-                                <IconRenderer
-                                    name={module.icon}
-                                    className="h-12 w-12"
-                                />
+                            <div className="text-seafoam-green mb-2 flex flex-wrap items-center gap-1">
+                                {module.image_url && (
+                                    <img
+                                        className="ml-[-20px] max-w-[100px] mix-blend-lighten"
+                                        src={module.image_url}
+                                        alt=""
+                                    />
+                                )}
                                 <AccessBadge access={module.access} />
                             </div>
 
@@ -56,6 +60,11 @@ export default function ModulesShow({
                             <p className="mt-4 max-w-3xl text-lg leading-7 text-white/76 sm:text-xl sm:leading-8">
                                 {module.description}
                             </p>
+
+                            <MobilePurchaseHud
+                                price={module.price}
+                                actionUrl={module.action_url}
+                            />
 
                             <HudPanel className="mt-8 overflow-hidden rounded-[14px]">
                                 <DetailRow
@@ -199,38 +208,42 @@ export default function ModulesShow({
                                     </div>
                                     <SidebarMeta
                                         icon="lock"
-                                        label="Access"
+                                        label="Delivery"
                                         value={module.access}
                                         tone="green"
                                     />
-                                    <SidebarMeta
-                                        icon="market-data-bars"
-                                        label="Price"
-                                        value={module.price}
-                                        tone="green"
-                                        valueClassName="font-heading text-xl text-white"
-                                    />
+                                    <div className="max-md:hidden">
+                                        <SidebarMeta
+                                            icon="market-data-bars"
+                                            label="Price"
+                                            value={module.price}
+                                            tone="green"
+                                            valueClassName="font-heading text-xl text-white"
+                                        />
+                                    </div>
                                 </dl>
 
-                                {module.action_url ? (
-                                    <HudButton
-                                        href={module.action_url}
-                                        external
-                                        className="mt-8 w-full rounded-[14px]"
-                                        variant="solid"
-                                    >
-                                        Subscribe
-                                    </HudButton>
-                                ) : (
-                                    <HudButton
-                                        type="button"
-                                        disabled
-                                        className="mt-8 w-full rounded-[14px]"
-                                        variant="solid"
-                                    >
-                                        Coming Soon
-                                    </HudButton>
-                                )}
+                                <div className="max-md:hidden">
+                                    {module.action_url ? (
+                                        <HudButton
+                                            href={module.action_url}
+                                            external
+                                            className="mt-8 w-full rounded-[14px]"
+                                            variant="solid"
+                                        >
+                                            Subscribe
+                                        </HudButton>
+                                    ) : (
+                                        <HudButton
+                                            type="button"
+                                            disabled
+                                            className="mt-8 w-full rounded-[14px]"
+                                            variant="solid"
+                                        >
+                                            Coming Soon
+                                        </HudButton>
+                                    )}
+                                </div>
                             </HudPanel>
                         </aside>
                     </div>
@@ -367,16 +380,16 @@ function SidebarTaxonomy({
     children: ReactNode;
 }) {
     return (
-        <div className="grid grid-cols-[36px_1fr] gap-4">
-            <IconRenderer
-                name={icon}
-                className="text-seafoam-green mt-1 h-7 w-7"
-            />
+        <div className="gap-4">
+            {/*<IconRenderer*/}
+            {/*    name={icon}*/}
+            {/*    className="text-seafoam-green mt-1 h-7 w-7"*/}
+            {/*/>*/}
             <div>
                 <dt className="font-heading text-xs tracking-[0.16em] text-white/45 uppercase">
                     {label}
                 </dt>
-                <dd className="mt-2">{children}</dd>
+                <dd className="mt-2 text-sm">{children}</dd>
             </div>
         </div>
     );
@@ -387,7 +400,7 @@ function SidebarMeta({
     label,
     value,
     tone,
-    valueClassName = 'text-lg leading-6 text-white',
+    valueClassName = ' leading-6 text-white',
 }: {
     icon: string;
     label: string;
@@ -405,13 +418,15 @@ function SidebarMeta({
                 : 'text-sky-300';
 
     return (
-        <div className="grid grid-cols-[36px_1fr] gap-4">
-            <IconRenderer name={icon} className={`${toneClass} mt-1 h-7 w-7`} />
+        <div className="gap-4">
+            {/*<IconRenderer name={icon} className={`${toneClass} mt-1 h-7 w-7`} />*/}
             <div>
                 <dt className="font-heading text-xs tracking-[0.16em] text-white/45 uppercase">
                     {label}
                 </dt>
-                <dd className={`mt-1 ${valueClassName}`}>{value || '—'}</dd>
+                <dd className={`mt-1 text-sm ${valueClassName}`}>
+                    {value || '—'}
+                </dd>
             </div>
         </div>
     );

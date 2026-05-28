@@ -8,6 +8,13 @@ export default function Contact() {
         <PublicLayout>
             <Head title="Contact" />
             <PublicHeroFrame>
+                <div className="pointer-events-none relative z-0 flex w-[102vw] translate-x-[-2%] -translate-y-[15%] justify-center mix-blend-lighten">
+                    <img
+                        src="/design/assets/images/bg-testimonials.jpg"
+                        className=""
+                        alt=""
+                    />
+                </div>
                 <div className="mx-auto max-w-4xl text-center">
                     <Eyebrow>Contact</Eyebrow>
                     <GradientHeading>CONTACT TICKER-TACTIX</GradientHeading>

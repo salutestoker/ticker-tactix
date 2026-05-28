@@ -10,6 +10,8 @@ type ModuleForm = {
     trader_type_ids: number[];
     related_module_ids: number[];
     icon: string;
+    image: File | null;
+    remove_image: boolean;
     title: string;
     slug: string;
     description: string;
@@ -27,7 +29,6 @@ type ModuleForm = {
     version: string;
     access: string;
     action_url: string;
-    sort_order: number;
     is_featured: boolean;
     is_active: boolean;
     published_at: string;
@@ -54,12 +55,14 @@ export default function ModuleFormPage({
     const attachedRelatedModules =
         module?.related_modules ?? module?.relatedModules ?? [];
 
-    const { data, setData, post, put, processing, errors } =
+    const { data, setData, post, processing, errors, transform } =
         useForm<ModuleForm>({
             market_id: module?.market_id ? String(module.market_id) : '',
             trader_type_ids: attachedTraderTypes.map((type) => type.id),
             related_module_ids: attachedRelatedModules.map((item) => item.id),
             icon: module?.icon || '',
+            image: null,
+            remove_image: false,
             title: module?.title || '',
             slug: module?.slug || '',
             description: module?.description || '',
@@ -82,7 +85,6 @@ export default function ModuleFormPage({
                 accessOptions[0]?.value ||
                 'Invite-Only Indicator + Discord',
             action_url: module?.action_url || '',
-            sort_order: module?.sort_order ?? 0,
             is_featured: module?.is_featured ?? false,
             is_active: module?.is_active ?? true,
             published_at: module?.published_at?.slice(0, 16) || '',
@@ -94,10 +96,17 @@ export default function ModuleFormPage({
     function submit(event: FormEvent) {
         event.preventDefault();
         if (module) {
-            put(route('admin.modules.update', module.id));
+            transform((payload) => ({ ...payload, _method: 'put' }));
+            post(route('admin.modules.update', module.id), {
+                forceFormData: true,
+            });
+
             return;
         }
-        post(route('admin.modules.store'));
+
+        post(route('admin.modules.store'), {
+            forceFormData: true,
+        });
     }
 
     return (
@@ -135,6 +144,52 @@ export default function ModuleFormPage({
                                 </option>
                             ))}
                         </select>
+                    </Field>
+                    <Field label="Image Upload" error={errors.image}>
+                        <div className="mt-2 grid gap-3">
+                            {module?.image_url &&
+                            !data.remove_image &&
+                            !data.image ? (
+                                <div className="border-main-blue/30 bg-panel-deep/70 flex items-center gap-4 rounded-sm border p-3">
+                                    <img
+                                        className="size-14 rounded-sm border border-white/10 object-contain p-1"
+                                        src={module.image_url}
+                                        alt=""
+                                    />
+                                    <span className="font-body text-sm tracking-normal text-white/70 normal-case">
+                                        Current image
+                                    </span>
+                                </div>
+                            ) : null}
+                            <input
+                                className={fileInput}
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp"
+                                onChange={(e) => {
+                                    const image = e.target.files?.[0] ?? null;
+
+                                    setData('image', image);
+
+                                    if (image) {
+                                        setData('remove_image', false);
+                                    }
+                                }}
+                            />
+                            {data.image ? (
+                                <span className="font-body text-sm tracking-normal text-white/70 normal-case">
+                                    Selected: {data.image.name}
+                                </span>
+                            ) : null}
+                            {module?.image_url && !data.image ? (
+                                <Check
+                                    label="Remove current image"
+                                    checked={data.remove_image}
+                                    onChange={(checked) =>
+                                        setData('remove_image', checked)
+                                    }
+                                />
+                            ) : null}
+                        </div>
                     </Field>
                     <Field label="Icon" error={errors.icon}>
                         <IconSelector
@@ -225,17 +280,6 @@ export default function ModuleFormPage({
                             onChange={(e) => setData('price', e.target.value)}
                         />
                     </Field>
-                    <Field label="Sort Order" error={errors.sort_order}>
-                        <input
-                            className={input}
-                            value={data.sort_order}
-                            type="number"
-                            min="0"
-                            onChange={(e) =>
-                                setData('sort_order', Number(e.target.value))
-                            }
-                        />
-                    </Field>
                     <Field label="Published At" error={errors.published_at}>
                         <input
                             className={input}
@@ -261,6 +305,12 @@ export default function ModuleFormPage({
                                 setData('is_featured', checked)
                             }
                         />
+                    </div>
+                    <div className="xl:col-span-2">
+                        <p className="font-body text-sm tracking-normal text-white/55 normal-case">
+                            Reorder modules from the list page. The front end
+                            uses that order automatically.
+                        </p>
                     </div>
                     <Field
                         label="Trader Types"
@@ -392,6 +442,8 @@ export default function ModuleFormPage({
 
 const input =
     'mt-2 w-full rounded-sm border border-main-blue/35 bg-panel-deep px-4 py-3 text-white outline-none focus:border-seafoam-green';
+const fileInput =
+    'w-full rounded-sm border border-dashed border-main-blue/35 bg-panel-deep px-4 py-3 text-sm text-white file:mr-4 file:rounded-sm file:border-0 file:bg-main-blue/20 file:px-3 file:py-2 file:font-mono-display file:text-xs file:tracking-[0.12em] file:text-white file:uppercase hover:border-main-blue/60';
 const textarea = `${input} min-h-32`;
 
 function Field({
@@ -404,15 +456,15 @@ function Field({
     children: ReactNode;
 }) {
     return (
-        <label className="font-mono-display block text-xs tracking-[0.16em] text-white/80 uppercase">
-            {label}
+        <div className="font-mono-display block text-xs tracking-[0.16em] text-white/80 uppercase">
+            <span>{label}</span>
             {children}
             {error ? (
                 <span className="font-body text-violet-light mt-2 block text-sm tracking-normal normal-case">
                     {error}
                 </span>
             ) : null}
-        </label>
+        </div>
     );
 }
 

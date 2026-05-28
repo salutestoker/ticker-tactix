@@ -1,5 +1,9 @@
+import TraderFitProvider, {
+    useTraderFitModal,
+} from '@/Components/TraderFit/TraderFitProvider';
 import type { PageProps } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
+import { ChartNoAxesCombined } from 'lucide-react';
 import { useEffect, useRef, useState, type PropsWithChildren } from 'react';
 
 const nav = [
@@ -8,8 +12,7 @@ const nav = [
 
     ['Modules', 'modules.index'],
     ['Playbooks', 'playbooks.index'],
-    ['Methodology', 'methodology'],
-    ['Testimonials', 'testimonials'],
+    ['System', 'system'],
     ['Contact', 'contact'],
 ] as const;
 
@@ -45,8 +48,9 @@ export default function PublicLayout({ children }: PropsWithChildren) {
     }, [isMenuOpen]);
 
     return (
-        <div className="bg-midnight-blue min-h-screen overflow-hidden text-white">
-            <header className="fixed top-0 right-0 left-0 z-40 px-4 py-5 sm:px-6">
+        <TraderFitProvider>
+            <div className="bg-midnight-blue min-h-screen overflow-hidden text-white">
+                <header className="fixed top-0 right-0 left-0 z-40 px-4 py-5 sm:px-6">
                 <div className="mx-auto flex items-center justify-between">
                     <Link
                         className="group border-seafoam-green/20 hover:border-seafoam-green text-seafoam-green flex h-10 w-10 items-center justify-center rounded-full border bg-black/50"
@@ -60,6 +64,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                         />
                     </Link>
                     <div className="flex items-center gap-3">
+                        <TraderFitResultsButton />
                         {/*auth.user && (
                             <HudButton
                                 href={route('admin.dashboard')}
@@ -129,17 +134,37 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                         </nav>
                     </div>
                 ) : null}
-            </header>
+                </header>
 
-            {flash?.success || flash?.error ? (
-                <div className="border-seafoam-green/40 bg-panel/95 fixed top-24 right-4 z-50 max-w-sm rounded-sm border px-4 py-3 text-sm text-white shadow-[0_0_24px_rgba(0,250,146,0.18)]">
-                    {flash.success || flash.error}
-                </div>
-            ) : null}
+                {flash?.success || flash?.error ? (
+                    <div className="border-seafoam-green/40 bg-panel/95 fixed top-24 right-4 z-50 max-w-sm rounded-sm border px-4 py-3 text-sm text-white shadow-[0_0_24px_rgba(0,250,146,0.18)]">
+                        {flash.success || flash.error}
+                    </div>
+                ) : null}
 
-            <main>{children}</main>
-            <Footer />
-        </div>
+                <main>{children}</main>
+                <Footer />
+            </div>
+        </TraderFitProvider>
+    );
+}
+
+function TraderFitResultsButton() {
+    const { hasCompletedTraderFit, openTraderFitModal } = useTraderFitModal();
+
+    if (!hasCompletedTraderFit) {
+        return null;
+    }
+
+    return (
+        <button
+            className="border-main-blue/45 bg-main-blue/10 text-sky-300 hover:border-main-blue hover:bg-main-blue/20 focus-visible:ring-seafoam-green focus-visible:ring-offset-midnight-blue font-heading inline-flex min-h-10 max-w-[calc(100vw-7rem)] items-center justify-center gap-2 rounded-sm border px-3 py-2 text-[0.62rem] font-semibold tracking-[0.1em] uppercase transition hover:text-white focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none sm:px-4 sm:text-xs"
+            onClick={() => openTraderFitModal()}
+            type="button"
+        >
+            <span className="truncate">Trader Type Results</span>
+            <ChartNoAxesCombined className="h-4 w-4 shrink-0" aria-hidden />
+        </button>
     );
 }
 
@@ -164,8 +189,8 @@ function Footer() {
                     external: false,
                 },
                 {
-                    label: 'Methodology',
-                    href: route('methodology'),
+                    label: 'System',
+                    href: route('system'),
                     external: false,
                 },
                 {
@@ -182,11 +207,6 @@ function Footer() {
                     label: 'Economic Calendar',
                     href: 'https://tradingeconomics.com/calendar',
                     external: true,
-                },
-                {
-                    label: 'Testimonials',
-                    href: route('testimonials'),
-                    external: false,
                 },
             ],
         },
@@ -227,6 +247,16 @@ function Footer() {
             ],
         },
     ];
+    const mobileFooterColumnGroups = [
+        [footerColumns[0], footerColumns[2]],
+        [footerColumns[1], footerColumns[3]],
+    ];
+    const desktopFooterColumnOrder: Record<string, string> = {
+        System: 'md:order-1',
+        Resources: 'md:order-2',
+        Community: 'md:order-3',
+        Legal: 'md:order-4',
+    };
 
     return (
         <footer className="bg-main-blue-bright relative overflow-hidden text-white">
@@ -236,8 +266,6 @@ function Footer() {
                 loop
                 muted
                 playsInline
-                preload="metadata"
-                poster="/design/assets/images/bg-footer.jpg"
                 aria-hidden="true"
             >
                 <source
@@ -253,12 +281,22 @@ function Footer() {
                 {/*    alt="Ticker Tactix"*/}
                 {/*/>*/}
                 <div className="grid grid-cols-2 gap-x-6 gap-y-10 border-y border-white/15 py-10 text-left text-sm text-white/75 md:grid-cols-4 md:text-center">
-                    {footerColumns.map((column) => (
-                        <FooterColumn
-                            key={column.title}
-                            title={column.title}
-                            links={column.links}
-                        />
+                    {mobileFooterColumnGroups.map((columnGroup) => (
+                        <div
+                            key={columnGroup.map((column) => column.title).join('-')}
+                            className="space-y-10 md:contents"
+                        >
+                            {columnGroup.map((column) => (
+                                <FooterColumn
+                                    key={column.title}
+                                    title={column.title}
+                                    links={column.links}
+                                    className={
+                                        desktopFooterColumnOrder[column.title]
+                                    }
+                                />
+                            ))}
+                        </div>
                     ))}
                 </div>
                 <p className="font-heading mt-10 text-xs tracking-[0.35em] text-white/70 uppercase">
@@ -291,9 +329,13 @@ type FooterColumnData = {
     links: FooterLink[];
 };
 
-function FooterColumn({ title, links }: FooterColumnData) {
+function FooterColumn({
+    title,
+    links,
+    className = '',
+}: FooterColumnData & { className?: string }) {
     return (
-        <div>
+        <div className={className}>
             <h3 className="font-heading text-seafoam-green text-xs tracking-[0.22em] uppercase">
                 {title}
             </h3>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\TraderType;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -38,6 +39,10 @@ class HandleInertiaRequests extends Middleware
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
             ],
+            'traderFitTraderTypes' => fn () => TraderType::active()
+                ->select(['id', 'name', 'slug', 'description', 'color', 'icon', 'sort_order', 'is_active'])
+                ->ordered()
+                ->get(),
         ];
     }
 }

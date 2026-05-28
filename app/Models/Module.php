@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 class Module extends Model
 {
@@ -17,6 +18,7 @@ class Module extends Model
     protected $fillable = [
         'market_id',
         'icon',
+        'image_path',
         'title',
         'slug',
         'description',
@@ -40,6 +42,10 @@ class Module extends Model
         'published_at',
         'meta_title',
         'meta_description',
+    ];
+
+    protected $appends = [
+        'image_url',
     ];
 
     protected function casts(): array
@@ -75,6 +81,15 @@ class Module extends Model
             'module_id',
             'related_module_id',
         )->withTimestamps();
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        if (! $this->image_path) {
+            return null;
+        }
+
+        return Storage::disk((string) config('filesystems.module_image_disk', 'public'))->url($this->image_path);
     }
 
     #[Scope]

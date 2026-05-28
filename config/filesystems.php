@@ -15,10 +15,20 @@ return [
 
     'default' => env('FILESYSTEM_DISK', 'local'),
 
+    'catalog_media_disk' => env('CATALOG_MEDIA_DISK')
+        ?: (env('FILESYSTEM_DISK') === 'local' ? 'public' : (env('FILESYSTEM_DISK') ?: 'public')),
+
     'playbook_logo_disk' => env('PLAYBOOK_LOGO_DISK')
+        ?: env('CATALOG_MEDIA_DISK')
         ?: (env('FILESYSTEM_DISK') === 'local' ? 'public' : (env('FILESYSTEM_DISK') ?: 'public')),
 
     'playbook_logo_directory' => env('PLAYBOOK_LOGO_DIRECTORY', 'playbook-logos'),
+
+    'module_image_disk' => env('MODULE_IMAGE_DISK')
+        ?: env('CATALOG_MEDIA_DISK')
+        ?: (env('FILESYSTEM_DISK') === 'local' ? 'public' : (env('FILESYSTEM_DISK') ?: 'public')),
+
+    'module_image_directory' => env('MODULE_IMAGE_DIRECTORY', 'module-images'),
 
     /*
     |--------------------------------------------------------------------------
@@ -56,7 +66,7 @@ return [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            'region' => env('AWS_DEFAULT_REGION'),
+            'region' => env('AWS_DEFAULT_REGION') ?: env('AWS_REGION') ?: 'auto',
             'bucket' => env('AWS_BUCKET'),
             'url' => env('AWS_URL'),
             'endpoint' => env('AWS_ENDPOINT'),
@@ -69,7 +79,7 @@ return [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            'region' => env('AWS_DEFAULT_REGION'),
+            'region' => env('TICKER_TACTIX_PUBLIC_REGION') ?: env('AWS_DEFAULT_REGION') ?: env('AWS_REGION') ?: 'auto',
             'bucket' => env('TICKER_TACTIX_PUBLIC_BUCKET') ?: env('AWS_BUCKET') ?: 'ticker_tactix_public',
             'url' => env('AWS_URL'),
             'endpoint' => env('AWS_ENDPOINT'),

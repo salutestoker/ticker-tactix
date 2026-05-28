@@ -8,7 +8,7 @@ import { PublicHeroFrame } from '@/Components/UI/PublicHero';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { Head } from '@inertiajs/react';
 
-const methodologyPillars = [
+const systemPillars = [
     {
         title: 'Structure First',
         copy: 'Every playbook begins with regime, trend, volatility, and participation context before execution is considered.',
@@ -26,10 +26,10 @@ const methodologyPillars = [
     },
 ];
 
-export default function Methodology() {
+export default function System() {
     return (
         <PublicLayout>
-            <Head title="Methodology" />
+            <Head title="System" />
             <PublicHeroFrame>
                 <div className="relative z-10 flex w-[102vw] translate-x-[-2%] -translate-y-[10%] justify-center mix-blend-lighten">
                     <img
@@ -39,16 +39,16 @@ export default function Methodology() {
                     />
                 </div>
                 <div className="mx-auto max-w-5xl text-center">
-                    <Eyebrow>Methodology</Eyebrow>
+                    <Eyebrow>System</Eyebrow>
                     <GradientHeading>
-                        Rules-Based Market Operations
+                        Rules-Based Market&nbsp;Operations
                     </GradientHeading>
 
                     <p className="font-heading text-seafoam-green mx-auto mt-5 max-w-4xl text-sm leading-7 font-semibold tracking-[0.24em] uppercase sm:text-base">
                         Structure First. Signal Discipline. Deployment Ready.
                     </p>
 
-                    <div className="mx-auto mt-10 max-w-xl text-center">
+                    <div className="mx-auto mt-10 max-w-4xl text-center">
                         <p className="mt-8 text-lg leading-8 text-white/75">
                             Ticker-Tactix organizes market decisions into
                             modules, categories, and deployable playbooks so
@@ -67,7 +67,7 @@ export default function Methodology() {
                 </div>
 
                 <div className="mx-auto mt-16 grid max-w-6xl gap-6 md:grid-cols-3">
-                    {methodologyPillars.map(({ title, copy, tone }, index) => (
+                    {systemPillars.map(({ title, copy, tone }, index) => (
                         <HudPanel key={title} className="relative p-7">
                             <div className="font-heading text-main-blue mb-5 text-xs tracking-[0.24em] uppercase">
                                 Layer 0{index + 1}
@@ -84,9 +84,15 @@ export default function Methodology() {
                     ))}
                 </div>
 
-                <HudPanel className="mx-auto mt-14 max-w-4xl p-8 text-center sm:p-10">
+                <div className="relative mx-auto my-15 max-w-7xl mix-blend-lighten md:my-30">
+                    <img src="/design/assets/images/bg-system.jpg" alt="" />
+                    <div className="brand-gradient-midnight-blue-reverse absolute top-0 h-1/3 w-full"></div>
+                    <div className="brand-gradient-midnight-blue absolute bottom-0 h-1/3 w-full"></div>
+                </div>
+
+                <HudPanel className="mx-auto mt-14 max-w-6xl p-8 text-center sm:p-10">
                     <h2 className="font-heading text-2xl leading-tight font-semibold tracking-[0.08em] text-white uppercase sm:text-4xl">
-                        Build Decisions Around Structure
+                        Build Decisions Around&nbsp;Structure
                     </h2>
                     <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-white/72">
                         Explore the system layers behind Ticker-Tactix, then

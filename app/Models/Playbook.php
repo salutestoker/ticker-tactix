@@ -23,6 +23,7 @@ class Playbook extends Model
         'slug',
         'access',
         'best_for',
+        'long_description',
         'trading_pace',
         'average_hold_time',
         'price',
@@ -66,7 +67,7 @@ class Playbook extends Model
             return null;
         }
 
-        return Storage::disk((string) config('filesystems.playbook_logo_disk', 'public'))->url($this->logo_path);
+        return Storage::disk((string) config('filesystems.catalog_media_disk', 'public'))->url($this->logo_path);
     }
 
     #[Scope]

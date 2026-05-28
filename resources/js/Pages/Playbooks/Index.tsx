@@ -7,8 +7,8 @@ import {
     TaxonomyBadge,
 } from '@/Components/UI/Hud';
 import { PublicHeroFrame } from '@/Components/UI/PublicHero';
-import { RotatingTaxonomyBadges } from '@/Components/UI/RotatingTaxonomyBadges';
 import PublicLayout from '@/Layouts/PublicLayout';
+import { TaxonomyList } from '@/Pages/Modules/Index';
 import type { PageProps, Playbook } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 
@@ -36,6 +36,11 @@ export default function PlaybooksIndex({
                         repeatable trading structure.
                     </p>
                     <PlaybookPrimer />
+
+                    <p className="font-heading text-seafoam-green mx-auto my-20 max-w-4xl text-center text-sm leading-7 font-semibold tracking-[0.24em] uppercase sm:text-base">
+                        Use the matrix below to compare playbooks by market,
+                        access type, trader profile, and deployment style.
+                    </p>
                     <HudPanel className="mt-12 overflow-hidden">
                         <div className="overflow-x-auto">
                             <table className="min-w-full text-left text-sm">
@@ -54,7 +59,7 @@ export default function PlaybooksIndex({
                                             Market
                                         </th>
                                         <th className="hidden px-6 py-5 md:table-cell">
-                                            Best For
+                                            Designed For
                                         </th>
                                         <th className="px-3 py-4 sm:px-6 sm:py-5">
                                             Price
@@ -108,16 +113,17 @@ export default function PlaybooksIndex({
                                                             />
                                                         </div>
                                                     )}
-                                                    {playbook.icon && (
-                                                        <div className="border-seafoam-green bg-midnight-blue flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border">
-                                                            <IconRenderer
-                                                                name={
-                                                                    playbook.icon
-                                                                }
-                                                                className="h-6 w-6 object-cover"
-                                                            />
-                                                        </div>
-                                                    )}
+                                                    {playbook.icon &&
+                                                        !playbook.logo_url && (
+                                                            <div className="border-seafoam-green bg-midnight-blue flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border">
+                                                                <IconRenderer
+                                                                    name={
+                                                                        playbook.icon
+                                                                    }
+                                                                    className="h-6 w-6 object-cover"
+                                                                />
+                                                            </div>
+                                                        )}
                                                     <span className="font-heading w-[calc(100%-55px)] text-sm tracking-[0.08em] text-white uppercase">
                                                         {playbook.title}
                                                     </span>
@@ -125,7 +131,7 @@ export default function PlaybooksIndex({
                                             </td>
                                             <td className="px-3 py-4 sm:px-6 sm:py-5">
                                                 <div className="flex flex-wrap gap-2">
-                                                    <RotatingTaxonomyBadges
+                                                    <TaxonomyList
                                                         types={
                                                             playbook.trader_types ??
                                                             playbook.traderTypes ??
@@ -156,7 +162,7 @@ export default function PlaybooksIndex({
                                                     </span>
                                                 )}
                                             </td>
-                                            <td className="hidden w-full min-w-[300px] px-6 py-5 text-white/75 md:table-cell">
+                                            <td className="hidden min-w-[230px] px-6 py-5 text-white/75 md:table-cell">
                                                 {playbook.best_for}
                                             </td>
                                             <td className="font-heading px-3 py-4 text-lg text-white sm:px-6 sm:py-5">

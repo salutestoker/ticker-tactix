@@ -10,7 +10,10 @@ use App\Models\TraderType;
 use App\Services\CatalogSpreadsheetSyncService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
@@ -39,6 +42,18 @@ class ModuleController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $this->validated($request);
+        $image = $data['image'] ?? null;
+
+        unset($data['image'], $data['remove_image']);
+
+        if (! array_key_exists('sort_order', $data) || $data['sort_order'] === null) {
+            $data['sort_order'] = $this->nextSortOrder();
+        }
+
+        if ($image instanceof UploadedFile) {
+            $data['image_path'] = $this->storeImage($image);
+        }
+
         $module = Module::create(Arr::except($data, [
             'trader_type_ids',
             'related_module_ids',
@@ -68,6 +83,18 @@ class ModuleController extends Controller
     public function update(Request $request, Module $module): RedirectResponse
     {
         $data = $this->validated($request, $module);
+        $image = $data['image'] ?? null;
+        $removeImage = (bool) ($data['remove_image'] ?? false);
+
+        unset($data['image'], $data['remove_image']);
+
+        if ($image instanceof UploadedFile) {
+            $this->deleteImage($module);
+            $data['image_path'] = $this->storeImage($image);
+        } elseif ($removeImage) {
+            $this->deleteImage($module);
+            $data['image_path'] = null;
+        }
 
         $module->update(Arr::except($data, [
             'trader_type_ids',
@@ -104,6 +131,8 @@ class ModuleController extends Controller
                 $module ? Rule::notIn([$module->id]) : 'integer',
             ],
             'icon' => ['nullable', 'string', 'max:255'],
+            'image' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'remove_image' => ['nullable', 'boolean'],
             'title' => ['required', 'string', 'max:255'],
             'slug' => ['nullable', 'string', 'max:255', Rule::unique('modules', 'slug')->ignore($module)],
             'description' => ['nullable', 'string'],
@@ -121,7 +150,7 @@ class ModuleController extends Controller
             'version' => ['nullable', 'numeric', 'min:0'],
             'access' => ['required', Rule::enum(AccessLevel::class)],
             'action_url' => ['nullable', 'url', 'max:2048'],
-            'sort_order' => ['required', 'integer', 'min:0'],
+            'sort_order' => ['nullable', 'integer', 'min:0'],
             'is_featured' => ['required', 'boolean'],
             'is_active' => ['required', 'boolean'],
             'published_at' => ['nullable', 'date'],
@@ -136,6 +165,28 @@ class ModuleController extends Controller
         $data['best_used_for'] = $this->parseLines($data['best_used_for_text'] ?? '');
 
         return $data;
+    }
+
+    public function reorder(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'ordered_ids' => ['required', 'array', 'min:1'],
+            'ordered_ids.*' => ['integer', 'distinct', 'exists:modules,id'],
+        ]);
+
+        $orderedIds = array_values(array_unique($data['ordered_ids']));
+        $modules = Module::whereKey($orderedIds)->get()->keyBy('id');
+
+        abort_if($modules->count() !== count($orderedIds), 422, 'Unable to reorder modules.');
+
+        DB::transaction(function () use ($orderedIds, $modules): void {
+            foreach ($orderedIds as $index => $id) {
+                $modules[$id]->updateQuietly(['sort_order' => $index]);
+            }
+        });
+        $this->exportCatalogSpreadsheets();
+
+        return back()->with('success', 'Module order updated.');
     }
 
     /**
@@ -176,5 +227,41 @@ class ModuleController extends Controller
     private function exportCatalogSpreadsheets(): void
     {
         app(CatalogSpreadsheetSyncService::class)->exportAll();
+    }
+
+    private function storeImage(UploadedFile $image): string
+    {
+        $path = Storage::disk($this->imageDisk())->putFile(
+            $this->imageDirectory(),
+            $image,
+        );
+
+        abort_if($path === false, 500, 'Unable to store module image.');
+
+        return $path;
+    }
+
+    private function deleteImage(Module $module): void
+    {
+        if (! $module->image_path) {
+            return;
+        }
+
+        Storage::disk($this->imageDisk())->delete($module->image_path);
+    }
+
+    private function imageDisk(): string
+    {
+        return (string) config('filesystems.module_image_disk', 'public');
+    }
+
+    private function nextSortOrder(): int
+    {
+        return ((int) Module::max('sort_order')) + 1;
+    }
+
+    private function imageDirectory(): string
+    {
+        return trim((string) config('filesystems.module_image_directory', 'module-images'), '/');
     }
 }

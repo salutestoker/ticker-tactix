@@ -11,11 +11,14 @@ gsap.registerPlugin(useGSAP);
 
 const moduleImageBase = '/design/assets/images/modules';
 const autoScrollPixelsPerSecond = 28;
-const dragActivationDistance = 12;
-const dragVelocitySmoothing = 0.35;
-const maxMomentumPixelsPerSecond = 2600;
-const minMomentumPixelsPerSecond = 18;
-const momentumDecayPerFrame = 0.94;
+const dragActivationDistance = 8;
+const dragDirectionLockDistance = 6;
+const dragHorizontalIntentRatio = 0.85;
+const dragVelocitySmoothing = 0.48;
+const momentumReleaseMultiplier = 1.35;
+const maxMomentumPixelsPerSecond = 3800;
+const minMomentumPixelsPerSecond = 22;
+const momentumDecayPerFrame = 0.955;
 
 const imageSlugs = new Set([
     'crypto-info-box',
@@ -86,6 +89,8 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
             let dragStarted = false;
             let suppressNextClick = false;
             let dragStartX = 0;
+            let dragStartY = 0;
+            let dragAxis: 'x' | 'y' | null = null;
             let dragStartTrackX = currentX;
             let dragVelocity = 0;
             let lastPointerX = 0;
@@ -138,6 +143,34 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
                 }, delay);
             };
 
+            const releasePointerCapture = (pointerId: number) => {
+                if (viewportElement.hasPointerCapture(pointerId)) {
+                    viewportElement.releasePointerCapture(pointerId);
+                }
+            };
+
+            const cancelPointerDrag = (event: PointerEvent) => {
+                pointerDown = false;
+                activePointerId = null;
+                dragStarted = false;
+                dragAxis = null;
+                dragVelocity = 0;
+                viewportElement.classList.remove('cursor-grabbing');
+                releasePointerCapture(event.pointerId);
+                releaseManualPause(200);
+            };
+
+            const isInteractiveTarget = (target: EventTarget | null) => {
+                return (
+                    target instanceof Element &&
+                    Boolean(
+                        target.closest(
+                            'a, button, input, textarea, select, label, [role="button"]',
+                        ),
+                    )
+                );
+            };
+
             const handlePointerEnter = (event: PointerEvent) => {
                 if (event.pointerType === 'mouse') {
                     hoverPaused = true;
@@ -155,12 +188,19 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
                     return;
                 }
 
+                if (isInteractiveTarget(event.target)) {
+                    suppressNextClick = false;
+                    return;
+                }
+
                 pointerDown = true;
                 dragStarted = false;
                 manualPaused = true;
                 suppressNextClick = false;
                 activePointerId = event.pointerId;
                 dragStartX = event.clientX;
+                dragStartY = event.clientY;
+                dragAxis = null;
                 dragStartTrackX = currentX;
                 dragVelocity = 0;
                 lastPointerX = event.clientX;
@@ -180,6 +220,33 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
                 }
 
                 const deltaX = event.clientX - dragStartX;
+                const deltaY = event.clientY - dragStartY;
+                const absoluteDeltaX = Math.abs(deltaX);
+                const absoluteDeltaY = Math.abs(deltaY);
+
+                if (
+                    !dragAxis &&
+                    Math.max(absoluteDeltaX, absoluteDeltaY) >=
+                        dragDirectionLockDistance
+                ) {
+                    dragAxis =
+                        absoluteDeltaX >=
+                        absoluteDeltaY * dragHorizontalIntentRatio
+                            ? 'x'
+                            : 'y';
+
+                    if (dragAxis === 'y') {
+                        cancelPointerDrag(event);
+                        return;
+                    }
+                }
+
+                if (dragAxis !== 'x') {
+                    return;
+                }
+
+                event.preventDefault();
+
                 const elapsedTime = Math.max(
                     16,
                     event.timeStamp - lastPointerTime,
@@ -196,13 +263,12 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
                 lastPointerX = event.clientX;
                 lastPointerTime = event.timeStamp;
 
-                if (!dragStarted && Math.abs(deltaX) < dragActivationDistance) {
+                if (!dragStarted && absoluteDeltaX < dragActivationDistance) {
                     return;
                 }
 
                 dragStarted = true;
                 suppressNextClick = true;
-                event.preventDefault();
                 setTrackX(dragStartTrackX + deltaX);
             };
 
@@ -213,15 +279,16 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
 
                 pointerDown = false;
                 activePointerId = null;
+                dragAxis = null;
                 viewportElement.classList.remove('cursor-grabbing');
 
-                if (viewportElement.hasPointerCapture(event.pointerId)) {
-                    viewportElement.releasePointerCapture(event.pointerId);
-                }
+                releasePointerCapture(event.pointerId);
 
                 momentumVelocity =
                     dragStarted && !reducedMotion
-                        ? clampMomentumVelocity(dragVelocity)
+                        ? clampMomentumVelocity(
+                              dragVelocity * momentumReleaseMultiplier,
+                          )
                         : 0;
                 dragVelocity = 0;
 
@@ -423,8 +490,7 @@ function ModuleCarouselCard({
         : null;
 
     return (
-        <Link
-            href={route('modules.show', module.slug)}
+        <div
             draggable={false}
             tabIndex={inert ? -1 : undefined}
             className="group border-main-blue/45 to-panel-deep hover:border-seafoam-green/70 focus-visible:ring-seafoam-green/70 flex h-[30rem] w-[min(82vw,23.5rem)] shrink-0 cursor-grab flex-col overflow-hidden rounded-[14px] border bg-gradient-to-b from-[#0e1f4b] p-5 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_0_24px_rgba(55,100,245,0.16)] transition hover:-translate-y-1 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.09),0_0_30px_rgba(0,250,146,0.15)] focus-visible:ring-2 focus-visible:outline-none active:cursor-grabbing"
@@ -435,13 +501,16 @@ function ModuleCarouselCard({
                         Module
                     </p>
                     <h3 className="font-heading mt-3 mb-3 text-2xl leading-[1.05] font-semibold tracking-[0.01em] text-white">
-                        {module.title}
+                        {module.title}&nbsp;
+                        <span className="font-heading text-seafoam-green ml-auto text-xs">
+                            {formatVersion(module.version)}
+                        </span>
                     </h3>
-                    <p className="text-sm leading-6 text-white">
+                    <p className="min-w-[260px] text-sm leading-6 text-white">
                         {module.description}
                     </p>
                 </div>
-                <div className="absolute top-[-10px] right-[-16px] h-35 w-35">
+                <div className="absolute top-[-25px] right-[-16px] h-24 w-24">
                     {iconSrc ? (
                         <img
                             className="h-full w-full object-contain mix-blend-lighten transition duration-300 group-hover:scale-105"
@@ -451,17 +520,17 @@ function ModuleCarouselCard({
                             loading="lazy"
                         />
                     ) : (
-                        <div className="border-main-blue/45 bg-main-blue/10 text-seafoam-green flex h-20 w-20 items-center justify-center rounded-[14px] border">
+                        <div className="border-main-blue/45 bg-main-blue/10 text-seafoam-green flex h-18 w-18 items-center justify-center rounded-[14px] border">
                             <IconRenderer
                                 name={module.icon}
-                                className="h-12 w-12"
+                                className="h-10 w-10"
                             />
                         </div>
                     )}
                 </div>
             </div>
 
-            <div className="mt-4 flex items-center gap-3">
+            <div className="mt-4 flex gap-3">
                 <div>
                     {module.market ? (
                         <TaxonomyBadge
@@ -473,9 +542,6 @@ function ModuleCarouselCard({
                     )}
                 </div>
                 <AccessBadge access={module.access} showIcon />
-                <span className="font-heading text-seafoam-green ml-auto text-sm">
-                    {formatVersion(module.version)}
-                </span>
             </div>
 
             <div className="mt-4 flex max-h-30 items-center rounded-lg mix-blend-lighten">
@@ -492,14 +558,17 @@ function ModuleCarouselCard({
                 )}
             </div>
 
-            <div className="text-seafoam-green font-heading mt-auto flex items-center gap-2 pt-4 text-sm font-medium uppercase">
-                <span>Explore Module</span>
+            <Link
+                href={route('modules.show', module.slug)}
+                className="text-seafoam-green font-heading mt-auto flex items-center gap-2 pt-4 text-sm font-medium uppercase"
+            >
+                Explore Module
                 <IconRenderer
                     name="chevron-right"
                     className="h-4 w-4 transition group-hover:translate-x-1"
                 />
-            </div>
-        </Link>
+            </Link>
+        </div>
     );
 }
 
