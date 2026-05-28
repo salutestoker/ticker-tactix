@@ -160,6 +160,17 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
                 releaseManualPause(200);
             };
 
+            const isInteractiveTarget = (target: EventTarget | null) => {
+                return (
+                    target instanceof Element &&
+                    Boolean(
+                        target.closest(
+                            'a, button, input, textarea, select, label, [role="button"]',
+                        ),
+                    )
+                );
+            };
+
             const handlePointerEnter = (event: PointerEvent) => {
                 if (event.pointerType === 'mouse') {
                     hoverPaused = true;
@@ -174,6 +185,11 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
 
             const handlePointerDown = (event: PointerEvent) => {
                 if (event.pointerType === 'mouse' && event.button !== 0) {
+                    return;
+                }
+
+                if (isInteractiveTarget(event.target)) {
+                    suppressNextClick = false;
                     return;
                 }
 
@@ -494,7 +510,7 @@ function ModuleCarouselCard({
                         {module.description}
                     </p>
                 </div>
-                <div className="absolute top-[-30px] right-[-16px] h-24 w-24 sm:h-35 sm:w-35">
+                <div className="absolute top-[-25px] right-[-16px] h-24 w-24">
                     {iconSrc ? (
                         <img
                             className="h-full w-full object-contain mix-blend-lighten transition duration-300 group-hover:scale-105"
@@ -504,10 +520,10 @@ function ModuleCarouselCard({
                             loading="lazy"
                         />
                     ) : (
-                        <div className="border-main-blue/45 bg-main-blue/10 text-seafoam-green flex h-20 w-20 items-center justify-center rounded-[14px] border">
+                        <div className="border-main-blue/45 bg-main-blue/10 text-seafoam-green flex h-18 w-18 items-center justify-center rounded-[14px] border">
                             <IconRenderer
                                 name={module.icon}
-                                className="h-12 w-12"
+                                className="h-10 w-10"
                             />
                         </div>
                     )}
@@ -542,15 +558,16 @@ function ModuleCarouselCard({
                 )}
             </div>
 
-            <div className="text-seafoam-green font-heading mt-auto flex items-center gap-2 pt-4 text-sm font-medium uppercase">
-                <Link href={route('modules.show', module.slug)}>
-                    Explore Module
-                </Link>
+            <Link
+                href={route('modules.show', module.slug)}
+                className="text-seafoam-green font-heading mt-auto flex items-center gap-2 pt-4 text-sm font-medium uppercase"
+            >
+                Explore Module
                 <IconRenderer
                     name="chevron-right"
                     className="h-4 w-4 transition group-hover:translate-x-1"
                 />
-            </div>
+            </Link>
         </div>
     );
 }
