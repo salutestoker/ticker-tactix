@@ -143,10 +143,6 @@ export default function TraderTypesShow({ traderType }: Props) {
                                         label="Published Playbooks"
                                         value={String(playbooks.length)}
                                     />
-                                    <Meta
-                                        label="System Role"
-                                        value="Trader path"
-                                    />
                                 </dl>
                             </HudPanel>
                         </aside>
