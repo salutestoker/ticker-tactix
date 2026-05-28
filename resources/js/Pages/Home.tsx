@@ -18,7 +18,7 @@ export default function Home({ modules, traderTypes }: Props) {
     return (
         <PublicLayout>
             <Head title="Ticker-Tactix" />
-            <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-[165vh] overflow-hidden">
+            <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-[165vh] min-h-[1600px] overflow-hidden">
                 <img
                     className="absolute top-[15vh] left-1/2 min-h-[80vw] w-[clamp(800px,100vw,2100px)] max-w-none -translate-x-1/2 opacity-30"
                     src="/design/assets/images/bg-abduction.png"
