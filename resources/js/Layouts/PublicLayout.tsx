@@ -247,6 +247,16 @@ function Footer() {
             ],
         },
     ];
+    const mobileFooterColumnGroups = [
+        [footerColumns[0], footerColumns[2]],
+        [footerColumns[1], footerColumns[3]],
+    ];
+    const desktopFooterColumnOrder: Record<string, string> = {
+        System: 'md:order-1',
+        Resources: 'md:order-2',
+        Community: 'md:order-3',
+        Legal: 'md:order-4',
+    };
 
     return (
         <footer className="bg-main-blue-bright relative overflow-hidden text-white">
@@ -271,12 +281,22 @@ function Footer() {
                 {/*    alt="Ticker Tactix"*/}
                 {/*/>*/}
                 <div className="grid grid-cols-2 gap-x-6 gap-y-10 border-y border-white/15 py-10 text-left text-sm text-white/75 md:grid-cols-4 md:text-center">
-                    {footerColumns.map((column) => (
-                        <FooterColumn
-                            key={column.title}
-                            title={column.title}
-                            links={column.links}
-                        />
+                    {mobileFooterColumnGroups.map((columnGroup) => (
+                        <div
+                            key={columnGroup.map((column) => column.title).join('-')}
+                            className="space-y-10 md:contents"
+                        >
+                            {columnGroup.map((column) => (
+                                <FooterColumn
+                                    key={column.title}
+                                    title={column.title}
+                                    links={column.links}
+                                    className={
+                                        desktopFooterColumnOrder[column.title]
+                                    }
+                                />
+                            ))}
+                        </div>
                     ))}
                 </div>
                 <p className="font-heading mt-10 text-xs tracking-[0.35em] text-white/70 uppercase">
@@ -309,9 +329,13 @@ type FooterColumnData = {
     links: FooterLink[];
 };
 
-function FooterColumn({ title, links }: FooterColumnData) {
+function FooterColumn({
+    title,
+    links,
+    className = '',
+}: FooterColumnData & { className?: string }) {
     return (
-        <div>
+        <div className={className}>
             <h3 className="font-heading text-seafoam-green text-xs tracking-[0.22em] uppercase">
                 {title}
             </h3>
