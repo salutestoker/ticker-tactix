@@ -11,11 +11,14 @@ gsap.registerPlugin(useGSAP);
 
 const moduleImageBase = '/design/assets/images/modules';
 const autoScrollPixelsPerSecond = 28;
-const dragActivationDistance = 12;
-const dragVelocitySmoothing = 0.35;
-const maxMomentumPixelsPerSecond = 2600;
-const minMomentumPixelsPerSecond = 18;
-const momentumDecayPerFrame = 0.94;
+const dragActivationDistance = 8;
+const dragDirectionLockDistance = 6;
+const dragHorizontalIntentRatio = 0.85;
+const dragVelocitySmoothing = 0.48;
+const momentumReleaseMultiplier = 1.35;
+const maxMomentumPixelsPerSecond = 3800;
+const minMomentumPixelsPerSecond = 22;
+const momentumDecayPerFrame = 0.955;
 
 const imageSlugs = new Set([
     'crypto-info-box',
@@ -86,6 +89,8 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
             let dragStarted = false;
             let suppressNextClick = false;
             let dragStartX = 0;
+            let dragStartY = 0;
+            let dragAxis: 'x' | 'y' | null = null;
             let dragStartTrackX = currentX;
             let dragVelocity = 0;
             let lastPointerX = 0;
@@ -138,6 +143,23 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
                 }, delay);
             };
 
+            const releasePointerCapture = (pointerId: number) => {
+                if (viewportElement.hasPointerCapture(pointerId)) {
+                    viewportElement.releasePointerCapture(pointerId);
+                }
+            };
+
+            const cancelPointerDrag = (event: PointerEvent) => {
+                pointerDown = false;
+                activePointerId = null;
+                dragStarted = false;
+                dragAxis = null;
+                dragVelocity = 0;
+                viewportElement.classList.remove('cursor-grabbing');
+                releasePointerCapture(event.pointerId);
+                releaseManualPause(200);
+            };
+
             const handlePointerEnter = (event: PointerEvent) => {
                 if (event.pointerType === 'mouse') {
                     hoverPaused = true;
@@ -161,6 +183,8 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
                 suppressNextClick = false;
                 activePointerId = event.pointerId;
                 dragStartX = event.clientX;
+                dragStartY = event.clientY;
+                dragAxis = null;
                 dragStartTrackX = currentX;
                 dragVelocity = 0;
                 lastPointerX = event.clientX;
@@ -180,6 +204,33 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
                 }
 
                 const deltaX = event.clientX - dragStartX;
+                const deltaY = event.clientY - dragStartY;
+                const absoluteDeltaX = Math.abs(deltaX);
+                const absoluteDeltaY = Math.abs(deltaY);
+
+                if (
+                    !dragAxis &&
+                    Math.max(absoluteDeltaX, absoluteDeltaY) >=
+                        dragDirectionLockDistance
+                ) {
+                    dragAxis =
+                        absoluteDeltaX >=
+                        absoluteDeltaY * dragHorizontalIntentRatio
+                            ? 'x'
+                            : 'y';
+
+                    if (dragAxis === 'y') {
+                        cancelPointerDrag(event);
+                        return;
+                    }
+                }
+
+                if (dragAxis !== 'x') {
+                    return;
+                }
+
+                event.preventDefault();
+
                 const elapsedTime = Math.max(
                     16,
                     event.timeStamp - lastPointerTime,
@@ -196,13 +247,12 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
                 lastPointerX = event.clientX;
                 lastPointerTime = event.timeStamp;
 
-                if (!dragStarted && Math.abs(deltaX) < dragActivationDistance) {
+                if (!dragStarted && absoluteDeltaX < dragActivationDistance) {
                     return;
                 }
 
                 dragStarted = true;
                 suppressNextClick = true;
-                event.preventDefault();
                 setTrackX(dragStartTrackX + deltaX);
             };
 
@@ -213,15 +263,16 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
 
                 pointerDown = false;
                 activePointerId = null;
+                dragAxis = null;
                 viewportElement.classList.remove('cursor-grabbing');
 
-                if (viewportElement.hasPointerCapture(event.pointerId)) {
-                    viewportElement.releasePointerCapture(event.pointerId);
-                }
+                releasePointerCapture(event.pointerId);
 
                 momentumVelocity =
                     dragStarted && !reducedMotion
-                        ? clampMomentumVelocity(dragVelocity)
+                        ? clampMomentumVelocity(
+                              dragVelocity * momentumReleaseMultiplier,
+                          )
                         : 0;
                 dragVelocity = 0;
 
@@ -439,11 +490,11 @@ function ModuleCarouselCard({
                             {formatVersion(module.version)}
                         </span>
                     </h3>
-                    <p className="text-sm leading-6 text-white">
+                    <p className="min-w-[260px] text-sm leading-6 text-white">
                         {module.description}
                     </p>
                 </div>
-                <div className="absolute top-[-10px] right-[-16px] h-35 w-35">
+                <div className="absolute top-[-30px] right-[-16px] h-24 w-24 sm:h-35 sm:w-35">
                     {iconSrc ? (
                         <img
                             className="h-full w-full object-contain mix-blend-lighten transition duration-300 group-hover:scale-105"
