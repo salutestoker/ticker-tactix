@@ -19,7 +19,7 @@ export default function Home({ modules, traderTypes }: Props) {
         <PublicLayout>
             <Head title="Ticker-Tactix" />
             <img
-                className="absolute top-[15%] left-1/2 z-10 min-h-[80vw] w-[min(100vw,2100px)] max-w-none -translate-x-1/2 opacity-30"
+                className="absolute top-[15%] left-1/2 z-10 min-h-[80vw] w-[min(800px,2100px)] max-w-none -translate-x-1/2 opacity-30"
                 src="/design/assets/images/bg-abduction.png"
                 alt=""
             />
@@ -87,7 +87,7 @@ export default function Home({ modules, traderTypes }: Props) {
             >
                 <div>
                     <div>
-                        <div className="mt-30">
+                        <div className="mt-15 sm:mt-30">
                             <Eyebrow>Get Started</Eyebrow>
                             <h1 className="font-heading text-center text-4xl leading-none font-semibold uppercase sm:text-5xl lg:text-6xl">
                                 <span className="text-violet">
