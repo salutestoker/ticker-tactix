@@ -1,5 +1,6 @@
 import '../css/app.css';
 
+import PageLoader from '@/Components/UI/PageLoader';
 import { createInertiaApp, type ResolvedComponent } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
@@ -22,7 +23,12 @@ createInertiaApp({
     setup({ el, App, props }) {
         const root = createRoot(el);
 
-        root.render(<App {...props} />);
+        root.render(
+            <>
+                <PageLoader />
+                <App {...props} />
+            </>,
+        );
     },
     progress: {
         color: '#00fa92',

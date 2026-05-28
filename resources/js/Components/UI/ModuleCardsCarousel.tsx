@@ -423,8 +423,7 @@ function ModuleCarouselCard({
         : null;
 
     return (
-        <Link
-            href={route('modules.show', module.slug)}
+        <div
             draggable={false}
             tabIndex={inert ? -1 : undefined}
             className="group border-main-blue/45 to-panel-deep hover:border-seafoam-green/70 focus-visible:ring-seafoam-green/70 flex h-[30rem] w-[min(82vw,23.5rem)] shrink-0 cursor-grab flex-col overflow-hidden rounded-[14px] border bg-gradient-to-b from-[#0e1f4b] p-5 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_0_24px_rgba(55,100,245,0.16)] transition hover:-translate-y-1 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.09),0_0_30px_rgba(0,250,146,0.15)] focus-visible:ring-2 focus-visible:outline-none active:cursor-grabbing"
@@ -435,7 +434,10 @@ function ModuleCarouselCard({
                         Module
                     </p>
                     <h3 className="font-heading mt-3 mb-3 text-2xl leading-[1.05] font-semibold tracking-[0.01em] text-white">
-                        {module.title}
+                        {module.title}&nbsp;
+                        <span className="font-heading text-seafoam-green ml-auto text-xs">
+                            {formatVersion(module.version)}
+                        </span>
                     </h3>
                     <p className="text-sm leading-6 text-white">
                         {module.description}
@@ -461,7 +463,7 @@ function ModuleCarouselCard({
                 </div>
             </div>
 
-            <div className="mt-4 flex items-center gap-3">
+            <div className="mt-4 flex gap-3">
                 <div>
                     {module.market ? (
                         <TaxonomyBadge
@@ -473,9 +475,6 @@ function ModuleCarouselCard({
                     )}
                 </div>
                 <AccessBadge access={module.access} showIcon />
-                <span className="font-heading text-seafoam-green ml-auto text-sm">
-                    {formatVersion(module.version)}
-                </span>
             </div>
 
             <div className="mt-4 flex max-h-30 items-center rounded-lg mix-blend-lighten">
@@ -493,13 +492,15 @@ function ModuleCarouselCard({
             </div>
 
             <div className="text-seafoam-green font-heading mt-auto flex items-center gap-2 pt-4 text-sm font-medium uppercase">
-                <span>Explore Module</span>
+                <Link href={route('modules.show', module.slug)}>
+                    Explore Module
+                </Link>
                 <IconRenderer
                     name="chevron-right"
                     className="h-4 w-4 transition group-hover:translate-x-1"
                 />
             </div>
-        </Link>
+        </div>
     );
 }
 

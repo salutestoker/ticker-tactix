@@ -22,6 +22,7 @@ export default function Home({ modules, traderTypes }: Props) {
                 src="/design/assets/images/bg-abduction.png"
                 alt=""
             />
+
             <section className="relative min-h-screen overflow-hidden px-6">
                 <div className="absolute inset-0 h-[52vw] opacity-90 md:h-[30vw]">
                     <video
@@ -32,6 +33,7 @@ export default function Home({ modules, traderTypes }: Props) {
                         playsInline
                         preload="metadata"
                         aria-hidden="true"
+                        poster="/design/assets/images/hero-video-poster.jpg"
                     >
                         <source
                             src="/design/assets/videos/compressed/bg-hero-loop.mp4"
