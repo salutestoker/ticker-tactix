@@ -6,12 +6,23 @@ import {
     HudPanel,
     TaxonomyBadge,
 } from '@/Components/UI/Hud';
+import { MobilePurchaseHud } from '@/Components/UI/MobilePurchaseHud';
 import { PublicHeroFrame } from '@/Components/UI/PublicHero';
 import PublicLayout from '@/Layouts/PublicLayout';
 import type { Playbook } from '@/types';
 import { Head } from '@inertiajs/react';
 
 export default function PlaybooksShow({ playbook }: { playbook: Playbook }) {
+    const actionChildren =
+        playbook.slug === 'sigma-pro-engine' ? (
+            <>
+                Explore{' '}
+                <IconRenderer name="chevron-right" className="h-5 w-5" />
+            </>
+        ) : (
+            'Subscribe'
+        );
+
     return (
         <PublicLayout>
             <Head title={playbook.meta_title || playbook.title} />
@@ -25,6 +36,11 @@ export default function PlaybooksShow({ playbook }: { playbook: Playbook }) {
                         <ParagraphCopy
                             className="mt-8 space-y-6"
                             text={playbook.best_for ?? ''}
+                        />
+                        <MobilePurchaseHud
+                            price={playbook.price}
+                            actionUrl={playbook.action_url}
+                            actionChildren={actionChildren}
                         />
                         <HudPanel className="mt-10 p-8">
                             <h2 className="font-heading text-seafoam-green text-xl tracking-[0.14em] uppercase">
@@ -76,44 +92,48 @@ export default function PlaybooksShow({ playbook }: { playbook: Playbook }) {
                             />
 
                             <Meta label="Access" value="Subscription" />
-                            <Meta label="Price" value={playbook.price} />
+                            <div className="max-md:hidden">
+                                <Meta label="Price" value={playbook.price} />
+                            </div>
                         </dl>
-                        {playbook.slug !== 'sigma-pro-engine' &&
-                            (playbook.action_url ? (
-                                <HudButton
-                                    href={playbook.action_url}
-                                    external
-                                    className="mt-8 w-full"
-                                    variant="solid"
-                                >
-                                    Subscribe
-                                </HudButton>
-                            ) : (
-                                <HudButton
-                                    type="button"
-                                    disabled
-                                    className="mt-8 w-full"
-                                    variant="solid"
-                                >
-                                    Coming Soon
-                                </HudButton>
-                            ))}
+                        <div className="max-md:hidden">
+                            {playbook.slug !== 'sigma-pro-engine' &&
+                                (playbook.action_url ? (
+                                    <HudButton
+                                        href={playbook.action_url}
+                                        external
+                                        className="mt-8 w-full"
+                                        variant="solid"
+                                    >
+                                        Subscribe
+                                    </HudButton>
+                                ) : (
+                                    <HudButton
+                                        type="button"
+                                        disabled
+                                        className="mt-8 w-full"
+                                        variant="solid"
+                                    >
+                                        Coming Soon
+                                    </HudButton>
+                                ))}
 
-                        {playbook.slug === 'sigma-pro-engine' &&
-                            playbook.action_url && (
-                                <HudButton
-                                    href={playbook.action_url}
-                                    external
-                                    className="mt-8 w-full"
-                                    variant="solid"
-                                >
-                                    Explore{' '}
-                                    <IconRenderer
-                                        name="chevron-right"
-                                        className={`h-5 w-5`}
-                                    />
-                                </HudButton>
-                            )}
+                            {playbook.slug === 'sigma-pro-engine' &&
+                                playbook.action_url && (
+                                    <HudButton
+                                        href={playbook.action_url}
+                                        external
+                                        className="mt-8 w-full"
+                                        variant="solid"
+                                    >
+                                        Explore{' '}
+                                        <IconRenderer
+                                            name="chevron-right"
+                                            className="h-5 w-5"
+                                        />
+                                    </HudButton>
+                                )}
+                        </div>
                     </HudPanel>
                 </div>
             </PublicHeroFrame>

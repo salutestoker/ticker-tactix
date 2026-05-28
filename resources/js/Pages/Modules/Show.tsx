@@ -6,6 +6,7 @@ import {
     HudPanel,
     TaxonomyBadge,
 } from '@/Components/UI/Hud';
+import { MobilePurchaseHud } from '@/Components/UI/MobilePurchaseHud';
 import { PublicHeroFrame } from '@/Components/UI/PublicHero';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { formatVersion } from '@/lib/format';
@@ -59,6 +60,11 @@ export default function ModulesShow({
                             <p className="mt-4 max-w-3xl text-lg leading-7 text-white/76 sm:text-xl sm:leading-8">
                                 {module.description}
                             </p>
+
+                            <MobilePurchaseHud
+                                price={module.price}
+                                actionUrl={module.action_url}
+                            />
 
                             <HudPanel className="mt-8 overflow-hidden rounded-[14px]">
                                 <DetailRow
@@ -206,34 +212,38 @@ export default function ModulesShow({
                                         value={module.access}
                                         tone="green"
                                     />
-                                    <SidebarMeta
-                                        icon="market-data-bars"
-                                        label="Price"
-                                        value={module.price}
-                                        tone="green"
-                                        valueClassName="font-heading text-xl text-white"
-                                    />
+                                    <div className="max-md:hidden">
+                                        <SidebarMeta
+                                            icon="market-data-bars"
+                                            label="Price"
+                                            value={module.price}
+                                            tone="green"
+                                            valueClassName="font-heading text-xl text-white"
+                                        />
+                                    </div>
                                 </dl>
 
-                                {module.action_url ? (
-                                    <HudButton
-                                        href={module.action_url}
-                                        external
-                                        className="mt-8 w-full rounded-[14px]"
-                                        variant="solid"
-                                    >
-                                        Subscribe
-                                    </HudButton>
-                                ) : (
-                                    <HudButton
-                                        type="button"
-                                        disabled
-                                        className="mt-8 w-full rounded-[14px]"
-                                        variant="solid"
-                                    >
-                                        Coming Soon
-                                    </HudButton>
-                                )}
+                                <div className="max-md:hidden">
+                                    {module.action_url ? (
+                                        <HudButton
+                                            href={module.action_url}
+                                            external
+                                            className="mt-8 w-full rounded-[14px]"
+                                            variant="solid"
+                                        >
+                                            Subscribe
+                                        </HudButton>
+                                    ) : (
+                                        <HudButton
+                                            type="button"
+                                            disabled
+                                            className="mt-8 w-full rounded-[14px]"
+                                            variant="solid"
+                                        >
+                                            Coming Soon
+                                        </HudButton>
+                                    )}
+                                </div>
                             </HudPanel>
                         </aside>
                     </div>
