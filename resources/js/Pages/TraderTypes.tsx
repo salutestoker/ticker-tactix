@@ -1,4 +1,4 @@
-import TraderFitSection from '@/Components/TraderFit/TraderFitSection';
+import TraderFitButton from '@/Components/TraderFit/TraderFitButton';
 import { Eyebrow, HudPanel } from '@/Components/UI/Hud';
 import { PublicHeroFrame } from '@/Components/UI/PublicHero';
 import {
@@ -57,13 +57,14 @@ export default function TraderTypes({ traderTypes }: TraderTypesProps) {
                         Find the Ticker-Tactix framework that fits how you
                         trade.
                     </p>
+                    <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
+                        <TraderFitButton />
+                    </div>
                 </div>
 
                 <div className="relative z-20 pt-20">
                     <TraderTypeLegend />
                 </div>
-
-                <TraderFitSection className="mt-10" />
 
                 <div className="mx-auto my-20 grid max-w-6xl gap-6 md:grid-cols-3">
                     {traderTypeGuide.map(({ title, copy, tone }) => (
