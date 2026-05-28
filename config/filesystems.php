@@ -88,6 +88,20 @@ return [
             'report' => false,
         ],
 
+        'catalog_spreadsheets' => [
+            'driver' => 's3',
+            'key' => env('CATALOG_SPREADSHEET_AWS_ACCESS_KEY_ID') ?: env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('CATALOG_SPREADSHEET_AWS_SECRET_ACCESS_KEY') ?: env('AWS_SECRET_ACCESS_KEY'),
+            'region' => env('CATALOG_SPREADSHEET_AWS_DEFAULT_REGION') ?: env('CATALOG_SPREADSHEET_AWS_REGION') ?: env('AWS_DEFAULT_REGION') ?: env('AWS_REGION') ?: 'auto',
+            'bucket' => env('CATALOG_SPREADSHEET_AWS_BUCKET') ?: env('AWS_BUCKET'),
+            'url' => env('CATALOG_SPREADSHEET_AWS_URL') ?: env('AWS_URL'),
+            'endpoint' => env('CATALOG_SPREADSHEET_AWS_ENDPOINT') ?: env('AWS_ENDPOINT'),
+            'use_path_style_endpoint' => env('CATALOG_SPREADSHEET_AWS_USE_PATH_STYLE_ENDPOINT', env('AWS_USE_PATH_STYLE_ENDPOINT', false)),
+            'visibility' => 'private',
+            'throw' => true,
+            'report' => false,
+        ],
+
     ],
 
     /*

@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use RuntimeException;
 
@@ -41,6 +42,7 @@ class CatalogSpreadsheetSyncService
         'trader_type_slugs',
         'related_module_slugs',
         'icon',
+        'image_path',
         'title',
         'slug',
         'description',
@@ -76,6 +78,7 @@ class CatalogSpreadsheetSyncService
         'slug',
         'access',
         'best_for',
+        'long_description',
         'trading_pace',
         'average_hold_time',
         'price',
@@ -175,6 +178,7 @@ class CatalogSpreadsheetSyncService
             'trader_type_slugs' => $this->formatSlugs($module->traderTypes),
             'related_module_slugs' => $this->formatSlugs($module->relatedModules),
             'icon' => $module->icon,
+            'image_path' => $module->image_path,
             'title' => $module->title,
             'slug' => $module->slug,
             'description' => $module->description,
@@ -217,6 +221,7 @@ class CatalogSpreadsheetSyncService
             'slug' => $playbook->slug,
             'access' => $this->accessValue($playbook->access),
             'best_for' => $playbook->best_for,
+            'long_description' => $playbook->long_description,
             'trading_pace' => $playbook->trading_pace,
             'average_hold_time' => $playbook->average_hold_time,
             'price' => $playbook->price,
@@ -268,6 +273,7 @@ class CatalogSpreadsheetSyncService
             $module->fill([
                 'market_id' => $this->marketId($row['market_slug']),
                 'icon' => $this->nullableString($row['icon']),
+                'image_path' => $this->nullableString($row['image_path']),
                 'title' => $this->requiredString($row['title'], 'modules.title'),
                 'slug' => $this->slug($row['slug'], $row['title']),
                 'description' => $this->nullableString($row['description']),
@@ -326,6 +332,7 @@ class CatalogSpreadsheetSyncService
                 'slug' => $this->slug($row['slug'], $row['title']),
                 'access' => $this->validatedAccess($row['access']),
                 'best_for' => $this->nullableString($row['best_for']),
+                'long_description' => $this->nullableString($row['long_description']),
                 'trading_pace' => $this->nullableString($row['trading_pace']),
                 'average_hold_time' => $this->nullableString($row['average_hold_time']),
                 'price' => $this->nullableString($row['price']),
@@ -356,8 +363,7 @@ class CatalogSpreadsheetSyncService
     {
         $this->ensureDirectory();
 
-        $path = $this->path($filename);
-        $handle = fopen($path, 'wb');
+        $handle = fopen('php://temp', 'r+');
 
         if ($handle === false) {
             throw new RuntimeException("Unable to open {$filename} for writing.");
@@ -372,7 +378,22 @@ class CatalogSpreadsheetSyncService
             ));
         }
 
+        rewind($handle);
+        $contents = stream_get_contents($handle);
         fclose($handle);
+
+        if ($contents === false) {
+            throw new RuntimeException("Unable to read generated CSV contents for {$filename}.");
+        }
+
+        if ($this->usesStorageDisk()) {
+            $this->spreadsheetDisk()->put($this->storagePath($filename), $contents);
+
+            return;
+        }
+
+        $path = $this->path($filename);
+        File::put($path, $contents);
         @chmod($path, 0640);
     }
 
@@ -381,13 +402,7 @@ class CatalogSpreadsheetSyncService
      */
     private function readCsv(string $filename, array $requiredHeaders): array
     {
-        $path = $this->path($filename);
-
-        if (! is_file($path)) {
-            throw new RuntimeException("Missing spreadsheet file: {$path}");
-        }
-
-        $handle = fopen($path, 'rb');
+        $handle = $this->readCsvHandle($filename);
 
         if ($handle === false) {
             throw new RuntimeException("Unable to open {$filename} for reading.");
@@ -697,6 +712,10 @@ class CatalogSpreadsheetSyncService
 
     private function ensureDirectory(): void
     {
+        if ($this->usesStorageDisk()) {
+            return;
+        }
+
         File::ensureDirectoryExists($this->directory(), 0750);
         @chmod($this->directory(), 0750);
     }
@@ -723,9 +742,9 @@ class CatalogSpreadsheetSyncService
     private function currentHashes(): array
     {
         return [
-            'trader_types' => is_file($this->path(self::TRADER_TYPES_FILE)) ? hash_file('sha256', $this->path(self::TRADER_TYPES_FILE)) : null,
-            'modules' => is_file($this->path(self::MODULES_FILE)) ? hash_file('sha256', $this->path(self::MODULES_FILE)) : null,
-            'playbooks' => is_file($this->path(self::PLAYBOOKS_FILE)) ? hash_file('sha256', $this->path(self::PLAYBOOKS_FILE)) : null,
+            'trader_types' => $this->fileHash(self::TRADER_TYPES_FILE),
+            'modules' => $this->fileHash(self::MODULES_FILE),
+            'playbooks' => $this->fileHash(self::PLAYBOOKS_FILE),
         ];
     }
 
@@ -734,17 +753,15 @@ class CatalogSpreadsheetSyncService
      */
     private function rememberedHashes(): array
     {
-        $path = storage_path('app/'.self::STATE_FILE);
+        $state = $this->readState();
 
-        if (! is_file($path)) {
+        if (! is_array($state)) {
             return [
                 'trader_types' => null,
                 'modules' => null,
                 'playbooks' => null,
             ];
         }
-
-        $state = json_decode((string) file_get_contents($path), true);
 
         return [
             'trader_types' => $state['hashes']['trader_types'] ?? null,
@@ -755,12 +772,135 @@ class CatalogSpreadsheetSyncService
 
     private function rememberCurrentHashes(): void
     {
-        $path = storage_path('app/'.self::STATE_FILE);
-
-        File::put($path, json_encode([
+        $contents = json_encode([
             'synced_at' => now()->toIso8601String(),
             'hashes' => $this->currentHashes(),
-        ], JSON_PRETTY_PRINT));
+        ], JSON_PRETTY_PRINT);
+
+        if ($contents === false) {
+            throw new RuntimeException('Unable to encode spreadsheet sync state.');
+        }
+
+        if ($this->usesStorageDisk()) {
+            $this->spreadsheetDisk()->put($this->storagePath(self::STATE_FILE), $contents);
+
+            return;
+        }
+
+        $path = storage_path('app/'.self::STATE_FILE);
+
+        File::put($path, $contents);
         @chmod($path, 0640);
+    }
+
+    /**
+     * @return resource|false
+     */
+    private function readCsvHandle(string $filename): mixed
+    {
+        if (! $this->usesStorageDisk()) {
+            $path = $this->path($filename);
+
+            if (! is_file($path)) {
+                throw new RuntimeException("Missing spreadsheet file: {$path}");
+            }
+
+            return fopen($path, 'rb');
+        }
+
+        $path = $this->storagePath($filename);
+        $disk = $this->spreadsheetDisk();
+
+        if (! $disk->exists($path)) {
+            throw new RuntimeException("Missing spreadsheet file: {$path}");
+        }
+
+        $contents = $disk->get($path);
+
+        if (! is_string($contents)) {
+            throw new RuntimeException("Unable to read {$filename} from the spreadsheet disk.");
+        }
+
+        $handle = fopen('php://temp', 'r+');
+
+        if ($handle === false) {
+            return false;
+        }
+
+        fwrite($handle, $contents);
+        rewind($handle);
+
+        return $handle;
+    }
+
+    private function fileHash(string $filename): ?string
+    {
+        if (! $this->usesStorageDisk()) {
+            return is_file($this->path($filename)) ? hash_file('sha256', $this->path($filename)) : null;
+        }
+
+        $path = $this->storagePath($filename);
+        $disk = $this->spreadsheetDisk();
+
+        if (! $disk->exists($path)) {
+            return null;
+        }
+
+        $contents = $disk->get($path);
+
+        return is_string($contents) ? hash('sha256', $contents) : null;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function readState(): ?array
+    {
+        if (! $this->usesStorageDisk()) {
+            $path = storage_path('app/'.self::STATE_FILE);
+
+            if (! is_file($path)) {
+                return null;
+            }
+
+            $contents = file_get_contents($path);
+        } else {
+            $path = $this->storagePath(self::STATE_FILE);
+            $disk = $this->spreadsheetDisk();
+
+            if (! $disk->exists($path)) {
+                return null;
+            }
+
+            $contents = $disk->get($path);
+        }
+
+        if (! is_string($contents)) {
+            return null;
+        }
+
+        $state = json_decode($contents, true);
+
+        return is_array($state) ? $state : null;
+    }
+
+    private function usesStorageDisk(): bool
+    {
+        return filled(config('catalog.spreadsheet_disk'));
+    }
+
+    private function spreadsheetDisk(): \Illuminate\Contracts\Filesystem\Filesystem
+    {
+        return Storage::disk((string) config('catalog.spreadsheet_disk'));
+    }
+
+    private function storagePath(string $filename): string
+    {
+        return collect([
+            trim((string) config('catalog.spreadsheet_directory', 'spreadsheets'), '/'),
+            $filename,
+        ])
+            ->filter()
+            ->implode('/');
     }
 }
