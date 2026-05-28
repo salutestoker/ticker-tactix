@@ -41,7 +41,16 @@ export default function PlaybooksIndex({
                         Use the matrix below to compare playbooks by market,
                         access type, trader profile, and deployment style.
                     </p>
-                    <HudPanel className="mt-12 overflow-hidden">
+                    <div className="mt-12 grid gap-4 md:grid-cols-2 lg:hidden">
+                        {playbooks.map((playbook) => (
+                            <PlaybookCard
+                                key={playbook.id}
+                                playbook={playbook}
+                            />
+                        ))}
+                    </div>
+
+                    <HudPanel className="mt-12 hidden overflow-hidden lg:block">
                         <div className="overflow-x-auto">
                             <table className="min-w-full text-left text-sm">
                                 <thead className="font-heading text-seafoam-green text-xs tracking-[0.14em] uppercase">
@@ -186,6 +195,90 @@ export default function PlaybooksIndex({
                 </div>
             </PublicHeroFrame>
         </PublicLayout>
+    );
+}
+
+function PlaybookCard({ playbook }: { playbook: Playbook }) {
+    return (
+        <div className="group border-main-blue/45 to-panel-deep hover:border-violet-light/70 focus-visible:ring-seafoam-green/70 flex h-[30rem] w-full flex-col overflow-hidden rounded-[14px] border bg-gradient-to-b from-[#0e1f4b] p-5 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_0_24px_rgba(55,100,245,0.16)] transition hover:-translate-y-1 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.09),0_0_30px_rgba(181,67,215,0.15)] focus-visible:ring-2 focus-visible:outline-none">
+            <div className="relative flex gap-5">
+                <div className="w-2/3 min-w-0">
+                    <p className="font-heading text-violet-light text-[0.66rem] font-semibold tracking-[0.18em] uppercase">
+                        Playbook
+                    </p>
+                    <h3 className="font-heading mt-3 mb-3 text-2xl leading-[1.05] font-semibold tracking-[0.01em] text-white">
+                        {playbook.title}&nbsp;
+                        <span className="font-heading text-seafoam-green ml-auto text-xs">
+                            {playbook.price || ''}
+                        </span>
+                    </h3>
+                    <p className="min-w-[260px] text-sm leading-6 text-white">
+                        {playbook.best_for}
+                    </p>
+                </div>
+
+                <div className="absolute top-[-25px] right-[-16px] h-24 w-24">
+                    {playbook.logo_url ? (
+                        <img
+                            className="h-full w-full object-contain mix-blend-lighten transition duration-300 group-hover:scale-105"
+                            src={playbook.logo_url}
+                            alt=""
+                            draggable={false}
+                            loading="lazy"
+                        />
+                    ) : (
+                        <div className="border-main-blue/45 bg-main-blue/10 text-violet-light flex h-18 w-18 items-center justify-center rounded-[14px] border">
+                            <IconRenderer
+                                name={playbook.icon}
+                                className="h-10 w-10"
+                            />
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-3">
+                <div>
+                    {playbook.market ? (
+                        <TaxonomyBadge
+                            label={playbook.market.name}
+                            color={playbook.market.color}
+                        />
+                    ) : (
+                        <span className="text-white/45">—</span>
+                    )}
+                </div>
+                <AccessBadge access={playbook.access} showIcon />
+            </div>
+
+            <div className="mt-4 flex max-h-30 items-center rounded-lg mix-blend-lighten">
+                <FallbackPlaybookVisual playbook={playbook} />
+            </div>
+
+            <Link
+                href={route('playbooks.show', playbook.slug)}
+                className="text-violet-light font-heading mt-auto flex items-center gap-2 pt-4 text-sm font-medium uppercase"
+            >
+                Explore Playbook
+                <IconRenderer
+                    name="chevron-right"
+                    className="h-4 w-4 transition group-hover:translate-x-1"
+                />
+            </Link>
+        </div>
+    );
+}
+
+function FallbackPlaybookVisual({ playbook }: { playbook: Playbook }) {
+    return (
+        <div className="from-main-blue/18 via-violet-light/16 to-gold/12 relative flex h-full min-h-28 w-full items-center overflow-hidden bg-gradient-to-r">
+            <div className="absolute inset-x-0 top-1/2 h-px bg-violet-300/45 shadow-[0_0_20px_rgba(181,67,215,0.45)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(181,67,215,0.1)_1px,transparent_1px),linear-gradient(0deg,rgba(55,100,245,0.08)_1px,transparent_1px)] bg-[size:28px_28px]" />
+            <IconRenderer
+                name={playbook.icon}
+                className="text-violet-light relative z-10 mx-auto h-16 w-16 opacity-90"
+            />
+        </div>
     );
 }
 

@@ -477,14 +477,18 @@ ModuleCardSet.displayName = 'ModuleCardSet';
 function ModuleCarouselCard({
     module,
     inert = false,
+    layout = 'carousel',
 }: {
     module: Module;
     inert?: boolean;
+    layout?: 'carousel' | 'grid';
 }) {
     const assetSlug = assetSlugForModule(module);
-    const iconSrc = imageSlugs.has(assetSlug)
-        ? `${moduleImageBase}/module-icon--${assetSlug}.${assetSlug === 'range-rails' ? 'jpg' : 'png'}`
-        : null;
+    const iconSrc =
+        module.image_url ??
+        (imageSlugs.has(assetSlug)
+            ? `${moduleImageBase}/module-icon--${assetSlug}.${assetSlug === 'range-rails' ? 'jpg' : 'png'}`
+            : null);
     const bannerSrc = bannerSlugs.has(assetSlug)
         ? `${moduleImageBase}/module-banner--${assetSlug}.jpg`
         : null;
@@ -493,7 +497,7 @@ function ModuleCarouselCard({
         <div
             draggable={false}
             tabIndex={inert ? -1 : undefined}
-            className="group border-main-blue/45 to-panel-deep hover:border-seafoam-green/70 focus-visible:ring-seafoam-green/70 flex h-[30rem] w-[min(82vw,23.5rem)] shrink-0 cursor-grab flex-col overflow-hidden rounded-[14px] border bg-gradient-to-b from-[#0e1f4b] p-5 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_0_24px_rgba(55,100,245,0.16)] transition hover:-translate-y-1 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.09),0_0_30px_rgba(0,250,146,0.15)] focus-visible:ring-2 focus-visible:outline-none active:cursor-grabbing"
+            className={`group border-main-blue/45 to-panel-deep hover:border-seafoam-green/70 focus-visible:ring-seafoam-green/70 flex h-[30rem] ${layout === 'grid' ? 'w-full' : 'w-[min(82vw,23.5rem)] shrink-0 cursor-grab active:cursor-grabbing'} flex-col overflow-hidden rounded-[14px] border bg-gradient-to-b from-[#0e1f4b] p-5 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_0_24px_rgba(55,100,245,0.16)] transition hover:-translate-y-1 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.09),0_0_30px_rgba(0,250,146,0.15)] focus-visible:ring-2 focus-visible:outline-none`}
         >
             <div className="relative flex gap-5">
                 <div className="w-2/3 min-w-0">
@@ -571,6 +575,8 @@ function ModuleCarouselCard({
         </div>
     );
 }
+
+export { ModuleCarouselCard };
 
 function FallbackModuleVisual({ module }: { module: Module }) {
     return (

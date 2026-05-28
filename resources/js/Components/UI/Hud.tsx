@@ -2,7 +2,12 @@ import { IconRenderer } from '@/Components/Icons/IconRenderer';
 import { brandColor } from '@/lib/brand';
 import { accessLabel } from '@/lib/format';
 import { Link } from '@inertiajs/react';
-import type { ButtonHTMLAttributes, PropsWithChildren, ReactNode } from 'react';
+import type {
+    ButtonHTMLAttributes,
+    HTMLAttributes,
+    PropsWithChildren,
+    ReactNode,
+} from 'react';
 
 type Tone = 'green' | 'violet' | 'blue' | 'gold';
 
@@ -80,10 +85,12 @@ export function HudButton({
 export function HudPanel({
     children,
     className = '',
-}: PropsWithChildren<{ className?: string }>) {
+    ...props
+}: PropsWithChildren<HTMLAttributes<HTMLDivElement>>) {
     return (
         <div
             className={`border-main-blue/35 bg-panel/80 rounded-md border shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_0_30px_rgba(55,100,245,0.13)] ${className}`}
+            {...props}
         >
             {children}
         </div>

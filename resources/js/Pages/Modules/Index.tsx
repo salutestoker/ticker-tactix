@@ -1,5 +1,6 @@
 import { IconRenderer } from '@/Components/Icons/IconRenderer';
 import { Eyebrow, HudPanel, TaxonomyBadge } from '@/Components/UI/Hud';
+import { ModuleCarouselCard } from '@/Components/UI/ModuleCardsCarousel';
 import { PublicHeroFrame } from '@/Components/UI/PublicHero';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { formatVersion } from '@/lib/format';
@@ -38,7 +39,17 @@ export default function ModulesIndex({
                         Begin with your trader type.
                     </p>
 
-                    <HudPanel className="mt-10 overflow-hidden">
+                    <div className="mt-10 grid gap-4 md:grid-cols-2 lg:hidden">
+                        {modules.map((module) => (
+                            <ModuleCarouselCard
+                                key={module.id}
+                                module={module}
+                                layout="grid"
+                            />
+                        ))}
+                    </div>
+
+                    <HudPanel className="mt-10 hidden overflow-hidden lg:block">
                         <div className="overflow-x-auto">
                             <table className="min-w-full border-collapse text-left text-sm">
                                 <thead className="font-heading text-seafoam-green text-xs tracking-[0.14em] uppercase">

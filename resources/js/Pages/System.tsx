@@ -41,7 +41,12 @@ export default function System() {
                 <div className="mx-auto max-w-5xl text-center">
                     <Eyebrow>System</Eyebrow>
                     <GradientHeading>
-                        Rules-Based Market&nbsp;Operations
+                        <span className="hidden sm:inline">
+                            Rules-Based Market&nbsp;Operations
+                        </span>
+                        <span className="inline-block sm:hidden">
+                            Rules-Based Market Operations
+                        </span>
                     </GradientHeading>
 
                     <p className="font-heading text-seafoam-green mx-auto mt-5 max-w-4xl text-sm leading-7 font-semibold tracking-[0.24em] uppercase sm:text-base">
