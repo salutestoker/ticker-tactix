@@ -1,3 +1,4 @@
+import TraderFitButton from '@/Components/TraderFit/TraderFitButton';
 import { Eyebrow, HudButton } from '@/Components/UI/Hud';
 import { ModuleCardsCarousel } from '@/Components/UI/ModuleCardsCarousel';
 import {
@@ -75,24 +76,8 @@ export default function Home({ modules, traderTypes }: Props) {
                         </p>
 
                         <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
-                            <HudButton
-                                href={route('trader-types')}
-                                variant="solid"
-                            >
-                                Find Your Trader Type
-                            </HudButton>
-                            <HudButton
-                                href={route('system')}
-                                tone="violet"
-                                variant="solid"
-                            >
-                                Explore the System
-                            </HudButton>
+                            <TraderFitButton />
                         </div>
-
-                        {/*<HudButton href="#trader-types" variant="solid">*/}
-                        {/*    What type of trader are you?*/}
-                        {/*</HudButton>*/}
                     </div>
                 </div>
             </section>
@@ -102,7 +87,7 @@ export default function Home({ modules, traderTypes }: Props) {
             >
                 <div>
                     <div>
-                        <div className="mt-10">
+                        <div className="mt-30">
                             <Eyebrow>Get Started</Eyebrow>
                             <h1 className="font-heading text-center text-4xl leading-none font-semibold uppercase sm:text-5xl lg:text-6xl">
                                 <span className="text-violet">
@@ -118,6 +103,21 @@ export default function Home({ modules, traderTypes }: Props) {
                                 designed for your market, pace, and level of
                                 execution structure.
                             </p>
+                            <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
+                                <HudButton
+                                    href={route('trader-types')}
+                                    variant="solid"
+                                >
+                                    Find Your Trader Type
+                                </HudButton>
+                                <HudButton
+                                    href={route('system')}
+                                    tone="violet"
+                                    variant="solid"
+                                >
+                                    Explore the System
+                                </HudButton>
+                            </div>
                         </div>
 
                         <TraderTypeCards

@@ -180,6 +180,17 @@ class PublicCatalogTest extends TestCase
                 ->where('traderTypes.0.playbooks.0.title', 'Market Environment')
                 ->where('traderTypes.0.playbooks.1.title', 'Active Unpublished Playbook'));
 
+        $this->get('/trader-types/nyse-core')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('TraderTypes/Show')
+                ->where('traderType.slug', 'nyse-core')
+                ->has('traderType.modules', 2)
+                ->where('traderType.modules.0.title', 'Momentum Cycles')
+                ->where('traderType.modules.1.title', 'Sequence Pressure')
+                ->has('traderType.playbooks', 1)
+                ->where('traderType.playbooks.0.title', 'Market Environment'));
+
         $this->get('/terms-of-service')
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
@@ -265,7 +276,23 @@ class PublicCatalogTest extends TestCase
                 ->component('Playbooks/Show')
                 ->where('playbook.slug', 'market-environment'));
 
+        $this->get('/trader-types/nyse-core')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('TraderTypes/Show')
+                ->where('traderType.slug', 'nyse-core'));
+
+        $inactiveTraderType = TraderType::create([
+            'name' => 'Inactive Trader Type',
+            'slug' => 'inactive-trader-type',
+            'color' => 'violet-light',
+            'icon' => 'command-cube',
+            'sort_order' => 20,
+            'is_active' => false,
+        ]);
+
         $this->get('/modules/private-module')->assertNotFound();
+        $this->get('/trader-types/'.$inactiveTraderType->slug)->assertNotFound();
     }
 
     /**

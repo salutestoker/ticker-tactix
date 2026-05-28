@@ -1,6 +1,5 @@
 import '../css/app.css';
 
-import PageLoader from '@/Components/UI/PageLoader';
 import { createInertiaApp, type ResolvedComponent } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
@@ -25,7 +24,7 @@ createInertiaApp({
 
         root.render(
             <>
-                <PageLoader />
+                {/*<PageLoader />*/}
                 <App {...props} />
             </>,
         );

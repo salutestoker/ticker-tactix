@@ -1,3 +1,4 @@
+import TraderFitSection from '@/Components/TraderFit/TraderFitSection';
 import { Eyebrow, HudPanel } from '@/Components/UI/Hud';
 import { PublicHeroFrame } from '@/Components/UI/PublicHero';
 import {
@@ -61,6 +62,8 @@ export default function TraderTypes({ traderTypes }: TraderTypesProps) {
                 <div className="relative z-20 pt-20">
                     <TraderTypeLegend />
                 </div>
+
+                <TraderFitSection className="mt-10" />
 
                 <div className="mx-auto my-20 grid max-w-6xl gap-6 md:grid-cols-3">
                     {traderTypeGuide.map(({ title, copy, tone }) => (

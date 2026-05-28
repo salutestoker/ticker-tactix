@@ -7,6 +7,7 @@ type TaxonomyColor = 'violet-light' | 'seafoam-green' | 'gold';
 type TraderTypeCard = {
     number: number;
     title: string;
+    slug: string;
     description: string;
     modules: string[];
     playbooks: string[];
@@ -101,60 +102,66 @@ function TraderTypePanel({ traderType }: { traderType: TraderTypeCard }) {
     const tone = toneClasses[traderType.traderTypeColor];
 
     return (
-        <article
-            className={`bg-panel/80 relative overflow-hidden rounded-[14px] border p-4 text-left backdrop-blur ${tone.card}`}
+        <Link
+            href={route('trader-types.show', traderType.slug)}
+            className="group block h-full"
+            aria-label={`Explore ${traderType.title}`}
         >
-            <div
-                className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${tone.glow} via-transparent to-transparent`}
-            />
-            <div className="relative">
-                <header
-                    className={`flex items-center gap-4 border-b pb-4 ${tone.divider}`}
-                >
-                    <div
-                        className={`font-heading flex h-16 w-16 shrink-0 items-center justify-center rounded-[10px] border text-3xl ${tone.number}`}
+            <article
+                className={`bg-panel/80 hover:border-seafoam-green/60 relative h-full overflow-hidden rounded-[14px] border p-4 text-left backdrop-blur transition group-hover:-translate-y-1 ${tone.card}`}
+            >
+                <div
+                    className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${tone.glow} via-transparent to-transparent`}
+                />
+                <div className="relative">
+                    <header
+                        className={`flex items-center gap-4 border-b pb-4 ${tone.divider}`}
                     >
-                        {traderType.number}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                        <h2
-                            className={`font-heading text-3xl leading-none tracking-[0.08em] uppercase sm:text-4xl ${tone.title}`}
+                        <div
+                            className={`font-heading flex h-16 w-16 shrink-0 items-center justify-center rounded-[10px] border text-3xl ${tone.number}`}
                         >
-                            {traderType.title}
-                        </h2>
-                    </div>
+                            {traderType.number}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                            <h2
+                                className={`font-heading text-3xl leading-none tracking-[0.08em] uppercase sm:text-4xl ${tone.title}`}
+                            >
+                                {traderType.title}
+                            </h2>
+                        </div>
+                        <div
+                            className={`hidden h-16 w-16 shrink-0 items-center justify-center rounded-full border bg-black/25 transition group-hover:scale-105 sm:flex ${tone.number}`}
+                        >
+                            <IconRenderer
+                                name={traderType.icon}
+                                className="h-10 w-10"
+                            />
+                        </div>
+                    </header>
+
+                    <p className="mx-auto max-w-xl px-5 py-5 text-center text-lg leading-8 text-white/84">
+                        {traderType.description}
+                    </p>
+
                     <div
-                        className={`hidden h-16 w-16 shrink-0 items-center justify-center rounded-full border bg-black/25 sm:flex ${tone.number}`}
+                        className={`grid gap-5 border-t pt-5 md:grid-cols-2 ${tone.divider}`}
                     >
-                        <IconRenderer
-                            name={traderType.icon}
-                            className="h-10 w-10"
+                        <TypeList
+                            title="Modules"
+                            icon="command-cube"
+                            items={traderType.modules}
+                            tone={traderType.traderTypeColor}
+                        />
+                        <TypeList
+                            title="Playbooks"
+                            icon="playbooks-book-open"
+                            items={traderType.playbooks}
+                            tone={traderType.traderTypeColor}
                         />
                     </div>
-                </header>
-
-                <p className="mx-auto max-w-xl px-5 py-5 text-center text-lg leading-8 text-white/84">
-                    {traderType.description}
-                </p>
-
-                <div
-                    className={`grid gap-5 border-t pt-5 md:grid-cols-2 ${tone.divider}`}
-                >
-                    <TypeList
-                        title="Modules"
-                        icon="command-cube"
-                        items={traderType.modules}
-                        tone={traderType.traderTypeColor}
-                    />
-                    <TypeList
-                        title="Playbooks"
-                        icon="playbooks-book-open"
-                        items={traderType.playbooks}
-                        tone={traderType.traderTypeColor}
-                    />
                 </div>
-            </div>
-        </article>
+            </article>
+        </Link>
     );
 }
 
@@ -214,6 +221,7 @@ function toTraderTypeCard(
     return {
         number: index + 1,
         title: traderType.name,
+        slug: traderType.slug,
         description: traderType.description ?? '',
         modules: modules.map((module) => module.title),
         playbooks: playbooks.map((playbook) => playbook.title),

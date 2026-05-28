@@ -9,6 +9,7 @@ use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PlaybookController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TraderTypeController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -17,6 +18,7 @@ Route::redirect('/about', '/system', 301);
 Route::redirect('/methodology', '/system', 301);
 Route::get('/system', [PageController::class, 'system'])->name('system');
 Route::get('/trader-types', [PageController::class, 'traderTypes'])->name('trader-types');
+Route::get('/trader-types/{traderType:slug}', [TraderTypeController::class, 'show'])->name('trader-types.show');
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
 Route::get('/modules', [ModuleController::class, 'index'])->name('modules.index');
 Route::get('/modules/{module:slug}', [ModuleController::class, 'show'])->name('modules.show');
