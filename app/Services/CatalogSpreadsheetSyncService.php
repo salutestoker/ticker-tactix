@@ -16,11 +16,24 @@ use RuntimeException;
 
 class CatalogSpreadsheetSyncService
 {
+    private const TRADER_TYPES_FILE = 'trader_types.csv';
+
     private const MODULES_FILE = 'modules.csv';
 
     private const PLAYBOOKS_FILE = 'playbooks.csv';
 
     private const STATE_FILE = 'catalog-spreadsheet-sync.json';
+
+    private const TRADER_TYPE_HEADERS = [
+        'id',
+        'name',
+        'slug',
+        'description',
+        'color',
+        'icon',
+        'sort_order',
+        'is_active',
+    ];
 
     private const MODULE_HEADERS = [
         'id',
@@ -76,11 +89,12 @@ class CatalogSpreadsheetSyncService
     ];
 
     /**
-     * @return array{modules: int, playbooks: int}
+     * @return array{trader_types: int, modules: int, playbooks: int}
      */
     public function exportAll(): array
     {
         $counts = [
+            'trader_types' => $this->exportTraderTypes(),
             'modules' => $this->exportModules(),
             'playbooks' => $this->exportPlaybooks(),
         ];
@@ -91,11 +105,12 @@ class CatalogSpreadsheetSyncService
     }
 
     /**
-     * @return array{modules: int, playbooks: int}
+     * @return array{trader_types: int, modules: int, playbooks: int}
      */
     public function importAll(): array
     {
         $counts = DB::transaction(fn (): array => [
+            'trader_types' => $this->importTraderTypes(),
             'modules' => $this->importModules(),
             'playbooks' => $this->importPlaybooks(),
         ]);
@@ -106,13 +121,14 @@ class CatalogSpreadsheetSyncService
     }
 
     /**
-     * @return array{imported: bool, modules: int, playbooks: int}
+     * @return array{imported: bool, trader_types: int, modules: int, playbooks: int}
      */
     public function importChanged(): array
     {
         if (! $this->hasChangedSinceLastSync()) {
             return [
                 'imported' => false,
+                'trader_types' => 0,
                 'modules' => 0,
                 'playbooks' => 0,
             ];
@@ -129,6 +145,24 @@ class CatalogSpreadsheetSyncService
     public function hasChangedSinceLastSync(): bool
     {
         return $this->currentHashes() !== $this->rememberedHashes();
+    }
+
+    private function exportTraderTypes(): int
+    {
+        $traderTypes = TraderType::ordered()->get();
+
+        $this->writeCsv(self::TRADER_TYPES_FILE, self::TRADER_TYPE_HEADERS, $traderTypes->map(fn (TraderType $traderType): array => [
+            'id' => $traderType->id,
+            'name' => $traderType->name,
+            'slug' => $traderType->slug,
+            'description' => $traderType->description,
+            'color' => $traderType->color,
+            'icon' => $traderType->icon,
+            'sort_order' => $traderType->sort_order,
+            'is_active' => $this->formatBoolean($traderType->is_active),
+        ])->all());
+
+        return $traderTypes->count();
     }
 
     private function exportModules(): int
@@ -196,6 +230,31 @@ class CatalogSpreadsheetSyncService
         ])->all());
 
         return $playbooks->count();
+    }
+
+    private function importTraderTypes(): int
+    {
+        $rows = $this->readCsv(self::TRADER_TYPES_FILE, self::TRADER_TYPE_HEADERS);
+        $saved = 0;
+
+        foreach ($rows as $row) {
+            $traderType = $this->findTraderType($row);
+
+            $traderType->fill([
+                'name' => $this->requiredString($row['name'], 'trader_types.name'),
+                'slug' => $this->slug($row['slug'], $row['name']),
+                'description' => $this->nullableString($row['description']),
+                'color' => $this->nullableString($row['color']),
+                'icon' => $this->nullableString($row['icon']),
+                'sort_order' => $this->integer($row['sort_order']),
+                'is_active' => $this->boolean($row['is_active']),
+            ]);
+
+            $traderType->save();
+            $saved++;
+        }
+
+        return $saved;
     }
 
     private function importModules(): int
@@ -297,7 +356,8 @@ class CatalogSpreadsheetSyncService
     {
         $this->ensureDirectory();
 
-        $handle = fopen($this->path($filename), 'wb');
+        $path = $this->path($filename);
+        $handle = fopen($path, 'wb');
 
         if ($handle === false) {
             throw new RuntimeException("Unable to open {$filename} for writing.");
@@ -313,6 +373,7 @@ class CatalogSpreadsheetSyncService
         }
 
         fclose($handle);
+        @chmod($path, 0640);
     }
 
     /**
@@ -430,6 +491,11 @@ class CatalogSpreadsheetSyncService
     private function findPlaybook(array $row): Playbook
     {
         return $this->findByIdOrSlug(Playbook::class, $row, $this->slug($row['slug'], $row['title']));
+    }
+
+    private function findTraderType(array $row): TraderType
+    {
+        return $this->findByIdOrSlug(TraderType::class, $row, $this->slug($row['slug'], $row['name']));
     }
 
     /**
@@ -631,7 +697,8 @@ class CatalogSpreadsheetSyncService
 
     private function ensureDirectory(): void
     {
-        File::ensureDirectoryExists($this->directory());
+        File::ensureDirectoryExists($this->directory(), 0750);
+        @chmod($this->directory(), 0750);
     }
 
     private function directory(): string
@@ -651,18 +718,19 @@ class CatalogSpreadsheetSyncService
     }
 
     /**
-     * @return array{modules: string|null, playbooks: string|null}
+     * @return array{trader_types: string|null, modules: string|null, playbooks: string|null}
      */
     private function currentHashes(): array
     {
         return [
+            'trader_types' => is_file($this->path(self::TRADER_TYPES_FILE)) ? hash_file('sha256', $this->path(self::TRADER_TYPES_FILE)) : null,
             'modules' => is_file($this->path(self::MODULES_FILE)) ? hash_file('sha256', $this->path(self::MODULES_FILE)) : null,
             'playbooks' => is_file($this->path(self::PLAYBOOKS_FILE)) ? hash_file('sha256', $this->path(self::PLAYBOOKS_FILE)) : null,
         ];
     }
 
     /**
-     * @return array{modules: string|null, playbooks: string|null}
+     * @return array{trader_types: string|null, modules: string|null, playbooks: string|null}
      */
     private function rememberedHashes(): array
     {
@@ -670,6 +738,7 @@ class CatalogSpreadsheetSyncService
 
         if (! is_file($path)) {
             return [
+                'trader_types' => null,
                 'modules' => null,
                 'playbooks' => null,
             ];
@@ -678,6 +747,7 @@ class CatalogSpreadsheetSyncService
         $state = json_decode((string) file_get_contents($path), true);
 
         return [
+            'trader_types' => $state['hashes']['trader_types'] ?? null,
             'modules' => $state['hashes']['modules'] ?? null,
             'playbooks' => $state['hashes']['playbooks'] ?? null,
         ];
@@ -685,9 +755,12 @@ class CatalogSpreadsheetSyncService
 
     private function rememberCurrentHashes(): void
     {
-        File::put(storage_path('app/'.self::STATE_FILE), json_encode([
+        $path = storage_path('app/'.self::STATE_FILE);
+
+        File::put($path, json_encode([
             'synced_at' => now()->toIso8601String(),
             'hashes' => $this->currentHashes(),
         ], JSON_PRETTY_PRINT));
+        @chmod($path, 0640);
     }
 }

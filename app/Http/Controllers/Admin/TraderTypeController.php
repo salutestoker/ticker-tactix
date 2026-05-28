@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\TraderType;
+use App\Services\CatalogSpreadsheetSyncService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -31,6 +32,7 @@ class TraderTypeController extends Controller
     public function store(Request $request): RedirectResponse
     {
         TraderType::create($this->validated($request));
+        $this->exportCatalogSpreadsheets();
 
         return redirect()->route('admin.trader-types.index')->with('success', 'Trader type created.');
     }
@@ -46,6 +48,7 @@ class TraderTypeController extends Controller
     public function update(Request $request, TraderType $traderType): RedirectResponse
     {
         $traderType->update($this->validated($request, $traderType));
+        $this->exportCatalogSpreadsheets();
 
         return redirect()->route('admin.trader-types.index')->with('success', 'Trader type updated.');
     }
@@ -53,6 +56,7 @@ class TraderTypeController extends Controller
     public function destroy(TraderType $traderType): RedirectResponse
     {
         $traderType->delete();
+        $this->exportCatalogSpreadsheets();
 
         return redirect()->route('admin.trader-types.index')->with('success', 'Trader type archived.');
     }
@@ -85,5 +89,10 @@ class TraderTypeController extends Controller
             ['label' => 'Brand Gold', 'value' => 'gold'],
             ['label' => 'Brand Blue', 'value' => 'main-blue'],
         ];
+    }
+
+    private function exportCatalogSpreadsheets(): void
+    {
+        app(CatalogSpreadsheetSyncService::class)->exportAll();
     }
 }

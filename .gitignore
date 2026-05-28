@@ -23,6 +23,9 @@ ngrok.yml
 /public/fonts-manifest.dev.json
 /public/hot
 /public/storage
+/spreadsheets/*.csv
+/spreadsheets/.~lock.*
+/storage/app/catalog-spreadsheet-sync.json
 /storage/*.key
 /storage/pail
 /vendor

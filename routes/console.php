@@ -12,10 +12,10 @@ Artisan::command('inspire', function () {
 Artisan::command('catalog:spreadsheets:export', function (): int {
     $counts = app(CatalogSpreadsheetSyncService::class)->exportAll();
 
-    $this->info("Exported {$counts['modules']} modules and {$counts['playbooks']} playbooks.");
+    $this->info("Exported {$counts['trader_types']} trader types, {$counts['modules']} modules, and {$counts['playbooks']} playbooks.");
 
     return 0;
-})->purpose('Export modules and playbooks to CSV spreadsheets');
+})->purpose('Export trader types, modules, and playbooks to CSV spreadsheets');
 
 Artisan::command('catalog:spreadsheets:import {--if-changed : Only import when the CSV files have changed since the last sync}', function (): int {
     $sync = app(CatalogSpreadsheetSyncService::class);
@@ -29,9 +29,14 @@ Artisan::command('catalog:spreadsheets:import {--if-changed : Only import when t
         return 0;
     }
 
-    $this->info("Imported {$counts['modules']} modules and {$counts['playbooks']} playbooks.");
+    $this->info("Imported {$counts['trader_types']} trader types, {$counts['modules']} modules, and {$counts['playbooks']} playbooks.");
 
     return 0;
-})->purpose('Import module and playbook updates from CSV spreadsheets');
+})->purpose('Import trader type, module, and playbook updates from CSV spreadsheets');
 
-Schedule::command('catalog:spreadsheets:import --if-changed')->everyMinute();
+if (app()->environment('production') && config('catalog.schedule_spreadsheet_imports')) {
+    Schedule::command('catalog:spreadsheets:import --if-changed')
+        ->everyMinute()
+        ->withoutOverlapping(10)
+        ->onOneServer();
+}
