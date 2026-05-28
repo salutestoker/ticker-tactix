@@ -30,6 +30,10 @@ return [
 
     'module_image_directory' => env('MODULE_IMAGE_DIRECTORY', 'module-images'),
 
+    'module_banner_image_directory' => env('MODULE_BANNER_IMAGE_DIRECTORY', 'module-banner-images'),
+
+    'playbook_banner_image_directory' => env('PLAYBOOK_BANNER_IMAGE_DIRECTORY', 'playbook-banner-images'),
+
     /*
     |--------------------------------------------------------------------------
     | Filesystem Disks

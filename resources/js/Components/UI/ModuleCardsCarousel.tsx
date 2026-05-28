@@ -489,9 +489,11 @@ function ModuleCarouselCard({
         (imageSlugs.has(assetSlug)
             ? `${moduleImageBase}/module-icon--${assetSlug}.${assetSlug === 'range-rails' ? 'jpg' : 'png'}`
             : null);
-    const bannerSrc = bannerSlugs.has(assetSlug)
-        ? `${moduleImageBase}/module-banner--${assetSlug}.jpg`
-        : null;
+    const bannerSrc =
+        module.banner_image_url ??
+        (bannerSlugs.has(assetSlug)
+            ? `${moduleImageBase}/module-banner--${assetSlug}.jpg`
+            : null);
 
     return (
         <div
@@ -514,7 +516,7 @@ function ModuleCarouselCard({
                         {module.description}
                     </p>
                 </div>
-                <div className="absolute top-[-25px] right-[-16px] h-24 w-24">
+                <div className="absolute -top-2 right-[-16px] h-20 w-20 sm:top-[-25px]">
                     {iconSrc ? (
                         <img
                             className="h-full w-full object-contain mix-blend-lighten transition duration-300 group-hover:scale-105"

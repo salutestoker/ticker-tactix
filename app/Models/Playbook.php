@@ -19,6 +19,7 @@ class Playbook extends Model
         'market_id',
         'icon',
         'logo_path',
+        'banner_image',
         'title',
         'slug',
         'access',
@@ -38,6 +39,7 @@ class Playbook extends Model
 
     protected $appends = [
         'logo_url',
+        'banner_image_url',
     ];
 
     protected function casts(): array
@@ -68,6 +70,15 @@ class Playbook extends Model
         }
 
         return Storage::disk((string) config('filesystems.catalog_media_disk', 'public'))->url($this->logo_path);
+    }
+
+    public function getBannerImageUrlAttribute(): ?string
+    {
+        if (! $this->banner_image) {
+            return null;
+        }
+
+        return Storage::disk((string) config('filesystems.catalog_media_disk', 'public'))->url($this->banner_image);
     }
 
     #[Scope]

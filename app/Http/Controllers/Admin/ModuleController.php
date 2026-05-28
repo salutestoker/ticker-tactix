@@ -43,8 +43,9 @@ class ModuleController extends Controller
     {
         $data = $this->validated($request);
         $image = $data['image'] ?? null;
+        $bannerImage = $data['banner_image'] ?? null;
 
-        unset($data['image'], $data['remove_image']);
+        unset($data['image'], $data['remove_image'], $data['banner_image'], $data['remove_banner_image']);
 
         if (! array_key_exists('sort_order', $data) || $data['sort_order'] === null) {
             $data['sort_order'] = $this->nextSortOrder();
@@ -52,6 +53,10 @@ class ModuleController extends Controller
 
         if ($image instanceof UploadedFile) {
             $data['image_path'] = $this->storeImage($image);
+        }
+
+        if ($bannerImage instanceof UploadedFile) {
+            $data['banner_image'] = $this->storeBannerImage($bannerImage);
         }
 
         $module = Module::create(Arr::except($data, [
@@ -85,8 +90,10 @@ class ModuleController extends Controller
         $data = $this->validated($request, $module);
         $image = $data['image'] ?? null;
         $removeImage = (bool) ($data['remove_image'] ?? false);
+        $bannerImage = $data['banner_image'] ?? null;
+        $removeBannerImage = (bool) ($data['remove_banner_image'] ?? false);
 
-        unset($data['image'], $data['remove_image']);
+        unset($data['image'], $data['remove_image'], $data['banner_image'], $data['remove_banner_image']);
 
         if ($image instanceof UploadedFile) {
             $this->deleteImage($module);
@@ -94,6 +101,14 @@ class ModuleController extends Controller
         } elseif ($removeImage) {
             $this->deleteImage($module);
             $data['image_path'] = null;
+        }
+
+        if ($bannerImage instanceof UploadedFile) {
+            $this->deleteBannerImage($module);
+            $data['banner_image'] = $this->storeBannerImage($bannerImage);
+        } elseif ($removeBannerImage) {
+            $this->deleteBannerImage($module);
+            $data['banner_image'] = null;
         }
 
         $module->update(Arr::except($data, [
@@ -133,6 +148,8 @@ class ModuleController extends Controller
             'icon' => ['nullable', 'string', 'max:255'],
             'image' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'remove_image' => ['nullable', 'boolean'],
+            'banner_image' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:8192'],
+            'remove_banner_image' => ['nullable', 'boolean'],
             'title' => ['required', 'string', 'max:255'],
             'slug' => ['nullable', 'string', 'max:255', Rule::unique('modules', 'slug')->ignore($module)],
             'description' => ['nullable', 'string'],
@@ -250,6 +267,27 @@ class ModuleController extends Controller
         Storage::disk($this->imageDisk())->delete($module->image_path);
     }
 
+    private function storeBannerImage(UploadedFile $image): string
+    {
+        $path = Storage::disk($this->imageDisk())->putFile(
+            $this->bannerImageDirectory(),
+            $image,
+        );
+
+        abort_if($path === false, 500, 'Unable to store module banner image.');
+
+        return $path;
+    }
+
+    private function deleteBannerImage(Module $module): void
+    {
+        if (! $module->banner_image) {
+            return;
+        }
+
+        Storage::disk($this->imageDisk())->delete($module->banner_image);
+    }
+
     private function imageDisk(): string
     {
         return (string) config('filesystems.module_image_disk', 'public');
@@ -263,5 +301,10 @@ class ModuleController extends Controller
     private function imageDirectory(): string
     {
         return trim((string) config('filesystems.module_image_directory', 'module-images'), '/');
+    }
+
+    private function bannerImageDirectory(): string
+    {
+        return trim((string) config('filesystems.module_banner_image_directory', 'module-banner-images'), '/');
     }
 }

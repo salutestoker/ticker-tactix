@@ -1,9 +1,5 @@
-import {
-    Eyebrow,
-    GradientHeading,
-    HudButton,
-    HudPanel,
-} from '@/Components/UI/Hud';
+import TraderFitButton from '@/Components/TraderFit/TraderFitButton';
+import { Eyebrow, GradientHeading, HudPanel } from '@/Components/UI/Hud';
 import { PublicHeroFrame } from '@/Components/UI/PublicHero';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { Head } from '@inertiajs/react';
@@ -97,17 +93,24 @@ export default function System() {
 
                 <HudPanel className="mx-auto mt-14 max-w-6xl p-8 text-center sm:p-10">
                     <h2 className="font-heading text-2xl leading-tight font-semibold tracking-[0.08em] text-white uppercase sm:text-4xl">
-                        Build Decisions Around&nbsp;Structure
+                        <span className="hidden sm:inline">
+                            Build Decisions Around&nbsp;Structure
+                        </span>
+                        <span className="inline-block sm:hidden">
+                            Build Decisions Around Structure
+                        </span>
                     </h2>
                     <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-white/72">
                         Explore the system layers behind Ticker-Tactix, then
                         find the trader path that fits your market, pace, and
-                        level of execution structure.
+                        level of execution&nbsp;structure.
                     </p>
                     <div className="mt-8">
-                        <HudButton href={route('trader-types')} variant="solid">
-                            Find Your Trader Type
-                        </HudButton>
+                        <div className="mt-4 flex justify-center">
+                            <TraderFitButton className="w-full max-w-[600px]">
+                                Find Your Trader Type
+                            </TraderFitButton>
+                        </div>
                     </div>
                 </HudPanel>
             </PublicHeroFrame>

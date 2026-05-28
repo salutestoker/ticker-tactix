@@ -42,8 +42,9 @@ class PlaybookController extends Controller
     {
         $data = $this->validated($request);
         $logo = $data['logo'] ?? null;
+        $bannerImage = $data['banner_image'] ?? null;
 
-        unset($data['logo'], $data['remove_logo']);
+        unset($data['logo'], $data['remove_logo'], $data['banner_image'], $data['remove_banner_image']);
 
         if (! array_key_exists('sort_order', $data) || $data['sort_order'] === null) {
             $data['sort_order'] = $this->nextSortOrder();
@@ -51,6 +52,10 @@ class PlaybookController extends Controller
 
         if ($logo instanceof UploadedFile) {
             $data['logo_path'] = $this->storeLogo($logo);
+        }
+
+        if ($bannerImage instanceof UploadedFile) {
+            $data['banner_image'] = $this->storeBannerImage($bannerImage);
         }
 
         $playbook = Playbook::create(Arr::except($data, ['trader_type_ids']));
@@ -76,8 +81,10 @@ class PlaybookController extends Controller
         $data = $this->validated($request, $playbook);
         $logo = $data['logo'] ?? null;
         $removeLogo = (bool) ($data['remove_logo'] ?? false);
+        $bannerImage = $data['banner_image'] ?? null;
+        $removeBannerImage = (bool) ($data['remove_banner_image'] ?? false);
 
-        unset($data['logo'], $data['remove_logo']);
+        unset($data['logo'], $data['remove_logo'], $data['banner_image'], $data['remove_banner_image']);
 
         if ($logo instanceof UploadedFile) {
             $this->deleteLogo($playbook);
@@ -85,6 +92,14 @@ class PlaybookController extends Controller
         } elseif ($removeLogo) {
             $this->deleteLogo($playbook);
             $data['logo_path'] = null;
+        }
+
+        if ($bannerImage instanceof UploadedFile) {
+            $this->deleteBannerImage($playbook);
+            $data['banner_image'] = $this->storeBannerImage($bannerImage);
+        } elseif ($removeBannerImage) {
+            $this->deleteBannerImage($playbook);
+            $data['banner_image'] = null;
         }
 
         $playbook->update(Arr::except($data, ['trader_type_ids']));
@@ -111,6 +126,8 @@ class PlaybookController extends Controller
             'icon' => ['nullable', 'string', 'max:255'],
             'logo' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'remove_logo' => ['nullable', 'boolean'],
+            'banner_image' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:8192'],
+            'remove_banner_image' => ['nullable', 'boolean'],
             'title' => ['required', 'string', 'max:255'],
             'slug' => ['nullable', 'string', 'max:255', Rule::unique('playbooks', 'slug')->ignore($playbook)],
             'access' => ['required', Rule::enum(AccessLevel::class)],
@@ -176,6 +193,27 @@ class PlaybookController extends Controller
         Storage::disk($this->logoDisk())->delete($playbook->logo_path);
     }
 
+    private function storeBannerImage(UploadedFile $image): string
+    {
+        $path = Storage::disk($this->logoDisk())->putFile(
+            $this->bannerImageDirectory(),
+            $image,
+        );
+
+        abort_if($path === false, 500, 'Unable to store playbook banner image.');
+
+        return $path;
+    }
+
+    private function deleteBannerImage(Playbook $playbook): void
+    {
+        if (! $playbook->banner_image) {
+            return;
+        }
+
+        Storage::disk($this->logoDisk())->delete($playbook->banner_image);
+    }
+
     private function logoDisk(): string
     {
         return (string) config('filesystems.catalog_media_disk', 'public');
@@ -184,6 +222,11 @@ class PlaybookController extends Controller
     private function logoDirectory(): string
     {
         return trim((string) config('filesystems.playbook_logo_directory', 'playbook-logos'), '/');
+    }
+
+    private function bannerImageDirectory(): string
+    {
+        return trim((string) config('filesystems.playbook_banner_image_directory', 'playbook-banner-images'), '/');
     }
 
     private function exportCatalogSpreadsheets(): void

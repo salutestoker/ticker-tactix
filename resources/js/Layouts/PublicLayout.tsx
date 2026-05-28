@@ -51,21 +51,21 @@ export default function PublicLayout({ children }: PropsWithChildren) {
         <TraderFitProvider>
             <div className="bg-midnight-blue min-h-screen overflow-hidden text-white">
                 <header className="fixed top-0 right-0 left-0 z-40 px-4 py-5 sm:px-6">
-                <div className="mx-auto flex items-center justify-between">
-                    <Link
-                        className="group border-seafoam-green/20 hover:border-seafoam-green text-seafoam-green flex h-10 w-10 items-center justify-center rounded-full border bg-black/50"
-                        href={route('home')}
-                        aria-label="Ticker Tactix home"
-                    >
-                        <img
-                            className="h-auto w-1/2 object-contain transition group-hover:scale-105"
-                            src="/design/assets/images/logo-ticker-tactix-alien.png"
-                            alt=""
-                        />
-                    </Link>
-                    <div className="flex items-center gap-3">
-                        <TraderFitResultsButton />
-                        {/*auth.user && (
+                    <div className="mx-auto flex items-center justify-between">
+                        <Link
+                            className="group border-seafoam-green/20 hover:border-seafoam-green text-seafoam-green flex h-10 w-10 items-center justify-center rounded-full border bg-black/50"
+                            href={route('home')}
+                            aria-label="Ticker Tactix home"
+                        >
+                            <img
+                                className="h-auto w-1/2 object-contain transition group-hover:scale-105"
+                                src="/design/assets/images/logo-ticker-tactix-alien.png"
+                                alt=""
+                            />
+                        </Link>
+                        <div className="flex items-center gap-3">
+                            <TraderFitResultsButton />
+                            {/*auth.user && (
                             <HudButton
                                 href={route('admin.dashboard')}
                                 tone="violet"
@@ -74,47 +74,49 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                                 Dashboard
                             </HudButton>
                         )*/}
-                        <button
-                            ref={menuButtonRef}
-                            className="border-violet-light/20 text-violet-light hover:border-violet-light/50 focus-visible:ring-violet-light focus-visible:ring-offset-midnight-blue flex h-10 w-10 items-center justify-center rounded-full border bg-black/50 transition focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
-                            type="button"
-                            aria-controls="site-menu"
-                            aria-expanded={isMenuOpen}
-                            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
-                            onClick={() => setIsMenuOpen((open) => !open)}
-                        >
-                            <span className="relative h-3 w-4">
-                                <span
-                                    className={`absolute left-0 h-px w-4 rounded-full bg-current transition ${isMenuOpen ? 'top-1/2 -translate-y-1/2 rotate-45' : 'top-0'}`}
-                                />
-                                <span
-                                    className={`absolute top-1/2 left-0 h-px w-4 -translate-y-1/2 rounded-full bg-current transition ${isMenuOpen ? 'opacity-0' : 'opacity-100'}`}
-                                />
-                                <span
-                                    className={`absolute left-0 h-px w-4 rounded-full bg-current transition ${isMenuOpen ? 'top-1/2 -translate-y-1/2 -rotate-45' : 'bottom-0'}`}
-                                />
-                            </span>
-                        </button>
+                            <button
+                                ref={menuButtonRef}
+                                className="border-seafoam-green/20 text-seafoam-green hover:border-seafoam-green/50 focus-visible:ring-seafoam-green focus-visible:ring-offset-midnight-blue flex h-10 w-10 items-center justify-center rounded-full border bg-black/50 transition focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+                                type="button"
+                                aria-controls="site-menu"
+                                aria-expanded={isMenuOpen}
+                                aria-label={
+                                    isMenuOpen ? 'Close menu' : 'Open menu'
+                                }
+                                onClick={() => setIsMenuOpen((open) => !open)}
+                            >
+                                <span className="relative h-3 w-4">
+                                    <span
+                                        className={`absolute left-0 h-px w-4 rounded-full bg-current transition ${isMenuOpen ? 'top-1/2 -translate-y-1/2 rotate-45' : 'top-0'}`}
+                                    />
+                                    <span
+                                        className={`absolute top-1/2 left-0 h-px w-4 -translate-y-1/2 rounded-full bg-current transition ${isMenuOpen ? 'opacity-0' : 'opacity-100'}`}
+                                    />
+                                    <span
+                                        className={`absolute left-0 h-px w-4 rounded-full bg-current transition ${isMenuOpen ? 'top-1/2 -translate-y-1/2 -rotate-45' : 'bottom-0'}`}
+                                    />
+                                </span>
+                            </button>
+                        </div>
                     </div>
-                </div>
-                {isMenuOpen ? (
-                    <div
-                        ref={menuRef}
-                        id="site-menu"
-                        className="border-main-blue/35 bg-panel/95 absolute top-24 right-4 w-[min(calc(100vw-2rem),26rem)] rounded-md border p-3 shadow-[0_0_40px_rgba(55,100,245,0.22)] backdrop-blur sm:right-6"
-                    >
-                        <nav className="grid gap-2">
-                            {nav.map(([label, name]) => (
-                                <Link
-                                    key={name}
-                                    href={route(name)}
-                                    className="font-heading hover:border-main-blue/35 hover:bg-main-blue/10 hover:text-seafoam-green rounded-sm border border-transparent px-4 py-3 text-xs font-semibold tracking-[0.18em] text-white/70 uppercase transition"
-                                    onClick={() => setIsMenuOpen(false)}
-                                >
-                                    {label}
-                                </Link>
-                            ))}
-                            {/*
+                    {isMenuOpen ? (
+                        <div
+                            ref={menuRef}
+                            id="site-menu"
+                            className="border-main-blue/35 bg-panel/95 absolute top-24 right-4 w-[min(calc(100vw-2rem),26rem)] rounded-md border p-3 shadow-[0_0_40px_rgba(55,100,245,0.22)] backdrop-blur sm:right-6"
+                        >
+                            <nav className="grid gap-2">
+                                {nav.map(([label, name]) => (
+                                    <Link
+                                        key={name}
+                                        href={route(name)}
+                                        className="font-heading hover:border-main-blue/35 hover:bg-main-blue/10 hover:text-seafoam-green rounded-sm border border-transparent px-4 py-3 text-xs font-semibold tracking-[0.18em] text-white/70 uppercase transition"
+                                        onClick={() => setIsMenuOpen(false)}
+                                    >
+                                        {label}
+                                    </Link>
+                                ))}
+                                {/*
                             <Link
                                 href={accountHref}
                                 className="font-heading hover:border-violet-light/35 hover:bg-violet-light/10 hover:text-violet-light rounded-sm border border-transparent px-4 py-3 text-xs font-semibold tracking-[0.18em] text-white/70 uppercase transition"
@@ -122,18 +124,18 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                             >
                                 {accountLabel}
                             </Link>*/}
-                            {auth.user?.is_admin ? (
-                                <Link
-                                    href={route('admin.dashboard')}
-                                    className="font-heading hover:border-main-blue/35 hover:bg-main-blue/10 rounded-sm border border-transparent px-4 py-3 text-xs font-semibold tracking-[0.18em] text-white/70 uppercase transition hover:text-sky-300"
-                                    onClick={() => setIsMenuOpen(false)}
-                                >
-                                    Admin
-                                </Link>
-                            ) : null}
-                        </nav>
-                    </div>
-                ) : null}
+                                {auth.user?.is_admin ? (
+                                    <Link
+                                        href={route('admin.dashboard')}
+                                        className="font-heading hover:border-main-blue/35 hover:bg-main-blue/10 rounded-sm border border-transparent px-4 py-3 text-xs font-semibold tracking-[0.18em] text-white/70 uppercase transition hover:text-sky-300"
+                                        onClick={() => setIsMenuOpen(false)}
+                                    >
+                                        Admin
+                                    </Link>
+                                ) : null}
+                            </nav>
+                        </div>
+                    ) : null}
                 </header>
 
                 {flash?.success || flash?.error ? (
@@ -158,7 +160,7 @@ function TraderFitResultsButton() {
 
     return (
         <button
-            className="border-main-blue/45 bg-main-blue/10 text-sky-300 hover:border-main-blue hover:bg-main-blue/20 focus-visible:ring-seafoam-green focus-visible:ring-offset-midnight-blue font-heading inline-flex min-h-10 max-w-[calc(100vw-7rem)] items-center justify-center gap-2 rounded-sm border px-3 py-2 text-[0.62rem] font-semibold tracking-[0.1em] uppercase transition hover:text-white focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none sm:px-4 sm:text-xs"
+            className="border-main-blue/45 bg-main-blue/10 hover:border-main-blue hover:bg-main-blue/20 focus-visible:ring-seafoam-green focus-visible:ring-offset-midnight-blue font-heading inline-flex min-h-10 max-w-[calc(100vw-7rem)] items-center justify-center gap-2 rounded-sm border px-3 py-2 text-[0.62rem] font-semibold tracking-[0.1em] text-sky-300 uppercase transition hover:text-white focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none sm:px-4 sm:text-xs"
             onClick={() => openTraderFitModal()}
             type="button"
         >
@@ -283,7 +285,9 @@ function Footer() {
                 <div className="grid grid-cols-2 gap-x-6 gap-y-10 border-y border-white/15 py-10 text-left text-sm text-white/75 md:grid-cols-4 md:text-center">
                     {mobileFooterColumnGroups.map((columnGroup) => (
                         <div
-                            key={columnGroup.map((column) => column.title).join('-')}
+                            key={columnGroup
+                                .map((column) => column.title)
+                                .join('-')}
                             className="space-y-10 md:contents"
                         >
                             {columnGroup.map((column) => (

@@ -1,4 +1,5 @@
 import { IconRenderer } from '@/Components/Icons/IconRenderer';
+import TraderFitButton from '@/Components/TraderFit/TraderFitButton';
 import { Eyebrow, HudPanel, TaxonomyBadge } from '@/Components/UI/Hud';
 import { ModuleCarouselCard } from '@/Components/UI/ModuleCardsCarousel';
 import { PublicHeroFrame } from '@/Components/UI/PublicHero';
@@ -22,7 +23,7 @@ export default function ModulesIndex({
                     />
                 </div>
                 <div className="mx-auto max-w-7xl xl:max-w-[1500px]">
-                    <Eyebrow>System Modules</Eyebrow>
+                    <Eyebrow>System&nbsp;Modules</Eyebrow>
                     <h1 className="font-heading text-center text-4xl leading-none font-semibold uppercase sm:text-5xl lg:text-6xl">
                         <span className="text-violet">Module</span>{' '}
                         <span className="text-seafoam-green">Matrix</span>
@@ -33,11 +34,11 @@ export default function ModulesIndex({
                         market context, trend, participation, and structure.
                     </p>
 
-                    <div className="border-main-blue-bright/40 mx-auto mb-5 max-w-2xl border-b pt-2 pb-5"></div>
-                    <p className="font-heading text-seafoam-green mx-auto mt-5 max-w-xl text-center text-sm leading-7 font-semibold tracking-[0.24em] uppercase sm:text-base">
-                        Not sure where to start? <br />
-                        Begin with your trader type.
-                    </p>
+                    <div className="mt-4 flex justify-center">
+                        <TraderFitButton className="w-full max-w-[600px]">
+                            Not sure where to start? Begin with your trader type
+                        </TraderFitButton>
+                    </div>
 
                     <div className="mt-10 grid gap-4 md:grid-cols-2 lg:hidden">
                         {modules.map((module) => (

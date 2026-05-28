@@ -40,6 +40,7 @@ class AdminCatalogTest extends TestCase
                 'related_module_ids' => [],
                 'icon' => 'momentum-cycles',
                 'image' => UploadedFile::fake()->create('momentum-cycles.jpg', 12, 'image/jpeg'),
+                'banner_image' => UploadedFile::fake()->create('momentum-cycles-banner.jpg', 18, 'image/jpeg'),
                 'title' => 'Momentum Cycles',
                 'slug' => '',
                 'description' => 'Identify momentum phase and trend strength.',
@@ -58,6 +59,7 @@ class AdminCatalogTest extends TestCase
         $module = Module::where('slug', 'momentum-cycles')->firstOrFail();
 
         Storage::disk('public')->assertExists($module->image_path);
+        Storage::disk('public')->assertExists($module->banner_image);
         $this->assertDatabaseHas(Module::class, [
             'title' => 'Momentum Cycles',
             'slug' => 'momentum-cycles',
@@ -76,6 +78,7 @@ class AdminCatalogTest extends TestCase
                 'trader_type_ids' => [$traderType->id],
                 'icon' => 'market-data-bars',
                 'logo' => UploadedFile::fake()->create('market-environment.jpg', 12, 'image/jpeg'),
+                'banner_image' => UploadedFile::fake()->create('market-environment-banner.jpg', 18, 'image/jpeg'),
                 'title' => 'Market Environment',
                 'slug' => '',
                 'access' => AccessLevel::DailyNewsletterDiscord->value,
@@ -97,6 +100,7 @@ class AdminCatalogTest extends TestCase
         $playbook = Playbook::where('slug', 'market-environment')->firstOrFail();
 
         Storage::disk('public')->assertExists($playbook->logo_path);
+        Storage::disk('public')->assertExists($playbook->banner_image);
         $this->assertDatabaseHas(Playbook::class, [
             'title' => 'Market Environment',
             'slug' => 'market-environment',

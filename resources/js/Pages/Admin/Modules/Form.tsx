@@ -12,6 +12,8 @@ type ModuleForm = {
     icon: string;
     image: File | null;
     remove_image: boolean;
+    banner_image: File | null;
+    remove_banner_image: boolean;
     title: string;
     slug: string;
     description: string;
@@ -63,6 +65,8 @@ export default function ModuleFormPage({
             icon: module?.icon || '',
             image: null,
             remove_image: false,
+            banner_image: null,
+            remove_banner_image: false,
             title: module?.title || '',
             slug: module?.slug || '',
             description: module?.description || '',
@@ -186,6 +190,56 @@ export default function ModuleFormPage({
                                     checked={data.remove_image}
                                     onChange={(checked) =>
                                         setData('remove_image', checked)
+                                    }
+                                />
+                            ) : null}
+                        </div>
+                    </Field>
+                    <Field
+                        label="Banner Image Upload"
+                        error={errors.banner_image}
+                    >
+                        <div className="mt-2 grid gap-3">
+                            {module?.banner_image_url &&
+                            !data.remove_banner_image &&
+                            !data.banner_image ? (
+                                <div className="border-main-blue/30 bg-panel-deep/70 flex items-center gap-4 rounded-sm border p-3">
+                                    <img
+                                        className="h-16 w-28 rounded-sm border border-white/10 object-cover"
+                                        src={module.banner_image_url}
+                                        alt=""
+                                    />
+                                    <span className="font-body text-sm tracking-normal text-white/70 normal-case">
+                                        Current banner image
+                                    </span>
+                                </div>
+                            ) : null}
+                            <input
+                                className={fileInput}
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp"
+                                onChange={(e) => {
+                                    const image = e.target.files?.[0] ?? null;
+
+                                    setData('banner_image', image);
+
+                                    if (image) {
+                                        setData('remove_banner_image', false);
+                                    }
+                                }}
+                            />
+                            {data.banner_image ? (
+                                <span className="font-body text-sm tracking-normal text-white/70 normal-case">
+                                    Selected: {data.banner_image.name}
+                                </span>
+                            ) : null}
+                            {module?.banner_image_url &&
+                            !data.banner_image ? (
+                                <Check
+                                    label="Remove current banner image"
+                                    checked={data.remove_banner_image}
+                                    onChange={(checked) =>
+                                        setData('remove_banner_image', checked)
                                     }
                                 />
                             ) : null}

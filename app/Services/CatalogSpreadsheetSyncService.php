@@ -25,6 +25,13 @@ class CatalogSpreadsheetSyncService
 
     private const STATE_FILE = 'catalog-spreadsheet-sync.json';
 
+    private const OPTIONAL_HEADERS = [
+        'image_path',
+        'logo_path',
+        'banner_image',
+        'long_description',
+    ];
+
     private const TRADER_TYPE_HEADERS = [
         'id',
         'name',
@@ -43,6 +50,7 @@ class CatalogSpreadsheetSyncService
         'related_module_slugs',
         'icon',
         'image_path',
+        'banner_image',
         'title',
         'slug',
         'description',
@@ -74,6 +82,7 @@ class CatalogSpreadsheetSyncService
         'trader_type_slugs',
         'icon',
         'logo_path',
+        'banner_image',
         'title',
         'slug',
         'access',
@@ -179,6 +188,7 @@ class CatalogSpreadsheetSyncService
             'related_module_slugs' => $this->formatSlugs($module->relatedModules),
             'icon' => $module->icon,
             'image_path' => $module->image_path,
+            'banner_image' => $module->banner_image,
             'title' => $module->title,
             'slug' => $module->slug,
             'description' => $module->description,
@@ -217,6 +227,7 @@ class CatalogSpreadsheetSyncService
             'trader_type_slugs' => $this->formatSlugs($playbook->traderTypes),
             'icon' => $playbook->icon,
             'logo_path' => $playbook->logo_path,
+            'banner_image' => $playbook->banner_image,
             'title' => $playbook->title,
             'slug' => $playbook->slug,
             'access' => $this->accessValue($playbook->access),
@@ -274,6 +285,7 @@ class CatalogSpreadsheetSyncService
                 'market_id' => $this->marketId($row['market_slug']),
                 'icon' => $this->nullableString($row['icon']),
                 'image_path' => $this->nullableString($row['image_path']),
+                'banner_image' => $this->nullableString($row['banner_image']),
                 'title' => $this->requiredString($row['title'], 'modules.title'),
                 'slug' => $this->slug($row['slug'], $row['title']),
                 'description' => $this->nullableString($row['description']),
@@ -328,6 +340,7 @@ class CatalogSpreadsheetSyncService
                 'market_id' => $this->marketId($row['market_slug']),
                 'icon' => $this->nullableString($row['icon']),
                 'logo_path' => $this->nullableString($row['logo_path']),
+                'banner_image' => $this->nullableString($row['banner_image']),
                 'title' => $this->requiredString($row['title'], 'playbooks.title'),
                 'slug' => $this->slug($row['slug'], $row['title']),
                 'access' => $this->validatedAccess($row['access']),
@@ -417,7 +430,7 @@ class CatalogSpreadsheetSyncService
         }
 
         $headers = array_map(fn (string $header): string => trim($header), $headers);
-        $missingHeaders = array_diff($requiredHeaders, $headers);
+        $missingHeaders = array_diff($requiredHeaders, $headers, self::OPTIONAL_HEADERS);
 
         if ($missingHeaders !== []) {
             fclose($handle);
@@ -436,6 +449,10 @@ class CatalogSpreadsheetSyncService
 
             foreach ($headers as $index => $header) {
                 $row[$header] = (string) ($values[$index] ?? '');
+            }
+
+            foreach (array_diff($requiredHeaders, $headers) as $header) {
+                $row[$header] = '';
             }
 
             $rows[] = $row;

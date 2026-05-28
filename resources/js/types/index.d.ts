@@ -54,6 +54,8 @@ export interface Module {
     icon?: string | null;
     image_path?: string | null;
     image_url?: string | null;
+    banner_image?: string | null;
+    banner_image_url?: string | null;
     title: string;
     slug: string;
     description?: string | null;
@@ -90,6 +92,8 @@ export interface Playbook {
     icon?: string | null;
     logo_path?: string | null;
     logo_url?: string | null;
+    banner_image?: string | null;
+    banner_image_url?: string | null;
     title: string;
     slug: string;
     access: AccessValue;

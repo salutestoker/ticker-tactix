@@ -11,6 +11,8 @@ type PlaybookForm = {
     icon: string;
     logo: File | null;
     remove_logo: boolean;
+    banner_image: File | null;
+    remove_banner_image: boolean;
     title: string;
     slug: string;
     access: string;
@@ -50,6 +52,8 @@ export default function PlaybookFormPage({
             icon: playbook?.icon || '',
             logo: null,
             remove_logo: false,
+            banner_image: null,
+            remove_banner_image: false,
             title: playbook?.title || '',
             slug: playbook?.slug || '',
             access:
@@ -164,6 +168,56 @@ export default function PlaybookFormPage({
                                     checked={data.remove_logo}
                                     onChange={(checked) =>
                                         setData('remove_logo', checked)
+                                    }
+                                />
+                            ) : null}
+                        </div>
+                    </Field>
+                    <Field
+                        label="Banner Image Upload"
+                        error={errors.banner_image}
+                    >
+                        <div className="mt-2 grid gap-3">
+                            {playbook?.banner_image_url &&
+                            !data.remove_banner_image &&
+                            !data.banner_image ? (
+                                <div className="border-main-blue/30 bg-panel-deep/70 flex items-center gap-4 rounded-sm border p-3">
+                                    <img
+                                        className="h-16 w-28 rounded-sm border border-white/10 object-cover"
+                                        src={playbook.banner_image_url}
+                                        alt=""
+                                    />
+                                    <span className="font-body text-sm tracking-normal text-white/70 normal-case">
+                                        Current banner image
+                                    </span>
+                                </div>
+                            ) : null}
+                            <input
+                                className={fileInput}
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp"
+                                onChange={(e) => {
+                                    const image = e.target.files?.[0] ?? null;
+
+                                    setData('banner_image', image);
+
+                                    if (image) {
+                                        setData('remove_banner_image', false);
+                                    }
+                                }}
+                            />
+                            {data.banner_image ? (
+                                <span className="font-body text-sm tracking-normal text-white/70 normal-case">
+                                    Selected: {data.banner_image.name}
+                                </span>
+                            ) : null}
+                            {playbook?.banner_image_url &&
+                            !data.banner_image ? (
+                                <Check
+                                    label="Remove current banner image"
+                                    checked={data.remove_banner_image}
+                                    onChange={(checked) =>
+                                        setData('remove_banner_image', checked)
                                     }
                                 />
                             ) : null}

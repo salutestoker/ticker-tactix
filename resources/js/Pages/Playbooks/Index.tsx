@@ -199,6 +199,8 @@ export default function PlaybooksIndex({
 }
 
 function PlaybookCard({ playbook }: { playbook: Playbook }) {
+    const bannerSrc = playbook.banner_image_url;
+
     return (
         <div className="group border-main-blue/45 to-panel-deep hover:border-violet-light/70 focus-visible:ring-seafoam-green/70 flex h-[30rem] w-full flex-col overflow-hidden rounded-[14px] border bg-gradient-to-b from-[#0e1f4b] p-5 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_0_24px_rgba(55,100,245,0.16)] transition hover:-translate-y-1 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.09),0_0_30px_rgba(181,67,215,0.15)] focus-visible:ring-2 focus-visible:outline-none">
             <div className="relative flex gap-5">
@@ -217,7 +219,7 @@ function PlaybookCard({ playbook }: { playbook: Playbook }) {
                     </p>
                 </div>
 
-                <div className="absolute top-[-25px] right-[-16px] h-24 w-24">
+                <div className="absolute -top-2 right-[-16px] h-20 w-20 sm:top-[-25px]">
                     {playbook.logo_url ? (
                         <img
                             className="h-full w-full object-contain mix-blend-lighten transition duration-300 group-hover:scale-105"
@@ -252,7 +254,17 @@ function PlaybookCard({ playbook }: { playbook: Playbook }) {
             </div>
 
             <div className="mt-4 flex max-h-30 items-center rounded-lg mix-blend-lighten">
-                <FallbackPlaybookVisual playbook={playbook} />
+                {bannerSrc ? (
+                    <img
+                        className="h-full w-full object-cover"
+                        src={bannerSrc}
+                        alt=""
+                        draggable={false}
+                        loading="lazy"
+                    />
+                ) : (
+                    <FallbackPlaybookVisual playbook={playbook} />
+                )}
             </div>
 
             <Link

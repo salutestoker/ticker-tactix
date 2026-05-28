@@ -19,6 +19,7 @@ class Module extends Model
         'market_id',
         'icon',
         'image_path',
+        'banner_image',
         'title',
         'slug',
         'description',
@@ -46,6 +47,7 @@ class Module extends Model
 
     protected $appends = [
         'image_url',
+        'banner_image_url',
     ];
 
     protected function casts(): array
@@ -90,6 +92,15 @@ class Module extends Model
         }
 
         return Storage::disk((string) config('filesystems.module_image_disk', 'public'))->url($this->image_path);
+    }
+
+    public function getBannerImageUrlAttribute(): ?string
+    {
+        if (! $this->banner_image) {
+            return null;
+        }
+
+        return Storage::disk((string) config('filesystems.module_image_disk', 'public'))->url($this->banner_image);
     }
 
     #[Scope]
