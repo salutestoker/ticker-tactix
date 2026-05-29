@@ -77,10 +77,6 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
                 force3D: true,
             });
 
-            const reducedMotion = window.matchMedia(
-                '(prefers-reduced-motion: reduce)',
-            ).matches;
-
             let hoverPaused = false;
             let manualPaused = false;
             let manualResumeTimeout: number | undefined;
@@ -284,12 +280,11 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
 
                 releasePointerCapture(event.pointerId);
 
-                momentumVelocity =
-                    dragStarted && !reducedMotion
-                        ? clampMomentumVelocity(
-                              dragVelocity * momentumReleaseMultiplier,
-                          )
-                        : 0;
+                momentumVelocity = dragStarted
+                    ? clampMomentumVelocity(
+                          dragVelocity * momentumReleaseMultiplier,
+                      )
+                    : 0;
                 dragVelocity = 0;
 
                 if (Math.abs(momentumVelocity) >= minMomentumPixelsPerSecond) {
@@ -317,7 +312,7 @@ export function ModuleCardsCarousel({ modules }: { modules: Module[] }) {
             };
 
             const tick = (_time: number, deltaTime: number) => {
-                if (pointerDown || reducedMotion) {
+                if (pointerDown) {
                     return;
                 }
 
