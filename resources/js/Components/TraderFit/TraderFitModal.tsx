@@ -2,7 +2,7 @@ import { IconRenderer } from '@/Components/Icons/IconRenderer';
 import { HudButton } from '@/Components/UI/Hud';
 import type { PageProps, TraderType } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { X } from 'lucide-react';
+import { RefreshCcw, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import type { TraderFitModalLaunchOptions } from './TraderFitProvider';
@@ -581,122 +581,131 @@ function TraderFitResult({
     );
 
     return (
-        <div className="border-violet-light/35 bg-panel/95 relative overflow-hidden rounded-[14px] border p-5 shadow-[0_35px_110px_-45px_rgba(181,67,215,0.95)] sm:p-8">
-            <div className="pointer-events-none absolute inset-0 [background-image:linear-gradient(90deg,rgba(55,100,245,0.12)_1px,transparent_1px),linear-gradient(0deg,rgba(0,250,146,0.1)_1px,transparent_1px)] [background-size:28px_28px] opacity-20" />
+        <div className="flex min-h-0 flex-1 flex-col">
+            <div className="border-violet-light/35 bg-panel/95 relative min-h-0 flex-1 overflow-hidden rounded-[14px] border p-5 shadow-[0_35px_110px_-45px_rgba(181,67,215,0.95)] sm:p-8">
+                <div className="pointer-events-none absolute inset-0 [background-image:linear-gradient(90deg,rgba(55,100,245,0.12)_1px,transparent_1px),linear-gradient(0deg,rgba(0,250,146,0.1)_1px,transparent_1px)] [background-size:28px_28px] opacity-20" />
 
-            <div className="relative z-10 max-h-[70vh] overflow-y-auto pr-1">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                        <p className="font-heading text-violet-light text-[0.72rem] tracking-[0.1em] uppercase">
-                            {result.eyebrow}
-                        </p>
-                        <h2 className="font-heading mt-2 text-2xl leading-[1.2] text-white uppercase sm:text-3xl">
-                            {introHeadline}
-                        </h2>
-                        <p className="mt-2 max-w-3xl leading-7 text-white/68">
-                            {TRADER_FIT_RESULT_INTRO_SUBTEXT}
-                        </p>
+                <div className="relative z-10 h-full overflow-y-auto pr-1">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                            <p className="font-heading text-violet-light text-[0.72rem] tracking-[0.1em] uppercase">
+                                {result.eyebrow}
+                            </p>
+                            <h2 className="font-heading mt-2 text-2xl leading-[1.2] text-white uppercase sm:text-3xl">
+                                {introHeadline}
+                            </h2>
+                            <p className="mt-2 max-w-3xl leading-7 text-white/68">
+                                {TRADER_FIT_RESULT_INTRO_SUBTEXT}
+                            </p>
+                        </div>
                     </div>
-                    <span className="border-seafoam-green/35 bg-seafoam-green/10 text-seafoam-green inline-flex items-center gap-2 rounded-sm border px-3 py-1.5 text-[0.72rem]">
-                        <IconRenderer name="pulse" className="h-4 w-4" />
-                        Score {totalScore}/{maxScore}
-                    </span>
-                </div>
+                    {suggestedTraderType ? (
+                        <SuggestedTraderTypeCard
+                            traderType={suggestedTraderType}
+                        />
+                    ) : null}
 
-                <h3 className="font-heading mt-6 text-xl text-white uppercase sm:text-2xl">
-                    {result.headline}
-                </h3>
+                    <h3 className="font-heading mt-6 text-xl text-white uppercase sm:text-2xl">
+                        {result.headline}
+                    </h3>
 
-                <div className="mt-4 space-y-3 leading-7 text-white/78">
-                    {result.body.map((line) => (
-                        <p key={line}>{line}</p>
-                    ))}
-                </div>
+                    <div className="mt-4 space-y-3 leading-7 text-white/78">
+                        {result.body.map((line) => (
+                            <p key={line}>{line}</p>
+                        ))}
+                    </div>
 
-                <ResultList
-                    title="What to do next"
-                    items={result.whatToDoNext}
-                />
-                <ResultList title="What to avoid" items={result.whatToAvoid} />
+                    <ResultList
+                        title="What to do next"
+                        items={result.whatToDoNext}
+                    />
+                    <ResultList
+                        title="What to avoid"
+                        items={result.whatToAvoid}
+                    />
 
-                {result.whyThisMatters ? (
-                    <div className="border-main-blue/25 bg-midnight-blue/55 mt-6 rounded-[12px] border p-4">
+                    {result.whyThisMatters ? (
+                        <div className="border-main-blue/25 bg-midnight-blue/55 mt-6 rounded-[12px] border p-4">
+                            <p className="font-heading text-xs tracking-[0.08em] text-white/60 uppercase">
+                                Why this matters
+                            </p>
+                            <p className="mt-2 leading-7 text-white/75">
+                                {result.whyThisMatters}
+                            </p>
+                        </div>
+                    ) : null}
+
+                    <div className="border-violet-light/32 bg-violet-light/10 mt-6 rounded-[12px] border p-4">
                         <p className="font-heading text-xs tracking-[0.08em] text-white/60 uppercase">
-                            Why this matters
+                            Next step
                         </p>
-                        <p className="mt-2 leading-7 text-white/75">
-                            {result.whyThisMatters}
+                        <p className="mt-2 leading-7 text-white/82">
+                            {result.nextStep}
                         </p>
                     </div>
-                ) : null}
 
-                <div className="border-violet-light/32 bg-violet-light/10 mt-6 rounded-[12px] border p-4">
-                    <p className="font-heading text-xs tracking-[0.08em] text-white/60 uppercase">
-                        Next step
-                    </p>
-                    <p className="mt-2 leading-7 text-white/82">
-                        {result.nextStep}
-                    </p>
-                </div>
+                    {overrideReason ? (
+                        <p className="mt-4 text-sm text-white/45">
+                            {overrideReason}
+                        </p>
+                    ) : null}
 
-                {overrideReason ? (
-                    <p className="mt-4 text-sm text-white/45">
-                        {overrideReason}
-                    </p>
-                ) : null}
-
-                <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                    {result.ctas.map((cta) => (
-                        <ResultCta cta={cta} key={cta.label} />
-                    ))}
-                </div>
-
-                {suggestedTraderType ? (
-                    <SuggestedTraderTypeCard traderType={suggestedTraderType} />
-                ) : null}
-
-                <div className="border-main-blue/20 bg-midnight-blue/45 mt-7 rounded-[12px] border p-4 text-sm leading-6 text-white/68">
-                    <p className="font-heading text-xs tracking-[0.08em] text-white/60 uppercase">
-                        Disclaimer
-                    </p>
-                    <p className="mt-3">
-                        Ticker-Tactix is designed for structured, rules-based
-                        traders.
-                    </p>
-                    <p className="mt-3 text-white/55">This is not:</p>
-                    <ul className="mt-2 space-y-1">
-                        {TRADER_FIT_DISCLAIMER_POINTS.map((item) => (
-                            <li key={item}>- {item}</li>
+                    <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                        {result.ctas.map((cta) => (
+                            <ResultCta cta={cta} key={cta.label} />
                         ))}
-                    </ul>
-                    <p className="mt-3 text-white/55">
-                        This is for traders who are serious about:
-                    </p>
-                    <ul className="mt-2 space-y-1">
-                        {TRADER_FIT_SERIOUS_POINTS.map((item) => (
-                            <li key={item}>- {item}</li>
-                        ))}
-                    </ul>
-                </div>
+                    </div>
 
-                <div className="mt-7 flex flex-wrap gap-3">
-                    <HudButton onClick={onRestart} tone="blue" type="button">
-                        Start Over
-                    </HudButton>
-                    <HudButton onClick={onClose} tone="violet" type="button">
-                        Close
-                    </HudButton>
+                    <div className="border-main-blue/20 bg-midnight-blue/45 mt-7 rounded-[12px] border p-4 text-sm leading-6 text-white/68">
+                        <p className="font-heading text-xs tracking-[0.08em] text-white/60 uppercase">
+                            Disclaimer
+                        </p>
+                        <p className="mt-3">
+                            Ticker-Tactix is designed for structured,
+                            rules-based traders.
+                        </p>
+                        <p className="mt-3 text-white/55">This is not:</p>
+                        <ul className="mt-2 space-y-1">
+                            {TRADER_FIT_DISCLAIMER_POINTS.map((item) => (
+                                <li key={item}>- {item}</li>
+                            ))}
+                        </ul>
+                        <p className="mt-3 text-white/55">
+                            This is for traders who are serious about:
+                        </p>
+                        <ul className="mt-2 space-y-1">
+                            {TRADER_FIT_SERIOUS_POINTS.map((item) => (
+                                <li key={item}>- {item}</li>
+                            ))}
+                        </ul>
+                    </div>
                 </div>
+            </div>
+
+            <div className="mt-4 flex shrink-0 flex-wrap justify-end gap-3">
+                <HudButton
+                    onClick={onRestart}
+                    tone="blue"
+                    className="flex gap-2"
+                    type="button"
+                >
+                    <RefreshCcw className="w-4" /> Start Over
+                </HudButton>
+                <HudButton
+                    onClick={onClose}
+                    tone="violet"
+                    type="button"
+                    className="flex gap-2"
+                >
+                    <X className="w-4" />
+                    Close
+                </HudButton>
             </div>
         </div>
     );
 }
 
-function SuggestedTraderTypeCard({
-    traderType,
-}: {
-    traderType: TraderType;
-}) {
+function SuggestedTraderTypeCard({ traderType }: { traderType: TraderType }) {
     return (
         <Link
             className="group mt-7 block"
