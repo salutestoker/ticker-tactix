@@ -37,6 +37,11 @@ class PageController extends Controller
         return Inertia::render('Contact');
     }
 
+    public function welcome(): Response
+    {
+        return Inertia::render('Welcome');
+    }
+
     public function legal(string $page): Response
     {
         $pages = [
