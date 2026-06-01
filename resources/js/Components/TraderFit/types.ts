@@ -8,6 +8,10 @@ export type TraderFitResultId =
     | 'deployment_path'
     | 'precision_path';
 
+export type TraderFitRecommendedMarket = 'CRYPTO' | 'NYSE';
+
+export type TraderFitRecommendedLevel = 'BASE' | 'CORE' | 'PRO';
+
 export type TraderFitIconKey =
     | 'spark'
     | 'chart'
@@ -72,6 +76,9 @@ export type TraderFitCalculatedResult = {
     breakdown: TraderFitScoreBreakdownItem[];
     maxScore: number;
     overrideReason?: string;
+    recommendedTraderTypeLevel: TraderFitRecommendedLevel;
+    recommendedTraderTypeMarket: TraderFitRecommendedMarket;
+    recommendedTraderTypeName: string;
     result: TraderFitResultDefinition;
     resultId: TraderFitResultId;
     totalScore: number;

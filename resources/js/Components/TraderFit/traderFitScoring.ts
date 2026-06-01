@@ -8,7 +8,10 @@ import type {
     TraderFitCalculatedResult,
     TraderFitQuestion,
     TraderFitQuizConfig,
+    TraderFitRecommendedLevel,
+    TraderFitRecommendedMarket,
     TraderFitResultId,
+    TraderFitScoreBand,
 } from './types';
 
 export function toSelectedAnswerIds(rawAnswer: string | string[] | undefined) {
@@ -65,6 +68,13 @@ function getResultIdFromScore(
     return matchingBand?.resultId ?? 'foundation_path';
 }
 
+function getScoreBand(
+    scoreBands: TraderFitQuizConfig['scoreBands'],
+    resultId: TraderFitResultId,
+): TraderFitScoreBand | undefined {
+    return scoreBands.find((band) => band.resultId === resultId);
+}
+
 function hasSelected(
     answers: TraderFitAnswers,
     questionId: string,
@@ -84,7 +94,11 @@ function resolveOverrideResult(
     answers: TraderFitAnswers,
     totalScore: number,
     scoreByQuestionId: Map<string, number>,
+    scoreBands: TraderFitQuizConfig['scoreBands'],
 ): { reason: string; resultId: TraderFitResultId } | null {
+    const precisionBand = getScoreBand(scoreBands, 'precision_path');
+    const precisionMinScore = precisionBand?.min ?? 29;
+
     const highCapital =
         getScoreForQuestion(
             scoreByQuestionId,
@@ -107,7 +121,7 @@ function resolveOverrideResult(
     );
 
     if (
-        totalScore >= 36 ||
+        totalScore >= precisionMinScore ||
         (highCapital && highStructure && highTime && highConsistency)
     ) {
         return {
@@ -122,7 +136,7 @@ function resolveOverrideResult(
         TRADER_FIT_ANSWERS.rulesAlignment.noFlexibility,
     );
 
-    if (prefersFlexibility && totalScore < 34) {
+    if (prefersFlexibility && totalScore < precisionMinScore) {
         return {
             resultId: 'foundation_path',
             reason: 'Override: low rules-alignment favors the foundation path.',
@@ -197,6 +211,33 @@ function resolveOverrideResult(
     return null;
 }
 
+function getRecommendedTraderTypeMarket(
+    answers: TraderFitAnswers,
+): TraderFitRecommendedMarket {
+    const selectedMarkets = toSelectedAnswerIds(
+        answers[TRADER_FIT_QUESTION_IDS.markets],
+    );
+    const selectedCryptoOnly =
+        selectedMarkets.length === 1 &&
+        selectedMarkets[0] === TRADER_FIT_ANSWERS.markets.crypto;
+
+    return selectedCryptoOnly ? 'CRYPTO' : 'NYSE';
+}
+
+function getRecommendedTraderTypeLevel(
+    resultId: TraderFitResultId,
+): TraderFitRecommendedLevel {
+    if (resultId === 'precision_path') {
+        return 'PRO';
+    }
+
+    if (resultId === 'deployment_path' || resultId === 'structure_path') {
+        return 'CORE';
+    }
+
+    return 'BASE';
+}
+
 export function calculateTraderFitResult(
     answers: TraderFitAnswers,
     quizConfig: TraderFitQuizConfig = TRADER_FIT_QUIZ_CONFIG,
@@ -223,8 +264,13 @@ export function calculateTraderFitResult(
         answers,
         totalScore,
         scoreByQuestionId,
+        quizConfig.scoreBands,
     );
     const resolvedResultId = override?.resultId ?? baseResultId;
+    const recommendedTraderTypeMarket =
+        getRecommendedTraderTypeMarket(answers);
+    const recommendedTraderTypeLevel =
+        getRecommendedTraderTypeLevel(resolvedResultId);
 
     return {
         totalScore,
@@ -234,5 +280,8 @@ export function calculateTraderFitResult(
         maxScore: quizConfig.maxScore,
         breakdown,
         overrideReason: override?.reason,
+        recommendedTraderTypeLevel,
+        recommendedTraderTypeMarket,
+        recommendedTraderTypeName: `${recommendedTraderTypeMarket} ${recommendedTraderTypeLevel}`,
     };
 }

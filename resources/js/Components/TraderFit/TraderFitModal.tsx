@@ -371,8 +371,7 @@ export default function TraderFitModal({
                                     overrideReason={result.overrideReason}
                                     result={result.result}
                                     suggestedTraderType={suggestTraderType(
-                                        result.resultId,
-                                        answers,
+                                        result,
                                         traderFitTraderTypes,
                                     )}
                                     totalScore={result.totalScore}
@@ -786,39 +785,23 @@ function ResultCta({ cta }: { cta: TraderFitResultCta }) {
 }
 
 function suggestTraderType(
-    resultId: TraderFitCalculatedResult['resultId'],
-    answers: TraderFitAnswers,
+    result: TraderFitCalculatedResult,
     traderTypes: TraderType[],
 ) {
     if (!traderTypes.length) {
         return null;
     }
 
-    const market = preferredMarket(answers);
-    const level =
-        resultId === 'precision_path'
-            ? 'PRO'
-            : resultId === 'deployment_path' || resultId === 'structure_path'
-              ? 'CORE'
-              : 'BASE';
-
     return (
         traderTypes.find((traderType) =>
-            traderType.name.toUpperCase().includes(`${market} ${level}`),
+            traderType.name
+                .toUpperCase()
+                .includes(result.recommendedTraderTypeName),
         ) ??
         traderTypes.find((traderType) =>
-            traderType.name.toUpperCase().includes(level),
-        ) ??
-        traderTypes[0]
+            traderType.name
+                .toUpperCase()
+                .includes(result.recommendedTraderTypeMarket),
+        ) ?? null
     );
-}
-
-function preferredMarket(answers: TraderFitAnswers) {
-    const selectedMarkets = toSelectedAnswerIds(answers.traded_markets);
-
-    if (selectedMarkets.includes('market_crypto')) {
-        return 'CRYPTO';
-    }
-
-    return 'NYSE';
 }

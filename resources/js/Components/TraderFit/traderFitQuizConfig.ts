@@ -52,6 +52,12 @@ export const TRADER_FIT_ANSWERS = {
         someStructure: 'decision_some_structure',
         strictSystem: 'decision_strict',
     },
+    markets: {
+        crypto: 'market_crypto',
+        none: 'market_none',
+        options: 'market_options',
+        stocksEtfs: 'market_stocks_etf',
+    },
     rulesAlignment: {
         absoluteYes: 'rules_absolute',
         noFlexibility: 'rules_no_flex',
@@ -110,8 +116,8 @@ export const TRADER_FIT_QUESTIONS: TraderFitQuestion[] = [
         answers: [
             { id: 'duration_0_3_months', label: '0-3 months', score: 0 },
             { id: 'duration_3_12_months', label: '3-12 months', score: 1 },
-            { id: 'duration_1_3_years', label: '1-3 years', score: 3 },
-            { id: 'duration_3_plus', label: '3+ years', score: 4 },
+            { id: 'duration_1_3_years', label: '1-3 years', score: 2 },
+            { id: 'duration_3_plus', label: '3+ years', score: 3 },
         ],
     },
     {
@@ -122,10 +128,22 @@ export const TRADER_FIT_QUESTIONS: TraderFitQuestion[] = [
         type: 'multi_select',
         scoringMode: 'highest_selected',
         answers: [
-            { id: 'market_crypto', label: 'Crypto', score: 2 },
-            { id: 'market_stocks_etf', label: 'Stocks / ETFs', score: 2 },
-            { id: 'market_options', label: 'Options', score: 3 },
-            { id: 'market_multiple', label: 'Multiple markets', score: 4 },
+            { id: TRADER_FIT_ANSWERS.markets.none, label: 'None', score: 0 },
+            {
+                id: TRADER_FIT_ANSWERS.markets.crypto,
+                label: 'Crypto',
+                score: 1,
+            },
+            {
+                id: TRADER_FIT_ANSWERS.markets.stocksEtfs,
+                label: 'Stocks / ETFs',
+                score: 1,
+            },
+            {
+                id: TRADER_FIT_ANSWERS.markets.options,
+                label: 'Options',
+                score: 1,
+            },
         ],
     },
     {
@@ -144,12 +162,12 @@ export const TRADER_FIT_QUESTIONS: TraderFitQuestion[] = [
             {
                 id: 'consistency_some_months',
                 label: 'Some profitable months',
-                score: 3,
+                score: 2,
             },
             {
                 id: 'consistency_consistent',
                 label: 'Consistently profitable',
-                score: 4,
+                score: 3,
             },
         ],
     },
@@ -176,8 +194,8 @@ export const TRADER_FIT_QUESTIONS: TraderFitQuestion[] = [
         answers: [
             { id: 'time_under_1', label: 'Less than 1 hour/day', score: 0 },
             { id: 'time_1_2', label: '1-2 hours/day', score: 1 },
-            { id: 'time_2_4', label: '2-4 hours/day', score: 3 },
-            { id: 'time_4_plus', label: '4+ hours/day', score: 4 },
+            { id: 'time_2_4', label: '2-4 hours/day', score: 2 },
+            { id: 'time_4_plus', label: '4+ hours/day', score: 3 },
         ],
     },
     {
@@ -191,13 +209,13 @@ export const TRADER_FIT_QUESTIONS: TraderFitQuestion[] = [
             {
                 id: 'goal_build_consistency',
                 label: 'Build consistency',
-                score: 2,
+                score: 1,
             },
-            { id: 'goal_scale_account', label: 'Scale my account', score: 3 },
+            { id: 'goal_scale_account', label: 'Scale my account', score: 2 },
             {
                 id: 'goal_maximize_income',
                 label: 'Maximize income / go full-time',
-                score: 4,
+                score: 3,
             },
         ],
     },
@@ -208,6 +226,11 @@ export const TRADER_FIT_QUESTIONS: TraderFitQuestion[] = [
         prompt: 'How do you currently make trading decisions?',
         type: 'single_select',
         answers: [
+            {
+                id: 'decision_havent_started_trading_yet',
+                label: `I haven't started trading yet`,
+                score: 0,
+            },
             {
                 id: 'decision_guessing',
                 label: 'Guessing / gut feeling',
@@ -226,7 +249,7 @@ export const TRADER_FIT_QUESTIONS: TraderFitQuestion[] = [
             {
                 id: 'decision_strict',
                 label: 'Strict system / rules-based',
-                score: 4,
+                score: 3,
             },
         ],
     },
@@ -268,8 +291,8 @@ export const TRADER_FIT_QUESTIONS: TraderFitQuestion[] = [
                 score: 0,
             },
             { id: 'rules_somewhat', label: 'Somewhat', score: 1 },
-            { id: 'rules_yes_if_works', label: 'Yes, if it works', score: 3 },
-            { id: 'rules_absolute', label: 'Absolutely', score: 4 },
+            { id: 'rules_yes_if_works', label: 'Yes, if it works', score: 2 },
+            { id: 'rules_absolute', label: 'Absolutely', score: 3 },
         ],
     },
     {
@@ -280,17 +303,17 @@ export const TRADER_FIT_QUESTIONS: TraderFitQuestion[] = [
         type: 'single_select',
         answers: [
             { id: 'invest_no', label: 'No', score: 0 },
-            { id: 'invest_occasionally', label: 'Occasionally', score: 2 },
-            { id: 'invest_consistently', label: 'Yes, consistently', score: 4 },
+            { id: 'invest_occasionally', label: 'Occasionally', score: 1 },
+            { id: 'invest_consistently', label: 'Yes, consistently', score: 2 },
         ],
     },
 ];
 
 export const TRADER_FIT_SCORE_BANDS: TraderFitScoreBand[] = [
-    { min: 0, max: 13, resultId: 'foundation_path' },
-    { min: 14, max: 24, resultId: 'structure_path' },
-    { min: 25, max: 34, resultId: 'deployment_path' },
-    { min: 35, max: 44, resultId: 'precision_path' },
+    { min: 0, max: 10, resultId: 'foundation_path' },
+    { min: 11, max: 19, resultId: 'structure_path' },
+    { min: 20, max: 28, resultId: 'deployment_path' },
+    { min: 29, max: 36, resultId: 'precision_path' },
 ];
 
 export const TRADER_FIT_RESULTS: Record<
@@ -321,7 +344,11 @@ export const TRADER_FIT_RESULTS: Record<
             'Identify the trader path that matches your current market and pace.',
         ctas: [
             { label: 'Review Trader Types', href: '/trader-types' },
-            { label: 'Explore the System', href: '/system', variant: 'secondary' },
+            {
+                label: 'Explore the System',
+                href: '/system',
+                variant: 'secondary',
+            },
         ],
     },
     structure_path: {
@@ -344,7 +371,11 @@ export const TRADER_FIT_RESULTS: Record<
         nextStep: 'Start with modules before moving into deployment playbooks.',
         ctas: [
             { label: 'Explore Modules', href: '/modules' },
-            { label: 'Review Playbooks', href: '/playbooks', variant: 'secondary' },
+            {
+                label: 'Review Playbooks',
+                href: '/playbooks',
+                variant: 'secondary',
+            },
         ],
     },
     deployment_path: {
@@ -367,7 +398,11 @@ export const TRADER_FIT_RESULTS: Record<
         nextStep: 'Review the playbook matrix and choose the closest fit.',
         ctas: [
             { label: 'Explore Playbooks', href: '/playbooks' },
-            { label: 'Explore Modules', href: '/modules', variant: 'secondary' },
+            {
+                label: 'Explore Modules',
+                href: '/modules',
+                variant: 'secondary',
+            },
         ],
     },
     precision_path: {
@@ -390,7 +425,11 @@ export const TRADER_FIT_RESULTS: Record<
         nextStep: 'Move from understanding the system to deploying it.',
         ctas: [
             { label: 'Explore Playbooks', href: '/playbooks' },
-            { label: 'Explore Modules', href: '/modules', variant: 'secondary' },
+            {
+                label: 'Explore Modules',
+                href: '/modules',
+                variant: 'secondary',
+            },
         ],
     },
 };
