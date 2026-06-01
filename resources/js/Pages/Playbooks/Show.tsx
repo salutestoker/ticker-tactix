@@ -44,15 +44,19 @@ export default function PlaybooksShow({ playbook }: { playbook: Playbook }) {
                             actionUrl={playbook.action_url}
                             actionChildren={actionChildren}
                         />
-                        <HudPanel className="mt-10 p-8">
-                            <h2 className="font-heading text-seafoam-green text-xl tracking-[0.14em] uppercase">
-                                Description
-                            </h2>
-                            <ParagraphCopy
-                                className="mt-5 text-sm leading-8 text-white/70"
-                                text={playbook.long_description?.trim() ?? ''}
-                            />
-                        </HudPanel>
+                        {playbook.long_description && (
+                            <HudPanel className="mt-10 p-8">
+                                <h2 className="font-heading text-seafoam-green text-xl tracking-[0.14em] uppercase">
+                                    Description
+                                </h2>
+                                <ParagraphCopy
+                                    className="mt-5 text-sm leading-8 text-white/70"
+                                    text={
+                                        playbook.long_description?.trim() ?? ''
+                                    }
+                                />
+                            </HudPanel>
+                        )}
                     </div>
                     <HudPanel className="h-fit p-6">
                         <dl className="space-y-5 text-sm">
