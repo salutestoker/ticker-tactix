@@ -60,7 +60,9 @@ export default function TraderTypesShow({ traderType }: Props) {
     const activeTone = toneClasses[tone];
 
     return (
-        <PublicLayout>
+        <PublicLayout
+            adminEditHref={route('admin.trader-types.edit', traderType.id)}
+        >
             <Head title={traderType.name} />
             <PublicHeroFrame className="px-4 pt-32 pb-20 sm:px-6">
                 <div className="relative mx-auto max-w-7xl">

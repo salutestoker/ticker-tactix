@@ -37,7 +37,7 @@ export default function ModulesShow({
     const bestUsedFor = module.best_used_for ?? [];
 
     return (
-        <PublicLayout>
+        <PublicLayout adminEditHref={route('admin.modules.edit', module.id)}>
             <Head title={module.meta_title || module.title} />
             <PublicHeroFrame className="px-4 pt-32 pb-20 sm:px-6">
                 <div className="relative mx-auto max-w-7xl">

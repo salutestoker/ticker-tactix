@@ -1,6 +1,7 @@
 import { HudButton } from '@/Components/UI/Hud';
 import type { PageProps } from '@/types';
 import { Link, router, usePage } from '@inertiajs/react';
+import { Eye } from 'lucide-react';
 import type { PropsWithChildren } from 'react';
 
 const nav = [
@@ -18,7 +19,14 @@ const navLinkIdle =
 const navLinkActive =
     'border-seafoam-green/40 bg-seafoam-green/10 text-seafoam-green';
 
-export default function AdminLayout({ children }: PropsWithChildren) {
+type AdminLayoutProps = PropsWithChildren<{
+    publicViewHref?: string;
+}>;
+
+export default function AdminLayout({
+    children,
+    publicViewHref,
+}: AdminLayoutProps) {
     const { auth, flash } = usePage<PageProps>().props;
 
     return (
@@ -80,7 +88,7 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                                 Ticker Tactix
                             </h1>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap justify-end gap-2">
                             <HudButton
                                 href={route('admin.modules.create')}
                                 tone="green"
@@ -93,6 +101,15 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                             >
                                 New Playbook
                             </HudButton>
+                            {publicViewHref ? (
+                                <HudButton href={publicViewHref} tone="blue">
+                                    <Eye
+                                        className="mr-2 h-4 w-4"
+                                        aria-hidden
+                                    />
+                                    View
+                                </HudButton>
+                            ) : null}
                         </div>
                     </div>
                 </header>

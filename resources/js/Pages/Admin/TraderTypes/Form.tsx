@@ -41,7 +41,13 @@ export default function TraderTypeFormPage({
     }
 
     return (
-        <AdminLayout>
+        <AdminLayout
+            publicViewHref={
+                traderType
+                    ? route('trader-types.show', traderType.slug)
+                    : undefined
+            }
+        >
             <Head
                 title={traderType ? 'Edit Trader Type' : 'Create Trader Type'}
             />

@@ -3,7 +3,7 @@ import TraderFitProvider, {
 } from '@/Components/TraderFit/TraderFitProvider';
 import type { PageProps } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { ChartNoAxesCombined } from 'lucide-react';
+import { ChartNoAxesCombined, Pencil } from 'lucide-react';
 import { useEffect, useRef, useState, type PropsWithChildren } from 'react';
 
 const nav = [
@@ -16,11 +16,19 @@ const nav = [
     ['Contact', 'contact'],
 ] as const;
 
-export default function PublicLayout({ children }: PropsWithChildren) {
+type PublicLayoutProps = PropsWithChildren<{
+    adminEditHref?: string;
+}>;
+
+export default function PublicLayout({
+    adminEditHref,
+    children,
+}: PublicLayoutProps) {
     const { auth, flash } = usePage<PageProps>().props;
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const menuButtonRef = useRef<HTMLButtonElement>(null);
+    const showAdminEditButton = auth.user?.is_admin && adminEditHref;
 
     useEffect(() => {
         if (!isMenuOpen) {
@@ -65,6 +73,19 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                         </Link>
                         <div className="flex items-center gap-3">
                             <TraderFitResultsButton />
+                            {showAdminEditButton ? (
+                                <Link
+                                    href={adminEditHref}
+                                    className="border-gold/45 bg-gold/10 hover:border-gold focus-visible:ring-seafoam-green focus-visible:ring-offset-midnight-blue font-heading inline-flex h-10 items-center justify-center gap-2 rounded-sm border px-3 text-xs font-semibold tracking-[0.12em] text-gold uppercase transition hover:bg-gold/15 hover:text-white focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+                                    aria-label="Edit this page in admin"
+                                >
+                                    <Pencil
+                                        className="h-4 w-4 shrink-0"
+                                        aria-hidden
+                                    />
+                                    <span>Edit</span>
+                                </Link>
+                            ) : null}
                             {/*auth.user && (
                             <HudButton
                                 href={route('admin.dashboard')}

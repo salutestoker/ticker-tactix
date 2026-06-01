@@ -92,7 +92,11 @@ export default function PlaybookFormPage({
     }
 
     return (
-        <AdminLayout>
+        <AdminLayout
+            publicViewHref={
+                playbook ? route('playbooks.show', playbook.slug) : undefined
+            }
+        >
             <Head title={playbook ? 'Edit Playbook' : 'Create Playbook'} />
             <HudPanel className="p-6">
                 <form className="grid gap-5 xl:grid-cols-2" onSubmit={submit}>

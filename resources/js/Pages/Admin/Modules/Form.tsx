@@ -114,7 +114,11 @@ export default function ModuleFormPage({
     }
 
     return (
-        <AdminLayout>
+        <AdminLayout
+            publicViewHref={
+                module ? route('modules.show', module.slug) : undefined
+            }
+        >
             <Head title={isEdit ? 'Edit Module' : 'Create Module'} />
             <HudPanel className="p-6">
                 <form className="grid gap-5 xl:grid-cols-2" onSubmit={submit}>

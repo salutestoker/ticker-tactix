@@ -24,7 +24,9 @@ export default function PlaybooksShow({ playbook }: { playbook: Playbook }) {
         );
 
     return (
-        <PublicLayout>
+        <PublicLayout
+            adminEditHref={route('admin.playbooks.edit', playbook.id)}
+        >
             <Head title={playbook.meta_title || playbook.title} />
             <PublicHeroFrame>
                 <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1fr_360px]">
