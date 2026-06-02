@@ -1,11 +1,17 @@
 import { HudButton } from '@/Components/UI/Hud';
 import type { PageProps } from '@/types';
 import { Link, router, usePage } from '@inertiajs/react';
-import { Eye, User } from 'lucide-react';
+import { Eye, PanelLeftClose, PanelLeftOpen, User } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 
 const nav = [
     ['Dashboard', 'admin.dashboard', 'admin.dashboard'],
+    [
+        'Newsletter Generator',
+        'admin.newsletter-generator',
+        'admin.newsletter-generator',
+    ],
     ['Modules', 'admin.modules.index', 'admin.modules.*'],
     ['Playbooks', 'admin.playbooks.index', 'admin.playbooks.*'],
     ['Markets', 'admin.markets.index', 'admin.markets.*'],
@@ -29,10 +35,37 @@ export default function AdminLayout({
     publicViewHref,
 }: AdminLayoutProps) {
     const { auth, flash } = usePage<PageProps>().props;
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+    useEffect(() => {
+        const storedValue = window.sessionStorage.getItem(
+            'ticker-tactix-admin-sidebar-collapsed',
+        );
+
+        setIsSidebarCollapsed(storedValue === 'true');
+    }, []);
+
+    function toggleSidebar() {
+        setIsSidebarCollapsed((current) => {
+            const nextValue = !current;
+
+            window.sessionStorage.setItem(
+                'ticker-tactix-admin-sidebar-collapsed',
+                String(nextValue),
+            );
+
+            return nextValue;
+        });
+    }
 
     return (
         <div className="bg-midnight-blue min-h-screen text-white">
-            <aside className="border-main-blue/25 bg-panel-deep/95 fixed inset-y-0 left-0 hidden w-72 border-r p-6 lg:block">
+            <aside
+                className={[
+                    'border-main-blue/25 bg-panel-deep/95 fixed inset-y-0 left-0 hidden w-72 border-r p-6 transition-transform duration-300 lg:block',
+                    isSidebarCollapsed ? '-translate-x-full' : 'translate-x-0',
+                ].join(' ')}
+            >
                 <Link href={route('home')} className="block">
                     <img
                         className="mx-auto h-24 w-auto object-contain"
@@ -78,16 +111,50 @@ export default function AdminLayout({
                     </div>
                 </div>
             </aside>
-            <div className="lg:pl-72">
+            <div
+                className={[
+                    'transition-[padding] duration-300',
+                    isSidebarCollapsed ? 'lg:pl-0' : 'lg:pl-72',
+                ].join(' ')}
+            >
                 <header className="border-main-blue/20 bg-midnight-blue/90 sticky top-0 z-30 border-b px-5 py-4 backdrop-blur">
                     <div className="flex items-center justify-between">
-                        <div>
-                            <p className="font-heading text-seafoam-green text-xs tracking-[0.22em] uppercase">
-                                Admin Command Center
-                            </p>
-                            <h1 className="font-heading mt-1 text-xl tracking-[0.08em] text-white uppercase">
-                                Ticker Tactix
-                            </h1>
+                        <div className="flex items-center gap-3">
+                            <button
+                                type="button"
+                                className="border-main-blue/45 bg-main-blue/10 text-seafoam-green hover:border-seafoam-green/60 hover:bg-seafoam-green/10 inline-flex size-11 items-center justify-center rounded-sm border transition focus-visible:ring-2 focus-visible:ring-seafoam-green focus-visible:ring-offset-2 focus-visible:ring-offset-midnight-blue focus-visible:outline-none"
+                                onClick={toggleSidebar}
+                                aria-label={
+                                    isSidebarCollapsed
+                                        ? 'Show admin sidebar'
+                                        : 'Hide admin sidebar'
+                                }
+                                title={
+                                    isSidebarCollapsed
+                                        ? 'Show sidebar'
+                                        : 'Hide sidebar'
+                                }
+                            >
+                                {isSidebarCollapsed ? (
+                                    <PanelLeftOpen
+                                        className="h-5 w-5"
+                                        aria-hidden
+                                    />
+                                ) : (
+                                    <PanelLeftClose
+                                        className="h-5 w-5"
+                                        aria-hidden
+                                    />
+                                )}
+                            </button>
+                            <div>
+                                <p className="font-heading text-seafoam-green text-xs tracking-[0.22em] uppercase">
+                                    Admin Command Center
+                                </p>
+                                <h1 className="font-heading mt-1 text-xl tracking-[0.08em] text-white uppercase">
+                                    Ticker Tactix
+                                </h1>
+                            </div>
                         </div>
                         <div className="flex flex-wrap justify-end gap-2">
                             <HudButton

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\MarketController as AdminMarketController;
 use App\Http\Controllers\Admin\ModuleController as AdminModuleController;
+use App\Http\Controllers\Admin\NewsletterGeneratorController as AdminNewsletterGeneratorController;
 use App\Http\Controllers\Admin\PlaybookController as AdminPlaybookController;
 use App\Http\Controllers\Admin\TraderTypeController as AdminTraderTypeController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
@@ -46,6 +47,7 @@ Route::middleware(['auth', 'admin'])
     ->name('admin.')
     ->group(function (): void {
         Route::get('/', AdminDashboardController::class)->name('dashboard');
+        Route::get('newsletter-generator', AdminNewsletterGeneratorController::class)->name('newsletter-generator');
         Route::resource('modules', AdminModuleController::class)->except(['show']);
         Route::post('modules/reorder', [AdminModuleController::class, 'reorder'])->name('modules.reorder');
         Route::resource('playbooks', AdminPlaybookController::class)->except(['show']);
