@@ -13,6 +13,7 @@ export default function AdminDashboard({
         playbooks: number;
         markets: number;
         traderTypes: number;
+        users: number;
         drafts: number;
     };
     recentModules: Module[];

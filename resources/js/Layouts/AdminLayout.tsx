@@ -1,7 +1,7 @@
 import { HudButton } from '@/Components/UI/Hud';
 import type { PageProps } from '@/types';
 import { Link, router, usePage } from '@inertiajs/react';
-import { Eye } from 'lucide-react';
+import { Eye, User } from 'lucide-react';
 import type { PropsWithChildren } from 'react';
 
 const nav = [
@@ -10,6 +10,7 @@ const nav = [
     ['Playbooks', 'admin.playbooks.index', 'admin.playbooks.*'],
     ['Markets', 'admin.markets.index', 'admin.markets.*'],
     ['Trader Types', 'admin.trader-types.index', 'admin.trader-types.*'],
+    ['Users', 'admin.users.index', 'admin.users.*'],
 ] as const;
 
 const navLinkBase =
@@ -60,11 +61,11 @@ export default function AdminLayout({
                     </p>
                     <div className="grid grid-cols-1 gap-2">
                         <HudButton
-                            href={route('home')}
+                            href={route('profile.edit')}
                             tone="blue"
                             className="w-full px-3"
                         >
-                            Public Site
+                            Profile
                         </HudButton>
                         <HudButton
                             type="button"
@@ -101,15 +102,25 @@ export default function AdminLayout({
                             >
                                 New Playbook
                             </HudButton>
+                            <HudButton
+                                href={route('admin.users.create')}
+                                tone="blue"
+                            >
+                                <User className="mr-2 h-4 w-4" aria-hidden />
+                                New User
+                            </HudButton>
+
                             {publicViewHref ? (
                                 <HudButton href={publicViewHref} tone="blue">
-                                    <Eye
-                                        className="mr-2 h-4 w-4"
-                                        aria-hidden
-                                    />
+                                    <Eye className="mr-2 h-4 w-4" aria-hidden />
                                     View
                                 </HudButton>
-                            ) : null}
+                            ) : (
+                                <HudButton href={route('home')} tone="blue">
+                                    <Eye className="mr-2 h-4 w-4" aria-hidden />
+                                    View Site
+                                </HudButton>
+                            )}
                         </div>
                     </div>
                 </header>

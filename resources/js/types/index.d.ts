@@ -10,8 +10,11 @@ export interface User {
     email?: string | null;
     email_verified_at?: string;
     discord_id?: string | null;
+    discord_username?: string | null;
+    discord_global_name?: string | null;
     discord_avatar?: string | null;
     is_admin: boolean;
+    created_at?: string | null;
 }
 
 export interface Market {

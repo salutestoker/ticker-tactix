@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\MarketController as AdminMarketController;
 use App\Http\Controllers\Admin\ModuleController as AdminModuleController;
 use App\Http\Controllers\Admin\PlaybookController as AdminPlaybookController;
 use App\Http\Controllers\Admin\TraderTypeController as AdminTraderTypeController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PlaybookController;
@@ -51,6 +52,7 @@ Route::middleware(['auth', 'admin'])
         Route::post('playbooks/reorder', [AdminPlaybookController::class, 'reorder'])->name('playbooks.reorder');
         Route::resource('markets', AdminMarketController::class)->except(['show']);
         Route::resource('trader-types', AdminTraderTypeController::class)->except(['show']);
+        Route::resource('users', AdminUserController::class)->only(['index', 'create', 'store']);
     });
 
 require __DIR__.'/auth.php';

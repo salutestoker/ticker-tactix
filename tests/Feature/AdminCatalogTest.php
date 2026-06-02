@@ -44,6 +44,26 @@ class AdminCatalogTest extends TestCase
                 'title' => 'Momentum Cycles',
                 'slug' => '',
                 'description' => 'Identify momentum phase and trend strength.',
+                'core_features' => [
+                    [
+                        'label' => 'Signal Line',
+                        'icon' => 'pulse',
+                        'tone' => 'green',
+                        'description' => 'Captures real-time directional bias.',
+                    ],
+                    [
+                        'label' => 'Range Rails',
+                        'icon' => 'range-rails',
+                        'tone' => 'gold',
+                        'description' => 'Marks adaptive price boundaries.',
+                    ],
+                    [
+                        'label' => '',
+                        'icon' => 'chat',
+                        'tone' => 'violet',
+                        'description' => 'Ignored because it has no title.',
+                    ],
+                ],
                 'version' => '1.0',
                 'access' => AccessLevel::InviteOnlyIndicatorDiscord->value,
                 'action_url' => 'https://example.com/modules/momentum-cycles',
@@ -60,6 +80,20 @@ class AdminCatalogTest extends TestCase
 
         Storage::disk('public')->assertExists($module->image_path);
         Storage::disk('public')->assertExists($module->banner_image);
+        $this->assertEquals([
+            [
+                'label' => 'Signal Line',
+                'description' => 'Captures real-time directional bias.',
+                'icon' => 'pulse',
+                'tone' => 'green',
+            ],
+            [
+                'label' => 'Range Rails',
+                'description' => 'Marks adaptive price boundaries.',
+                'icon' => 'range-rails',
+                'tone' => 'gold',
+            ],
+        ], $module->core_features);
         $this->assertDatabaseHas(Module::class, [
             'title' => 'Momentum Cycles',
             'slug' => 'momentum-cycles',

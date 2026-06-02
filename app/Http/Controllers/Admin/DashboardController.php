@@ -7,6 +7,7 @@ use App\Models\Market;
 use App\Models\Module;
 use App\Models\Playbook;
 use App\Models\TraderType;
+use App\Models\User;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -20,6 +21,7 @@ class DashboardController extends Controller
                 'playbooks' => Playbook::count(),
                 'markets' => Market::count(),
                 'traderTypes' => TraderType::count(),
+                'users' => User::count(),
                 'drafts' => Module::whereNull('published_at')->count() + Playbook::whereNull('published_at')->count(),
             ],
             'recentModules' => Module::with(['market', 'traderTypes'])->latest()->take(5)->get(),

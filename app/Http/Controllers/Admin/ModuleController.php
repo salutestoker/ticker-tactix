@@ -62,7 +62,6 @@ class ModuleController extends Controller
         $module = Module::create(Arr::except($data, [
             'trader_type_ids',
             'related_module_ids',
-            'core_features_text',
             'customization_options_text',
             'best_used_for_text',
         ]));
@@ -114,7 +113,6 @@ class ModuleController extends Controller
         $module->update(Arr::except($data, [
             'trader_type_ids',
             'related_module_ids',
-            'core_features_text',
             'customization_options_text',
             'best_used_for_text',
         ]));
@@ -160,7 +158,12 @@ class ModuleController extends Controller
             'short_name' => ['nullable', 'string', 'max:255'],
             'price' => ['nullable', 'string', 'max:255'],
             'module_overview' => ['nullable', 'string'],
-            'core_features_text' => ['nullable', 'string'],
+            'core_features' => ['nullable', 'array'],
+            'core_features.*' => ['array'],
+            'core_features.*.label' => ['nullable', 'string', 'max:255'],
+            'core_features.*.icon' => ['nullable', 'string', 'max:255'],
+            'core_features.*.tone' => ['nullable', 'string', Rule::in(['green', 'violet', 'blue', 'gold'])],
+            'core_features.*.description' => ['nullable', 'string'],
             'customization_options_text' => ['nullable', 'string'],
             'best_used_for_text' => ['nullable', 'string'],
             'summary' => ['nullable', 'string'],
@@ -177,7 +180,7 @@ class ModuleController extends Controller
 
         $data['slug'] = $data['slug'] ?: Str::slug($data['title']);
         $data['related_module_ids'] = array_values(array_unique($data['related_module_ids'] ?? []));
-        $data['core_features'] = $this->parseCoreFeatures($data['core_features_text'] ?? '');
+        $data['core_features'] = $this->normalizeCoreFeatures($data['core_features'] ?? []);
         $data['customization_options'] = $this->parseLines($data['customization_options_text'] ?? '');
         $data['best_used_for'] = $this->parseLines($data['best_used_for_text'] ?? '');
 
@@ -209,19 +212,15 @@ class ModuleController extends Controller
     /**
      * @return list<array{label: string, description: string, icon: string|null, tone: string|null}>
      */
-    private function parseCoreFeatures(string $value): array
+    private function normalizeCoreFeatures(array $features): array
     {
-        return collect(preg_split('/\r\n|\r|\n/', $value) ?: [])
-            ->map(fn (string $line): string => trim($line))
-            ->filter()
-            ->map(function (string $line): array {
-                $parts = array_map('trim', explode('|', $line));
-
+        return collect($features)
+            ->map(function (array $feature): array {
                 return [
-                    'label' => $parts[0] ?? '',
-                    'description' => $parts[1] ?? '',
-                    'icon' => ($parts[2] ?? '') ?: null,
-                    'tone' => ($parts[3] ?? '') ?: null,
+                    'label' => trim((string) ($feature['label'] ?? '')),
+                    'description' => trim((string) ($feature['description'] ?? '')),
+                    'icon' => trim((string) ($feature['icon'] ?? '')) ?: null,
+                    'tone' => trim((string) ($feature['tone'] ?? '')) ?: null,
                 ];
             })
             ->filter(fn (array $feature): bool => $feature['label'] !== '')

@@ -41,75 +41,92 @@ export default function MarketFormPage({
         <AdminLayout>
             <Head title={market ? 'Edit Market' : 'Create Market'} />
             <HudPanel className="p-6">
-                <form className="grid gap-5 xl:grid-cols-2" onSubmit={submit}>
-                    <Field label="Name" error={errors.name}>
-                        <input
-                            className={input}
-                            value={data.name}
-                            onChange={(e) => setData('name', e.target.value)}
-                        />
-                    </Field>
-                    <Field label="Slug" error={errors.slug}>
-                        <input
-                            className={input}
-                            value={data.slug}
-                            onChange={(e) => setData('slug', e.target.value)}
-                            placeholder="Auto-generated when empty"
-                        />
-                    </Field>
-                    <Field label="Color" error={errors.color}>
-                        <select
-                            className={input}
-                            value={data.color}
-                            onChange={(e) => setData('color', e.target.value)}
-                        >
-                            {colorOptions.map((option) => (
-                                <option key={option.value} value={option.value}>
-                                    {option.label}
-                                </option>
-                            ))}
-                        </select>
-                        <div className="mt-3">
-                            <TaxonomyBadge
-                                label={
-                                    colorOptions.find(
-                                        (option) => option.value === data.color,
-                                    )?.label || 'Selected color'
+                <form className={formGrid} onSubmit={submit}>
+                    <div className={formColumn}>
+                        <Field label="Name" error={errors.name}>
+                            <input
+                                className={input}
+                                value={data.name}
+                                onChange={(e) =>
+                                    setData('name', e.target.value)
                                 }
-                                color={data.color}
                             />
-                        </div>
-                    </Field>
-                    <Field label="Sort Order" error={errors.sort_order}>
-                        <input
-                            className={input}
-                            value={data.sort_order}
-                            type="number"
-                            min="0"
-                            onChange={(e) =>
-                                setData('sort_order', Number(e.target.value))
-                            }
-                        />
-                    </Field>
-                    <label className="font-mono-display flex items-center gap-3 pt-8 text-xs tracking-[0.16em] text-white/80 uppercase">
-                        <input
-                            checked={data.is_active}
-                            type="checkbox"
-                            onChange={(e) =>
-                                setData('is_active', e.target.checked)
-                            }
-                        />{' '}
-                        Active
-                    </label>
-                    <Field label="Description" error={errors.description}>
-                        <textarea
-                            className={textarea}
-                            value={data.description}
-                            onChange={(e) =>
-                                setData('description', e.target.value)
-                            }
-                        />
-                    </Field>
+                        </Field>
+                        <Field label="Color" error={errors.color}>
+                            <select
+                                className={input}
+                                value={data.color}
+                                onChange={(e) =>
+                                    setData('color', e.target.value)
+                                }
+                            >
+                                {colorOptions.map((option) => (
+                                    <option
+                                        key={option.value}
+                                        value={option.value}
+                                    >
+                                        {option.label}
+                                    </option>
+                                ))}
+                            </select>
+                            <div className="mt-3">
+                                <TaxonomyBadge
+                                    label={
+                                        colorOptions.find(
+                                            (option) =>
+                                                option.value === data.color,
+                                        )?.label || 'Selected color'
+                                    }
+                                    color={data.color}
+                                />
+                            </div>
+                        </Field>
+                        <label className="font-mono-display flex items-center gap-3 text-xs tracking-[0.16em] text-white/80 uppercase">
+                            <input
+                                checked={data.is_active}
+                                type="checkbox"
+                                onChange={(e) =>
+                                    setData('is_active', e.target.checked)
+                                }
+                            />{' '}
+                            Active
+                        </label>
+                    </div>
+                    <div className={formColumn}>
+                        <Field label="Slug" error={errors.slug}>
+                            <input
+                                className={input}
+                                value={data.slug}
+                                onChange={(e) =>
+                                    setData('slug', e.target.value)
+                                }
+                                placeholder="Auto-generated when empty"
+                            />
+                        </Field>
+                        <Field label="Sort Order" error={errors.sort_order}>
+                            <input
+                                className={input}
+                                value={data.sort_order}
+                                type="number"
+                                min="0"
+                                onChange={(e) =>
+                                    setData(
+                                        'sort_order',
+                                        Number(e.target.value),
+                                    )
+                                }
+                            />
+                        </Field>
+                        <Field label="Description" error={errors.description}>
+                            <textarea
+                                className={textarea}
+                                value={data.description}
+                                onChange={(e) =>
+                                    setData('description', e.target.value)
+                                }
+                            />
+                        </Field>
+                    </div>
                     <div className="xl:col-span-2">
                         <HudButton type="submit" disabled={processing}>
                             {market ? 'Update Market' : 'Create Market'}
@@ -124,6 +141,8 @@ export default function MarketFormPage({
 const input =
     'mt-2 w-full rounded-sm border border-main-blue/35 bg-panel-deep px-4 py-3 text-white outline-none focus:border-seafoam-green';
 const textarea = `${input} min-h-32`;
+const formGrid = 'grid gap-5 xl:grid-cols-2 xl:items-start';
+const formColumn = 'grid gap-5';
 
 function Field({
     label,

@@ -311,7 +311,7 @@ function DetailRow({
 
     return (
         <section
-            className={`grid gap-5 px-5 py-6 sm:grid-cols-[260px_1fr] sm:px-7 ${isLast ? '' : 'border-main-blue/20 border-b'}`}
+            className={`grid items-start gap-5 px-5 py-6 sm:grid-cols-[260px_1fr] sm:px-7 ${isLast ? '' : 'border-main-blue/20 border-b'}`}
         >
             <div className="flex w-3/4 items-center gap-4">
                 <span className={`${sectionIconClasses} ${toneClass}`}>
