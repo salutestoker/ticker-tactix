@@ -17,7 +17,7 @@ import AdminLayout from '@/Layouts/AdminLayout';
 import { Head } from '@inertiajs/react';
 import { toPng } from 'html-to-image';
 import { Download, RotateCcw } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const priceFieldLabels: Record<PriceFieldKey, string> = {
     price: 'Current Price',
@@ -29,11 +29,36 @@ const priceFieldLabels: Record<PriceFieldKey, string> = {
 
 export default function NewsletterGenerator() {
     const exportRef = useRef<HTMLDivElement | null>(null);
+    const previewViewportRef = useRef<HTMLDivElement | null>(null);
     const [values, setValues] = useState<NyseNewsletterValues>(() =>
         createDefaultNyseNewsletterValues(),
     );
     const [isExporting, setIsExporting] = useState(false);
     const [exportError, setExportError] = useState<string | null>(null);
+    const [previewScale, setPreviewScale] = useState(1);
+
+    useEffect(() => {
+        const viewport = previewViewportRef.current;
+
+        if (!viewport) {
+            return;
+        }
+
+        const viewportElement = viewport;
+
+        function updatePreviewScale() {
+            setPreviewScale(
+                viewportElement.clientWidth / NYSE_NEWSLETTER_WIDTH,
+            );
+        }
+
+        updatePreviewScale();
+
+        const resizeObserver = new ResizeObserver(updatePreviewScale);
+        resizeObserver.observe(viewportElement);
+
+        return () => resizeObserver.disconnect();
+    }, []);
 
     function updateDate(value: string) {
         setValues((current) => ({
@@ -235,7 +260,7 @@ export default function NewsletterGenerator() {
                                 Directional Probability
                             </h3>
                         </div>
-                        <div className="mt-5 grid gap-4">
+                        <div className="mt-5 grid gap-4 sm:grid-cols-2">
                             {probabilityRows.map((row) => (
                                 <Field key={row.key} label={row.symbol}>
                                     <input
@@ -318,8 +343,28 @@ export default function NewsletterGenerator() {
                         </p>
                     </div>
                     <div className="bg-panel-deep/70 overflow-auto p-4 xl:max-h-[calc(100vh-14.5rem)]">
-                        <div ref={exportRef} className="inline-block">
-                            <NyseMarketEnvironmentNewsletter values={values} />
+                        <div ref={previewViewportRef} className="min-w-0">
+                            <div
+                                style={{
+                                    height:
+                                        NYSE_NEWSLETTER_HEIGHT * previewScale,
+                                    width: '100%',
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        transform: `scale(${previewScale})`,
+                                        transformOrigin: 'top left',
+                                        width: NYSE_NEWSLETTER_WIDTH,
+                                    }}
+                                >
+                                    <div ref={exportRef}>
+                                        <NyseMarketEnvironmentNewsletter
+                                            values={values}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </HudPanel>
