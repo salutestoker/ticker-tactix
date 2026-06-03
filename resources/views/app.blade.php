@@ -7,6 +7,7 @@
         $seoCanonicalUrl = request()->fullUrl();
         $seoImageUrl = url('/design/assets/images/open-graph/ticker-tactix-2026--compressed.jpg');
         $seoImageAlt = 'Ticker-Tactix hero artwork with the headline Trade with Structure Not Emotion.';
+        $googleAnalyticsMeasurementId = config('services.google_analytics.measurement_id');
     @endphp
     <head>
         <meta charset="utf-8">
@@ -44,6 +45,21 @@
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=orbitron:400,500,600,700|source-code-pro:400,500,600,700&display=swap" rel="stylesheet" />
+
+        @if (filled($googleAnalyticsMeasurementId))
+            <!-- Google tag (gtag.js) -->
+            <script async src="https://www.googletagmanager.com/gtag/js?id={{ urlencode($googleAnalyticsMeasurementId) }}"></script>
+            <script>
+                window.dataLayer = window.dataLayer || [];
+                window.googleAnalyticsMeasurementId = {{ Illuminate\Support\Js::from($googleAnalyticsMeasurementId) }};
+                function gtag(){dataLayer.push(arguments);}
+                window.gtag = gtag;
+                gtag('js', new Date());
+                gtag('config', window.googleAnalyticsMeasurementId, {
+                    send_page_view: false,
+                });
+            </script>
+        @endif
 
         <!-- Scripts -->
         @routes

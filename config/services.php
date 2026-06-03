@@ -48,4 +48,8 @@ return [
         ],
     ],
 
+    'google_analytics' => [
+        'measurement_id' => env('GOOGLE_ANALYTICS_MEASUREMENT_ID', 'G-PTEVF8MMM4'),
+    ],
+
 ];
