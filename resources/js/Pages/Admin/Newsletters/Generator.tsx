@@ -14,10 +14,16 @@ import {
 } from '@/Components/Admin/NewsletterTemplates/NyseMarketEnvironmentNewsletter';
 import { HudButton, HudPanel } from '@/Components/UI/Hud';
 import AdminLayout from '@/Layouts/AdminLayout';
-import { Head } from '@inertiajs/react';
+import type { FormDataConvertible } from '@inertiajs/core';
+import { Head, router } from '@inertiajs/react';
 import { toPng } from 'html-to-image';
 import { Download, RotateCcw } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+
+type NewsletterGeneratorProps = {
+    defaultValues?: NyseNewsletterValues | null;
+    defaultGeneratedAt?: string | null;
+};
 
 const priceFieldLabels: Record<PriceFieldKey, string> = {
     price: 'Current Price',
@@ -27,11 +33,23 @@ const priceFieldLabels: Record<PriceFieldKey, string> = {
     b2: 'B2',
 };
 
-export default function NewsletterGenerator() {
+const priceFieldKeys = Object.keys(priceFieldLabels) as PriceFieldKey[];
+
+export default function NewsletterGenerator({
+    defaultValues = null,
+    defaultGeneratedAt = null,
+}: NewsletterGeneratorProps) {
     const exportRef = useRef<HTMLDivElement | null>(null);
     const previewViewportRef = useRef<HTMLDivElement | null>(null);
+    const [savedDefaultValues, setSavedDefaultValues] =
+        useState<NyseNewsletterValues>(() =>
+            createNewsletterValues(defaultValues),
+        );
+    const [savedDefaultGeneratedAt, setSavedDefaultGeneratedAt] = useState<
+        string | null
+    >(defaultGeneratedAt);
     const [values, setValues] = useState<NyseNewsletterValues>(() =>
-        createDefaultNyseNewsletterValues(),
+        createNewsletterValues(defaultValues),
     );
     const [isExporting, setIsExporting] = useState(false);
     const [exportError, setExportError] = useState<string | null>(null);
@@ -102,8 +120,41 @@ export default function NewsletterGenerator() {
     }
 
     function resetValues() {
-        setValues(createDefaultNyseNewsletterValues());
+        setValues(cloneNewsletterValues(savedDefaultValues));
         setExportError(null);
+    }
+
+    function saveNewsletterGeneration(nextValues: NyseNewsletterValues) {
+        const payload: Record<string, FormDataConvertible> = {
+            values: nextValues as unknown as FormDataConvertible,
+        };
+
+        return new Promise<void>((resolve, reject) => {
+            router.post(route('admin.newsletter-generator.store'), payload, {
+                preserveScroll: true,
+                preserveState: true,
+                replace: true,
+                onSuccess: () => {
+                    setSavedDefaultValues(cloneNewsletterValues(nextValues));
+                    setSavedDefaultGeneratedAt(new Date().toISOString());
+                    resolve();
+                },
+                onError: (errors) => {
+                    const message = Object.values(errors).find(Boolean);
+
+                    reject(
+                        new Error(
+                            typeof message === 'string'
+                                ? message
+                                : 'The newsletter values could not be saved.',
+                        ),
+                    );
+                },
+                onCancel: () => {
+                    reject(new Error('The newsletter save was cancelled.'));
+                },
+            });
+        });
     }
 
     async function downloadNewsletterImage() {
@@ -115,6 +166,8 @@ export default function NewsletterGenerator() {
         setExportError(null);
 
         try {
+            const generatedValues = cloneNewsletterValues(values);
+
             await document.fonts?.ready;
 
             const dataUrl = await toPng(exportRef.current, {
@@ -127,8 +180,10 @@ export default function NewsletterGenerator() {
                 width: NYSE_NEWSLETTER_WIDTH,
             });
 
+            await saveNewsletterGeneration(generatedValues);
+
             const link = document.createElement('a');
-            link.download = `ticker-tactix-nyse-market-environment-${values.date || 'draft'}.png`;
+            link.download = `ticker-tactix-nyse-market-environment-${generatedValues.date || 'draft'}.png`;
             link.href = dataUrl;
             link.click();
             link.remove();
@@ -217,37 +272,30 @@ export default function NewsletterGenerator() {
                                         {card.symbol}
                                     </h4>
                                     <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                                        {Object.keys(priceFieldLabels).map(
-                                            (fieldKey) => (
-                                                <Field
-                                                    key={fieldKey}
-                                                    label={
-                                                        priceFieldLabels[
-                                                            fieldKey as PriceFieldKey
+                                        {priceFieldKeys.map((fieldKey) => (
+                                            <Field
+                                                key={fieldKey}
+                                                label={
+                                                    priceFieldLabels[fieldKey]
+                                                }
+                                            >
+                                                <input
+                                                    className={input}
+                                                    value={
+                                                        values.cards[card.key][
+                                                            fieldKey
                                                         ]
                                                     }
-                                                >
-                                                    <input
-                                                        className={input}
-                                                        value={
-                                                            values.cards[
-                                                                card.key
-                                                            ][
-                                                                fieldKey as PriceFieldKey
-                                                            ]
-                                                        }
-                                                        onChange={(event) =>
-                                                            updateCardValue(
-                                                                card.key,
-                                                                fieldKey as PriceFieldKey,
-                                                                event.target
-                                                                    .value,
-                                                            )
-                                                        }
-                                                    />
-                                                </Field>
-                                            ),
-                                        )}
+                                                    onChange={(event) =>
+                                                        updateCardValue(
+                                                            card.key,
+                                                            fieldKey,
+                                                            event.target.value,
+                                                        )
+                                                    }
+                                                />
+                                            </Field>
+                                        ))}
                                     </div>
                                 </div>
                             ))}
@@ -306,6 +354,12 @@ export default function NewsletterGenerator() {
                                 <p className="font-mono-display text-seafoam-green mt-1 text-sm">
                                     {NYSE_NEWSLETTER_WIDTH} x{' '}
                                     {NYSE_NEWSLETTER_HEIGHT} PNG
+                                </p>
+                                <p className="font-mono-display mt-2 text-xs text-white/45">
+                                    Reset target:{' '}
+                                    {formatGeneratedAt(
+                                        savedDefaultGeneratedAt,
+                                    )}
                                 </p>
                             </div>
                             <HudButton
@@ -371,6 +425,64 @@ export default function NewsletterGenerator() {
             </div>
         </AdminLayout>
     );
+}
+
+function createNewsletterValues(
+    defaultValues?: NyseNewsletterValues | null,
+): NyseNewsletterValues {
+    const fallback = createDefaultNyseNewsletterValues();
+    const source = defaultValues ?? fallback;
+
+    return {
+        date: source.date ?? fallback.date,
+        cards: tickerCards.reduce((accumulator, card) => {
+            const sourceCard = source.cards?.[card.key];
+
+            accumulator[card.key] = priceFieldKeys.reduce(
+                (fieldAccumulator, fieldKey) => ({
+                    ...fieldAccumulator,
+                    [fieldKey]:
+                        sourceCard?.[fieldKey] ??
+                        fallback.cards[card.key][fieldKey],
+                }),
+                {} as Record<PriceFieldKey, string>,
+            );
+
+            return accumulator;
+        }, {} as NyseNewsletterValues['cards']),
+        probabilities: probabilityRows.reduce((accumulator, row) => {
+            accumulator[row.key] =
+                source.probabilities?.[row.key] ??
+                fallback.probabilities[row.key];
+
+            return accumulator;
+        }, {} as NyseNewsletterValues['probabilities']),
+        marketCommentary:
+            source.marketCommentary ?? fallback.marketCommentary,
+    };
+}
+
+function cloneNewsletterValues(
+    values: NyseNewsletterValues,
+): NyseNewsletterValues {
+    return createNewsletterValues(values);
+}
+
+function formatGeneratedAt(value: string | null) {
+    if (!value) {
+        return 'factory defaults';
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return 'latest generated image';
+    }
+
+    return date.toLocaleString(undefined, {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+    });
 }
 
 const input =

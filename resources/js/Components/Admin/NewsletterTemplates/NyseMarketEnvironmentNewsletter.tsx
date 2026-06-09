@@ -55,7 +55,7 @@ export const probabilityRows = [
     { key: 'qqq', symbol: 'QQQ', value: '85% BEARISH' },
     { key: 'fatmaan', symbol: 'FATMAAN', value: '80% BEARISH' },
     { key: 'svix', symbol: 'SVIX', value: '80% BULLISH' },
-    { key: 'dxy', symbol: 'DXY', value: '80% BEARISH' },
+    { key: 'dxy', symbol: '-DXY', value: '80% BEARISH' },
 ] as const;
 
 export type TickerCardKey = (typeof tickerCards)[number]['key'];
@@ -195,7 +195,7 @@ export function NyseMarketEnvironmentNewsletter({
                 </div>
             </header>
 
-            <h1 className="nyse-title">NYSE MARKET ENVIRONMENT</h1>
+            <h1 className="nyse-title">NYSE ETF ENVIRONMENT</h1>
 
             <div className="nyse-subtitle">
                 <span />
@@ -269,10 +269,10 @@ function ProbabilityPanel({
 }) {
     return (
         <div className="nyse-section-frame nyse-probability-panel">
-            <h2>DIRECTIONAL PROBABILITY</h2>
+            <h2>DIRECTIONAL MOMENTUM</h2>
             <div className="nyse-probability-head">
                 <span>SYMBOL</span>
-                <span>DIRECTIONAL PROBABILITY</span>
+                <span>STRENGTH</span>
             </div>
             <div className="nyse-probability-body">
                 {probabilityRows.map((row) => {
@@ -300,7 +300,7 @@ function CommentaryPanel({ commentary }: { commentary: string }) {
         <div className="nyse-section-frame nyse-commentary-panel">
             <h2>
                 <span />
-                MARKET COMMENTARY
+                MOMENTUM COMMENTARY
                 <span />
             </h2>
             <p
@@ -907,7 +907,7 @@ const nyseNewsletterCss = `
     margin: 0 0 21px;
     color: #183428;
     text-align: center;
-    font-size: 22px;
+    font-size: 18px;
     font-weight: 900;
     line-height: 1;
     letter-spacing: 2.2px;
@@ -920,6 +920,7 @@ const nyseNewsletterCss = `
 
 .nyse-commentary-panel p {
     margin: 0;
+    padding-top: 10px;
     overflow: hidden;
     color: #11130f;
     font-weight: 500;

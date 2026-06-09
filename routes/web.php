@@ -48,6 +48,7 @@ Route::middleware(['auth', 'admin'])
     ->group(function (): void {
         Route::get('/', AdminDashboardController::class)->name('dashboard');
         Route::get('newsletter-generator', AdminNewsletterGeneratorController::class)->name('newsletter-generator');
+        Route::post('newsletter-generator', [AdminNewsletterGeneratorController::class, 'store'])->name('newsletter-generator.store');
         Route::resource('modules', AdminModuleController::class)->except(['show']);
         Route::post('modules/reorder', [AdminModuleController::class, 'reorder'])->name('modules.reorder');
         Route::resource('playbooks', AdminPlaybookController::class)->except(['show']);
