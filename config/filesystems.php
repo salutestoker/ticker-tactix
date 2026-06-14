@@ -34,6 +34,10 @@ return [
 
     'playbook_banner_image_directory' => env('PLAYBOOK_BANNER_IMAGE_DIRECTORY', 'playbook-banner-images'),
 
+    'newsletter_image_disk' => env('NEWSLETTER_IMAGE_DISK', 'local'),
+
+    'newsletter_image_directory' => env('NEWSLETTER_IMAGE_DIRECTORY', 'newsletter-deliveries'),
+
     /*
     |--------------------------------------------------------------------------
     | Filesystem Disks

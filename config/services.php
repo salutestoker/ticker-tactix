@@ -22,6 +22,13 @@ return [
         'key' => env('RESEND_API_KEY'),
     ],
 
+    'mailgun' => [
+        'domain' => env('MAILGUN_DOMAIN'),
+        'secret' => env('MAILGUN_SECRET'),
+        'endpoint' => env('MAILGUN_ENDPOINT', 'api.mailgun.net'),
+        'scheme' => 'https',
+    ],
+
     'ses' => [
         'key' => env('AWS_ACCESS_KEY_ID'),
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
@@ -46,6 +53,11 @@ return [
             'moderator' => env('DISCORD_MODERATOR_ROLE_ID'),
             'member' => env('DISCORD_MEMBER_ROLE_ID'),
         ],
+    ],
+
+    'stripe' => [
+        'secret' => env('STRIPE_SECRET'),
+        'portal_return_url' => env('STRIPE_PORTAL_RETURN_URL', env('APP_URL')),
     ],
 
     'google_analytics' => [

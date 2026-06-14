@@ -2,10 +2,23 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\DispatchNewsletterDeliveryJob;
+use App\Jobs\SendNewsletterDeliveryEmailJob;
+use App\Mail\NewsletterSubscriptionEmail;
+use App\Models\NewsletterDelivery;
 use App\Models\NewsletterGeneration;
 use App\Models\User;
+use App\Services\Newsletters\NewsletterRecipient;
+use App\Services\Newsletters\NewsletterRecipientResult;
+use App\Services\Newsletters\StripeNewsletterSubscriberService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
+use Mockery;
+use Symfony\Component\Mailer\Exception\TransportException;
 use Tests\TestCase;
 
 class AdminNewsletterGeneratorTest extends TestCase
@@ -53,7 +66,232 @@ class AdminNewsletterGeneratorTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Admin/Newsletters/Generator')
                 ->where('defaultValues.date', '2026-06-09')
-                ->where('defaultValues.marketCommentary', 'Most recent generated commentary.'));
+                ->where('defaultValues.marketCommentary', 'Most recent generated commentary.')
+                ->where('deliveryDefaults.subscriptionStatuses', ['active', 'past_due', 'trialing']));
+    }
+
+    public function test_admin_can_schedule_newsletter_delivery(): void
+    {
+        config(['newsletters.templates.nyse_market_environment.stripe_product_id' => 'prod_test_newsletter']);
+        Storage::fake('local');
+        Queue::fake();
+
+        $admin = User::factory()->create(['is_admin' => true]);
+        $values = $this->newsletterValues(['date' => '2026-06-12']);
+
+        $this->actingAs($admin)
+            ->post(route('admin.newsletter-generator.deliveries.store'), [
+                'values' => $values,
+                'subject' => 'NYSE ETF Environment',
+                'preheader' => 'Today&apos;s market read.',
+                'scheduled_for' => now()->addHour()->toIso8601String(),
+                'image' => $this->pngUpload(),
+            ])
+            ->assertRedirect(route('admin.newsletter-generator'));
+
+        $delivery = NewsletterDelivery::firstOrFail();
+
+        $this->assertSame($admin->id, $delivery->user_id);
+        $this->assertSame('prod_test_newsletter', $delivery->stripe_product_id);
+        $this->assertSame(['active', 'past_due', 'trialing'], $delivery->subscription_statuses);
+        $this->assertSame('NYSE ETF Environment', $delivery->subject);
+        $this->assertSame(NewsletterDelivery::STATUS_SCHEDULED, $delivery->status);
+        $this->assertEquals($values, $delivery->values);
+        Storage::disk('local')->assertExists($delivery->image_path);
+        Queue::assertPushed(DispatchNewsletterDeliveryJob::class);
+
+        $this->assertDatabaseHas('newsletter_generations', [
+            'template' => NewsletterGeneration::TEMPLATE_NYSE_MARKET_ENVIRONMENT,
+            'user_id' => $admin->id,
+        ]);
+    }
+
+    public function test_admin_can_send_test_newsletter_email(): void
+    {
+        config([
+            'newsletters.templates.nyse_market_environment.stripe_product_id' => 'prod_test_newsletter',
+            'newsletters.test_emails' => 'tickertactix@gmail.com,salutestoker@gmail.com',
+        ]);
+        Storage::fake('local');
+        Mail::fake();
+
+        $admin = User::factory()->create([
+            'email' => 'admin@tickertactix.test',
+            'is_admin' => true,
+        ]);
+
+        $this->actingAs($admin)
+            ->post(route('admin.newsletter-generator.test-email'), [
+                'values' => $this->newsletterValues(),
+                'subject' => 'Test NYSE ETF Environment',
+                'preheader' => 'Test preheader.',
+                'image' => $this->pngUpload(),
+            ])
+            ->assertRedirect(route('admin.newsletter-generator'));
+
+        Mail::assertSent(NewsletterSubscriptionEmail::class, 2);
+        Mail::assertSent(NewsletterSubscriptionEmail::class, fn (NewsletterSubscriptionEmail $mail): bool => $mail->hasTo('tickertactix@gmail.com'));
+        Mail::assertSent(NewsletterSubscriptionEmail::class, fn (NewsletterSubscriptionEmail $mail): bool => $mail->hasTo('salutestoker@gmail.com'));
+        Mail::assertNotSent(NewsletterSubscriptionEmail::class, fn (NewsletterSubscriptionEmail $mail): bool => $mail->hasTo('admin@tickertactix.test'));
+
+        $this->assertDatabaseCount('newsletter_deliveries', 0);
+    }
+
+    public function test_test_newsletter_mail_transport_errors_are_returned_to_admin(): void
+    {
+        config([
+            'mail.default' => 'mailgun',
+            'newsletters.templates.nyse_market_environment.stripe_product_id' => 'prod_test_newsletter',
+            'newsletters.test_emails' => 'tickertactix@gmail.com',
+        ]);
+        Storage::fake('local');
+        Mail::shouldReceive('to')
+            ->once()
+            ->with('tickertactix@gmail.com')
+            ->andThrow(new TransportException('Unable to send an email: address not allowed.'));
+
+        $admin = User::factory()->create(['is_admin' => true]);
+
+        $this->actingAs($admin)
+            ->from(route('admin.newsletter-generator'))
+            ->post(route('admin.newsletter-generator.test-email'), [
+                'values' => $this->newsletterValues(),
+                'subject' => 'Test NYSE ETF Environment',
+                'preheader' => 'Test preheader.',
+                'image' => $this->pngUpload(),
+            ])
+            ->assertRedirect(route('admin.newsletter-generator'))
+            ->assertSessionHasErrors('email');
+
+        $errors = session('errors')->getBag('default')->get('email');
+
+        $this->assertStringContainsString('Mailgun rejected the test newsletter email.', $errors[0]);
+        $this->assertStringContainsString('MAIL_FROM_ADDRESS belongs to MAILGUN_DOMAIN', $errors[0]);
+        $this->assertSame([], Storage::disk('local')->allFiles('newsletter-deliveries/tests'));
+    }
+
+    public function test_admin_can_preview_stripe_recipient_count(): void
+    {
+        config(['newsletters.templates.nyse_market_environment.stripe_product_id' => 'prod_test_newsletter']);
+
+        $service = Mockery::mock(StripeNewsletterSubscriberService::class);
+        $service->shouldReceive('recipientsForProduct')
+            ->once()
+            ->with('prod_test_newsletter', ['active', 'past_due', 'trialing'])
+            ->andReturn(new NewsletterRecipientResult([
+                new NewsletterRecipient('one@example.com', 'cus_1'),
+                new NewsletterRecipient('two@example.com', 'cus_2'),
+            ], skippedNoEmail: 1));
+
+        $this->app->instance(StripeNewsletterSubscriberService::class, $service);
+
+        $admin = User::factory()->create(['is_admin' => true]);
+
+        $this->actingAs($admin)
+            ->getJson(route('admin.newsletter-generator.recipient-count'))
+            ->assertOk()
+            ->assertJson([
+                'count' => 2,
+                'skippedNoEmail' => 1,
+                'stripeProductId' => 'prod_test_newsletter',
+                'subscriptionStatuses' => ['active', 'past_due', 'trialing'],
+            ]);
+    }
+
+    public function test_dispatch_job_queues_one_email_job_per_current_stripe_recipient(): void
+    {
+        Queue::fake([SendNewsletterDeliveryEmailJob::class]);
+
+        $delivery = NewsletterDelivery::create([
+            'template' => NewsletterGeneration::TEMPLATE_NYSE_MARKET_ENVIRONMENT,
+            'stripe_product_id' => 'prod_test_newsletter',
+            'subscription_statuses' => ['active', 'past_due'],
+            'subject' => 'NYSE ETF Environment',
+            'preheader' => 'Daily market read.',
+            'values' => $this->newsletterValues(),
+            'image_disk' => 'local',
+            'image_path' => 'newsletter.png',
+            'scheduled_for' => now()->addMinute(),
+            'status' => NewsletterDelivery::STATUS_SCHEDULED,
+        ]);
+
+        $service = Mockery::mock(StripeNewsletterSubscriberService::class);
+        $service->shouldReceive('recipientsForProduct')
+            ->once()
+            ->with('prod_test_newsletter', ['active', 'past_due'])
+            ->andReturn(new NewsletterRecipientResult([
+                new NewsletterRecipient('one@example.com', 'cus_1'),
+                new NewsletterRecipient('two@example.com', 'cus_2'),
+            ], skippedNoEmail: 1));
+
+        (new DispatchNewsletterDeliveryJob($delivery))->handle($service);
+
+        $delivery->refresh();
+
+        $this->assertSame(NewsletterDelivery::STATUS_SENDING, $delivery->status);
+        $this->assertSame(2, $delivery->recipient_count);
+        $this->assertSame(1, $delivery->skipped_count);
+        Queue::assertPushed(SendNewsletterDeliveryEmailJob::class, 2);
+    }
+
+    public function test_send_email_job_sends_mail_and_marks_delivery_complete(): void
+    {
+        Mail::fake();
+
+        $delivery = NewsletterDelivery::create([
+            'template' => NewsletterGeneration::TEMPLATE_NYSE_MARKET_ENVIRONMENT,
+            'stripe_product_id' => 'prod_test_newsletter',
+            'subscription_statuses' => ['active', 'past_due'],
+            'subject' => 'NYSE ETF Environment',
+            'preheader' => 'Daily market read.',
+            'values' => $this->newsletterValues(),
+            'image_disk' => 'local',
+            'image_path' => 'newsletter.png',
+            'scheduled_for' => now()->subMinute(),
+            'status' => NewsletterDelivery::STATUS_SENDING,
+            'recipient_count' => 1,
+        ]);
+
+        (new SendNewsletterDeliveryEmailJob(
+            $delivery->id,
+            new NewsletterRecipient('subscriber@example.com', 'cus_test'),
+        ))->handle();
+
+        Mail::assertSent(NewsletterSubscriptionEmail::class, function (NewsletterSubscriptionEmail $mail): bool {
+            return str_contains($mail->manageUrl, 'customer=cus_test')
+                && str_contains($mail->manageUrl, 'signature=');
+        });
+
+        $delivery->refresh();
+
+        $this->assertSame(NewsletterDelivery::STATUS_SENT, $delivery->status);
+        $this->assertSame(1, $delivery->sent_count);
+    }
+
+    public function test_newsletter_email_template_uses_stripe_customer_name(): void
+    {
+        $delivery = NewsletterDelivery::create([
+            'template' => NewsletterGeneration::TEMPLATE_NYSE_MARKET_ENVIRONMENT,
+            'stripe_product_id' => 'prod_test_newsletter',
+            'subscription_statuses' => ['active', 'past_due'],
+            'subject' => 'Daily NYSE ETF ENVIRONMENT Newsletter',
+            'preheader' => 'Attached is your daily NYSE ETF ENVIRONMENT newsletter.',
+            'values' => $this->newsletterValues(),
+            'image_disk' => 'local',
+            'image_path' => 'newsletter.png',
+            'scheduled_for' => now()->subMinute(),
+            'status' => NewsletterDelivery::STATUS_SENT,
+        ]);
+
+        $html = (new NewsletterSubscriptionEmail(
+            $delivery,
+            new NewsletterRecipient('subscriber@example.com', 'cus_test', [], 'Stripe Customer'),
+            'https://example.test/manage-subscription',
+        ))->render();
+
+        $this->assertStringContainsString('Hi Stripe Customer,', $html);
+        $this->assertStringContainsString('Attached is your daily <strong>NYSE ETF ENVIRONMENT</strong> newsletter.', $html);
+        $this->assertStringContainsString('https://example.test/manage-subscription', $html);
     }
 
     private function newsletterValues(array $overrides = []): array
@@ -101,5 +339,13 @@ class AdminNewsletterGeneratorTest extends TestCase
             ],
             'marketCommentary' => 'Generated market commentary.',
         ], $overrides);
+    }
+
+    private function pngUpload(): UploadedFile
+    {
+        return UploadedFile::fake()->createWithContent(
+            'newsletter.png',
+            base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII='),
+        );
     }
 }

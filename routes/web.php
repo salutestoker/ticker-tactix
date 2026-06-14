@@ -3,11 +3,13 @@
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\MarketController as AdminMarketController;
 use App\Http\Controllers\Admin\ModuleController as AdminModuleController;
+use App\Http\Controllers\Admin\NewsletterDeliveryController as AdminNewsletterDeliveryController;
 use App\Http\Controllers\Admin\NewsletterGeneratorController as AdminNewsletterGeneratorController;
 use App\Http\Controllers\Admin\PlaybookController as AdminPlaybookController;
 use App\Http\Controllers\Admin\TraderTypeController as AdminTraderTypeController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\ModuleController;
+use App\Http\Controllers\NewsletterSubscriptionPortalController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PlaybookController;
 use App\Http\Controllers\ProfileController;
@@ -27,6 +29,9 @@ Route::get('/modules', [ModuleController::class, 'index'])->name('modules.index'
 Route::get('/modules/{module:slug}', [ModuleController::class, 'show'])->name('modules.show');
 Route::get('/playbooks', [PlaybookController::class, 'index'])->name('playbooks.index');
 Route::get('/playbooks/{playbook:slug}', [PlaybookController::class, 'show'])->name('playbooks.show');
+Route::get('/newsletter-subscription/manage/{delivery}', NewsletterSubscriptionPortalController::class)
+    ->middleware('signed')
+    ->name('newsletter-deliveries.portal');
 Route::redirect('/risk-disclaimer', '/financial-disclaimer');
 Route::get('/{page}', [PageController::class, 'legal'])
     ->whereIn('page', ['terms-of-service', 'membership-agreement', 'privacy-policy', 'financial-disclaimer'])
@@ -47,8 +52,12 @@ Route::middleware(['auth', 'admin'])
     ->name('admin.')
     ->group(function (): void {
         Route::get('/', AdminDashboardController::class)->name('dashboard');
+        Route::get('components', fn () => Inertia::render('Admin/Components/Index'))->name('components.index');
         Route::get('newsletter-generator', AdminNewsletterGeneratorController::class)->name('newsletter-generator');
         Route::post('newsletter-generator', [AdminNewsletterGeneratorController::class, 'store'])->name('newsletter-generator.store');
+        Route::post('newsletter-generator/deliveries', [AdminNewsletterDeliveryController::class, 'store'])->name('newsletter-generator.deliveries.store');
+        Route::post('newsletter-generator/test-email', [AdminNewsletterDeliveryController::class, 'test'])->name('newsletter-generator.test-email');
+        Route::get('newsletter-generator/recipient-count', [AdminNewsletterDeliveryController::class, 'recipientCount'])->name('newsletter-generator.recipient-count');
         Route::resource('modules', AdminModuleController::class)->except(['show']);
         Route::post('modules/reorder', [AdminModuleController::class, 'reorder'])->name('modules.reorder');
         Route::resource('playbooks', AdminPlaybookController::class)->except(['show']);

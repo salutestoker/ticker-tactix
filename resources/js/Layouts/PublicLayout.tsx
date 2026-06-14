@@ -1,6 +1,7 @@
 import TraderFitProvider, {
     useTraderFitModal,
 } from '@/Components/TraderFit/TraderFitProvider';
+import FlashToast from '@/Components/UI/FlashToast';
 import type { PageProps } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import { ChartNoAxesCombined, Pencil } from 'lucide-react';
@@ -24,7 +25,7 @@ export default function PublicLayout({
     adminEditHref,
     children,
 }: PublicLayoutProps) {
-    const { auth, flash } = usePage<PageProps>().props;
+    const { auth } = usePage<PageProps>().props;
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -58,6 +59,7 @@ export default function PublicLayout({
     return (
         <TraderFitProvider>
             <div className="bg-midnight-blue min-h-screen overflow-hidden text-white">
+                <FlashToast />
                 <header className="fixed top-0 right-0 left-0 z-40 px-4 py-5 sm:px-6">
                     <div className="mx-auto flex items-center justify-between">
                         <Link
@@ -158,12 +160,6 @@ export default function PublicLayout({
                         </div>
                     ) : null}
                 </header>
-
-                {flash?.success || flash?.error ? (
-                    <div className="border-seafoam-green/40 bg-panel/95 fixed top-24 right-4 z-50 max-w-sm rounded-sm border px-4 py-3 text-sm text-white shadow-[0_0_24px_rgba(0,250,146,0.18)]">
-                        {flash.success || flash.error}
-                    </div>
-                ) : null}
 
                 <main>{children}</main>
                 <Footer />

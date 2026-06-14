@@ -17,12 +17,31 @@ import AdminLayout from '@/Layouts/AdminLayout';
 import type { FormDataConvertible } from '@inertiajs/core';
 import { Head, router } from '@inertiajs/react';
 import { toPng } from 'html-to-image';
-import { Download, RotateCcw } from 'lucide-react';
+import { Download, Mail, RotateCcw, Send, Users, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 type NewsletterGeneratorProps = {
     defaultValues?: NyseNewsletterValues | null;
     defaultGeneratedAt?: string | null;
+    deliveryDefaults: {
+        stripeProductId?: string | null;
+        subscriptionStatuses?: string[];
+        subject?: string | null;
+        preheader?: string | null;
+    };
+};
+
+type GeneratedNewsletterEmail = {
+    dataUrl: string;
+    fileName: string;
+    values: NyseNewsletterValues;
+};
+
+type RecipientPreview = {
+    count: number;
+    skippedNoEmail: number;
+    stripeProductId: string;
+    subscriptionStatuses: string[];
 };
 
 const priceFieldLabels: Record<PriceFieldKey, string> = {
@@ -38,6 +57,7 @@ const priceFieldKeys = Object.keys(priceFieldLabels) as PriceFieldKey[];
 export default function NewsletterGenerator({
     defaultValues = null,
     defaultGeneratedAt = null,
+    deliveryDefaults,
 }: NewsletterGeneratorProps) {
     const exportRef = useRef<HTMLDivElement | null>(null);
     const previewViewportRef = useRef<HTMLDivElement | null>(null);
@@ -52,7 +72,27 @@ export default function NewsletterGenerator({
         createNewsletterValues(defaultValues),
     );
     const [isExporting, setIsExporting] = useState(false);
+    const [isScheduling, setIsScheduling] = useState(false);
+    const [isSendingTest, setIsSendingTest] = useState(false);
+    const [isCountingRecipients, setIsCountingRecipients] = useState(false);
     const [exportError, setExportError] = useState<string | null>(null);
+    const [deliveryActionError, setDeliveryActionError] = useState<
+        string | null
+    >(null);
+    const [generatedEmail, setGeneratedEmail] =
+        useState<GeneratedNewsletterEmail | null>(null);
+    const [deliverySubject, setDeliverySubject] = useState(
+        deliveryDefaults.subject ?? 'Ticker Tactix NYSE ETF Environment',
+    );
+    const [deliveryPreheader, setDeliveryPreheader] = useState(
+        deliveryDefaults.preheader ??
+            'Daily market intelligence from Ticker Tactix.',
+    );
+    const [scheduledFor, setScheduledFor] = useState(
+        createDefaultScheduledFor(),
+    );
+    const [recipientPreview, setRecipientPreview] =
+        useState<RecipientPreview | null>(null);
     const [previewScale, setPreviewScale] = useState(1);
 
     useEffect(() => {
@@ -157,13 +197,14 @@ export default function NewsletterGenerator({
         });
     }
 
-    async function downloadNewsletterImage() {
+    async function generateSubscriptionEmail() {
         if (!exportRef.current) {
             return;
         }
 
         setIsExporting(true);
         setExportError(null);
+        setDeliveryActionError(null);
 
         try {
             const generatedValues = cloneNewsletterValues(values);
@@ -180,13 +221,21 @@ export default function NewsletterGenerator({
                 width: NYSE_NEWSLETTER_WIDTH,
             });
 
-            await saveNewsletterGeneration(generatedValues);
-
-            const link = document.createElement('a');
-            link.download = `ticker-tactix-nyse-market-environment-${generatedValues.date || 'draft'}.png`;
-            link.href = dataUrl;
-            link.click();
-            link.remove();
+            setGeneratedEmail({
+                dataUrl,
+                fileName: createNewsletterImageFileName(generatedValues),
+                values: generatedValues,
+            });
+            setDeliverySubject(
+                deliveryDefaults.subject ??
+                    'Ticker Tactix NYSE ETF Environment',
+            );
+            setDeliveryPreheader(
+                deliveryDefaults.preheader ??
+                    'Daily market intelligence from Ticker Tactix.',
+            );
+            setScheduledFor(createDefaultScheduledFor());
+            setRecipientPreview(null);
         } catch (error) {
             setExportError(
                 error instanceof Error
@@ -196,6 +245,187 @@ export default function NewsletterGenerator({
         } finally {
             setIsExporting(false);
         }
+    }
+
+    async function saveGeneratedImage() {
+        if (!generatedEmail) {
+            return;
+        }
+
+        setDeliveryActionError(null);
+
+        try {
+            await saveNewsletterGeneration(generatedEmail.values);
+
+            const link = document.createElement('a');
+            link.download = generatedEmail.fileName;
+            link.href = generatedEmail.dataUrl;
+            link.click();
+            link.remove();
+
+            setGeneratedEmail(null);
+        } catch (error) {
+            setDeliveryActionError(
+                error instanceof Error
+                    ? error.message
+                    : 'The newsletter image could not be saved.',
+            );
+        }
+    }
+
+    async function scheduleEmailDelivery() {
+        if (!generatedEmail) {
+            return;
+        }
+
+        const scheduledDate = new Date(scheduledFor);
+
+        if (!scheduledFor || Number.isNaN(scheduledDate.getTime())) {
+            setDeliveryActionError('Choose a valid delivery date and time.');
+            return;
+        }
+
+        setIsScheduling(true);
+        setDeliveryActionError(null);
+
+        try {
+            const image = await dataUrlToFile(
+                generatedEmail.dataUrl,
+                generatedEmail.fileName,
+            );
+            const payload = createDeliveryPayload(
+                generatedEmail,
+                image,
+                scheduledDate.toISOString(),
+            );
+
+            router.post(
+                route('admin.newsletter-generator.deliveries.store'),
+                payload,
+                {
+                    forceFormData: true,
+                    preserveScroll: true,
+                    preserveState: true,
+                    replace: true,
+                    onSuccess: () => {
+                        setSavedDefaultValues(
+                            cloneNewsletterValues(generatedEmail.values),
+                        );
+                        setSavedDefaultGeneratedAt(new Date().toISOString());
+                        setGeneratedEmail(null);
+                    },
+                    onError: (errors) => {
+                        setDeliveryActionError(firstError(errors));
+                    },
+                    onCancel: () => {
+                        setDeliveryActionError(
+                            'The email schedule request was cancelled.',
+                        );
+                    },
+                    onFinish: () => {
+                        setIsScheduling(false);
+                    },
+                },
+            );
+        } catch (error) {
+            setDeliveryActionError(
+                error instanceof Error
+                    ? error.message
+                    : 'The email could not be scheduled.',
+            );
+            setIsScheduling(false);
+        }
+    }
+
+    async function sendTestEmail() {
+        if (!generatedEmail) {
+            return;
+        }
+
+        setIsSendingTest(true);
+        setDeliveryActionError(null);
+
+        try {
+            const image = await dataUrlToFile(
+                generatedEmail.dataUrl,
+                generatedEmail.fileName,
+            );
+            const payload = createDeliveryPayload(generatedEmail, image);
+
+            router.post(route('admin.newsletter-generator.test-email'), payload, {
+                forceFormData: true,
+                preserveScroll: true,
+                preserveState: true,
+                replace: true,
+                onError: (errors) => {
+                    setDeliveryActionError(firstError(errors));
+                },
+                onCancel: () => {
+                    setDeliveryActionError(
+                        'The test email request was cancelled.',
+                    );
+                },
+                onFinish: () => {
+                    setIsSendingTest(false);
+                },
+            });
+        } catch (error) {
+            setDeliveryActionError(
+                error instanceof Error
+                    ? error.message
+                    : 'The test email could not be sent.',
+            );
+            setIsSendingTest(false);
+        }
+    }
+
+    async function previewRecipientCount() {
+        setIsCountingRecipients(true);
+        setDeliveryActionError(null);
+
+        try {
+            const response = await fetch(
+                route('admin.newsletter-generator.recipient-count'),
+                {
+                    headers: {
+                        Accept: 'application/json',
+                    },
+                },
+            );
+
+            const payload = await response.json().catch(() => null);
+
+            if (!response.ok) {
+                throw new Error(
+                    payload?.message ??
+                        'The Stripe recipient count could not be loaded.',
+                );
+            }
+
+            setRecipientPreview(payload as RecipientPreview);
+        } catch (error) {
+            setDeliveryActionError(
+                error instanceof Error
+                    ? error.message
+                    : 'The Stripe recipient count could not be loaded.',
+            );
+        } finally {
+            setIsCountingRecipients(false);
+        }
+    }
+
+    function createDeliveryPayload(
+        email: GeneratedNewsletterEmail,
+        image: File,
+        scheduledForIso?: string,
+    ) {
+        return {
+            values: email.values as unknown as FormDataConvertible,
+            image: image as unknown as FormDataConvertible,
+            subject: deliverySubject,
+            preheader: deliveryPreheader,
+            ...(scheduledForIso ? { scheduled_for: scheduledForIso } : {}),
+        };
     }
 
     return (
@@ -218,10 +448,12 @@ export default function NewsletterGenerator({
                     <HudButton
                         type="button"
                         disabled={isExporting}
-                        onClick={downloadNewsletterImage}
+                        onClick={generateSubscriptionEmail}
                     >
-                        <Download className="mr-2 h-4 w-4" aria-hidden />
-                        {isExporting ? 'Generating' : 'Generate Image'}
+                        <Mail className="mr-2 h-4 w-4" aria-hidden />
+                        {isExporting
+                            ? 'Generating'
+                            : 'Generate Subscription Email'}
                     </HudButton>
                 </div>
             </div>
@@ -365,13 +597,12 @@ export default function NewsletterGenerator({
                             <HudButton
                                 type="button"
                                 disabled={isExporting}
-                                onClick={downloadNewsletterImage}
+                                onClick={generateSubscriptionEmail}
                             >
-                                <Download
-                                    className="mr-2 h-4 w-4"
-                                    aria-hidden
-                                />
-                                {isExporting ? 'Generating' : 'Generate Image'}
+                                <Mail className="mr-2 h-4 w-4" aria-hidden />
+                                {isExporting
+                                    ? 'Generating'
+                                    : 'Generate Subscription Email'}
                             </HudButton>
                         </div>
                         {exportError ? (
@@ -423,6 +654,179 @@ export default function NewsletterGenerator({
                     </div>
                 </HudPanel>
             </div>
+
+            {generatedEmail ? (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
+                    <div className="border-main-blue/40 bg-panel-deep max-h-[90vh] w-full max-w-3xl overflow-auto rounded-sm border shadow-[0_0_40px_rgba(44,180,255,0.2)]">
+                        <div className="border-main-blue/25 flex items-start justify-between gap-4 border-b p-5">
+                            <div>
+                                <p className="font-heading text-seafoam-green text-xs tracking-[0.22em] uppercase">
+                                    Generated Output
+                                </p>
+                                <h3 className="font-heading mt-2 text-lg tracking-[0.14em] text-white uppercase">
+                                    Subscription Email Ready
+                                </h3>
+                            </div>
+                            <button
+                                type="button"
+                                className="text-white/55 transition hover:text-white"
+                                onClick={() => setGeneratedEmail(null)}
+                                aria-label="Close generated email actions"
+                            >
+                                <X className="h-5 w-5" aria-hidden />
+                            </button>
+                        </div>
+
+                        <div className="grid gap-5 p-5 lg:grid-cols-[220px_minmax(0,1fr)]">
+                            <div className="border-main-blue/25 bg-black/20 rounded-sm border p-3">
+                                <img
+                                    src={generatedEmail.dataUrl}
+                                    alt="Generated newsletter preview"
+                                    className="block w-full rounded-sm"
+                                />
+                                <p className="font-mono-display mt-3 break-all text-xs text-white/45">
+                                    {generatedEmail.fileName}
+                                </p>
+                            </div>
+
+                            <div className="grid gap-5">
+                                <HudPanel className="p-5">
+                                    <div className="grid gap-4">
+                                        <Field label="Email Subject">
+                                            <input
+                                                className={input}
+                                                value={deliverySubject}
+                                                onChange={(event) =>
+                                                    setDeliverySubject(
+                                                        event.target.value,
+                                                    )
+                                                }
+                                            />
+                                        </Field>
+                                        <Field label="Preheader">
+                                            <input
+                                                className={input}
+                                                value={deliveryPreheader}
+                                                onChange={(event) =>
+                                                    setDeliveryPreheader(
+                                                        event.target.value,
+                                                    )
+                                                }
+                                            />
+                                        </Field>
+                                        <Field label="Schedule Delivery">
+                                            <input
+                                                className={input}
+                                                type="datetime-local"
+                                                value={scheduledFor}
+                                                onChange={(event) =>
+                                                    setScheduledFor(
+                                                        event.target.value,
+                                                    )
+                                                }
+                                            />
+                                        </Field>
+                                    </div>
+                                </HudPanel>
+
+                                <HudPanel className="p-5">
+                                    <div className="flex flex-wrap gap-2">
+                                        <HudButton
+                                            type="button"
+                                            tone="blue"
+                                            onClick={saveGeneratedImage}
+                                        >
+                                            <Download
+                                                className="mr-2 h-4 w-4"
+                                                aria-hidden
+                                            />
+                                            Save as Image
+                                        </HudButton>
+                                        <HudButton
+                                            type="button"
+                                            tone="blue"
+                                            disabled={isSendingTest}
+                                            onClick={sendTestEmail}
+                                        >
+                                            <Mail
+                                                className="mr-2 h-4 w-4"
+                                                aria-hidden
+                                            />
+                                            {isSendingTest
+                                                ? 'Sending Test'
+                                                : 'Send Test Email'}
+                                        </HudButton>
+                                        <HudButton
+                                            type="button"
+                                            tone="blue"
+                                            disabled={isCountingRecipients}
+                                            onClick={previewRecipientCount}
+                                        >
+                                            <Users
+                                                className="mr-2 h-4 w-4"
+                                                aria-hidden
+                                            />
+                                            {isCountingRecipients
+                                                ? 'Counting'
+                                                : 'Preview Recipients'}
+                                        </HudButton>
+                                        <HudButton
+                                            type="button"
+                                            disabled={isScheduling}
+                                            onClick={scheduleEmailDelivery}
+                                        >
+                                            <Send
+                                                className="mr-2 h-4 w-4"
+                                                aria-hidden
+                                            />
+                                            {isScheduling
+                                                ? 'Scheduling'
+                                                : 'Schedule Email Delivery'}
+                                        </HudButton>
+                                    </div>
+
+                                    <div className="mt-4 grid gap-2 text-sm">
+                                        <p className="font-mono-display text-white/50">
+                                            Stripe product:{' '}
+                                            <span className="text-seafoam-green">
+                                                {deliveryDefaults.stripeProductId ||
+                                                    'not configured'}
+                                            </span>
+                                        </p>
+                                        <p className="font-mono-display text-white/50">
+                                            Statuses:{' '}
+                                            <span className="text-seafoam-green">
+                                                {(
+                                                    deliveryDefaults.subscriptionStatuses ??
+                                                    []
+                                                ).join(', ') || 'none'}
+                                            </span>
+                                        </p>
+                                        {recipientPreview ? (
+                                            <p className="font-mono-display text-white/50">
+                                                Current Stripe recipients:{' '}
+                                                <span className="text-seafoam-green">
+                                                    {recipientPreview.count}
+                                                </span>
+                                                {recipientPreview.skippedNoEmail >
+                                                0
+                                                    ? ` (${recipientPreview.skippedNoEmail} skipped without email)`
+                                                    : ''}
+                                            </p>
+                                        ) : null}
+                                    </div>
+
+                                    {deliveryActionError ? (
+                                        <p className="text-violet-light mt-4 text-sm">
+                                            {deliveryActionError}
+                                        </p>
+                                    ) : null}
+                                </HudPanel>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ) : null}
         </AdminLayout>
     );
 }
@@ -466,6 +870,41 @@ function cloneNewsletterValues(
     values: NyseNewsletterValues,
 ): NyseNewsletterValues {
     return createNewsletterValues(values);
+}
+
+function createNewsletterImageFileName(values: NyseNewsletterValues) {
+    return `ticker-tactix-nyse-market-environment-${values.date || 'draft'}.png`;
+}
+
+function createDefaultScheduledFor() {
+    const date = new Date(Date.now() + 15 * 60 * 1000);
+    date.setSeconds(0, 0);
+
+    return formatDateTimeLocalValue(date);
+}
+
+function formatDateTimeLocalValue(date: Date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+async function dataUrlToFile(dataUrl: string, fileName: string) {
+    const response = await fetch(dataUrl);
+    const blob = await response.blob();
+
+    return new File([blob], fileName, { type: 'image/png' });
+}
+
+function firstError(errors: Record<string, string>) {
+    return (
+        Object.values(errors).find((message) => message.length > 0) ??
+        'The newsletter email request could not be completed.'
+    );
 }
 
 function formatGeneratedAt(value: string | null) {

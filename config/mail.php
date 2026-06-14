@@ -61,6 +61,13 @@ return [
             // ],
         ],
 
+        'mailgun' => [
+            'transport' => 'mailgun',
+            'client' => [
+                'timeout' => 10,
+            ],
+        ],
+
         'resend' => [
             'transport' => 'resend',
         ],

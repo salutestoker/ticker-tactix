@@ -131,6 +131,8 @@ export type PageProps<
     flash?: {
         success?: string | null;
         error?: string | null;
+        warning?: string | null;
+        info?: string | null;
     };
     traderFitTraderTypes?: TraderType[];
 };

@@ -1,4 +1,5 @@
 import { HudButton } from '@/Components/UI/Hud';
+import FlashToast from '@/Components/UI/FlashToast';
 import type { PageProps } from '@/types';
 import { Link, router, usePage } from '@inertiajs/react';
 import { Eye, PanelLeftClose, PanelLeftOpen, User } from 'lucide-react';
@@ -17,6 +18,7 @@ const nav = [
     ['Markets', 'admin.markets.index', 'admin.markets.*'],
     ['Trader Types', 'admin.trader-types.index', 'admin.trader-types.*'],
     ['Users', 'admin.users.index', 'admin.users.*'],
+    ['Components', 'admin.components.index', 'admin.components.*'],
 ] as const;
 
 const navLinkBase =
@@ -34,7 +36,7 @@ export default function AdminLayout({
     children,
     publicViewHref,
 }: AdminLayoutProps) {
-    const { auth, flash } = usePage<PageProps>().props;
+    const { auth } = usePage<PageProps>().props;
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
     useEffect(() => {
@@ -60,6 +62,7 @@ export default function AdminLayout({
 
     return (
         <div className="bg-midnight-blue min-h-screen text-white">
+            <FlashToast />
             <aside
                 className={[
                     'border-main-blue/25 bg-panel-deep/95 fixed inset-y-0 left-0 hidden w-72 border-r p-6 transition-transform duration-300 lg:block',
@@ -191,11 +194,6 @@ export default function AdminLayout({
                         </div>
                     </div>
                 </header>
-                {flash?.success || flash?.error ? (
-                    <div className="border-seafoam-green/40 bg-panel mx-5 mt-5 rounded-sm border px-4 py-3 text-sm text-white">
-                        {flash.success || flash.error}
-                    </div>
-                ) : null}
                 <main className="px-5 py-8 lg:px-8">{children}</main>
             </div>
         </div>
