@@ -56,6 +56,7 @@ Route::middleware(['auth', 'admin'])
         Route::get('newsletter-generator', AdminNewsletterGeneratorController::class)->name('newsletter-generator');
         Route::post('newsletter-generator', [AdminNewsletterGeneratorController::class, 'store'])->name('newsletter-generator.store');
         Route::post('newsletter-generator/deliveries', [AdminNewsletterDeliveryController::class, 'store'])->name('newsletter-generator.deliveries.store');
+        Route::post('newsletter-generator/deliveries/send-now', [AdminNewsletterDeliveryController::class, 'sendGeneratedNow'])->name('newsletter-generator.deliveries.send-generated-now');
         Route::post('newsletter-generator/deliveries/{delivery}/send-now', [AdminNewsletterDeliveryController::class, 'sendNow'])->name('newsletter-generator.deliveries.send-now');
         Route::delete('newsletter-generator/deliveries/{delivery}', [AdminNewsletterDeliveryController::class, 'destroy'])->name('newsletter-generator.deliveries.destroy');
         Route::post('newsletter-generator/test-email', [AdminNewsletterDeliveryController::class, 'test'])->name('newsletter-generator.test-email');

@@ -256,6 +256,49 @@ class AdminNewsletterGeneratorTest extends TestCase
         $this->assertDatabaseCount('newsletter_deliveries', 0);
     }
 
+    public function test_admin_can_send_generated_newsletter_now_without_queue_worker(): void
+    {
+        config([
+            'newsletters.templates.nyse_market_environment.stripe_product_id' => 'prod_test_newsletter',
+        ]);
+        Storage::fake('local');
+        Queue::fake();
+        Mail::fake();
+
+        $service = Mockery::mock(StripeNewsletterSubscriberService::class);
+        $service->shouldReceive('recipientsForProduct')
+            ->once()
+            ->with('prod_test_newsletter', ['active', 'past_due', 'trialing'])
+            ->andReturn(new NewsletterRecipientResult([
+                new NewsletterRecipient('one@example.com', 'cus_1', [], 'One Recipient'),
+                new NewsletterRecipient('two@example.com', 'cus_2', [], 'Two Recipient'),
+            ]));
+
+        $this->app->instance(StripeNewsletterSubscriberService::class, $service);
+
+        $admin = User::factory()->create(['is_admin' => true]);
+
+        $this->actingAs($admin)
+            ->post(route('admin.newsletter-generator.deliveries.send-generated-now'), [
+                'values' => $this->newsletterValues(),
+                'subject' => 'Immediate NYSE ETF Environment',
+                'preheader' => 'Immediate preheader.',
+                'image' => $this->pngUpload(),
+            ])
+            ->assertRedirect(route('admin.newsletter-generator'));
+
+        $delivery = NewsletterDelivery::firstOrFail();
+
+        $this->assertSame(NewsletterDelivery::STATUS_SENT, $delivery->status);
+        $this->assertSame(2, $delivery->recipient_count);
+        $this->assertSame(2, $delivery->sent_count);
+        $this->assertNotNull($delivery->sent_at);
+        Storage::disk('local')->assertExists($delivery->image_path);
+        Mail::assertSent(NewsletterSubscriptionEmail::class, 2);
+        Queue::assertNotPushed(DispatchNewsletterDeliveryJob::class);
+        Queue::assertNotPushed(SendNewsletterDeliveryEmailJob::class);
+    }
+
     public function test_test_newsletter_mail_transport_errors_are_returned_to_admin(): void
     {
         config([

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\DispatchNewsletterDeliveryJob;
+use App\Jobs\SendNewsletterDeliveryEmailJob;
 use App\Mail\NewsletterSubscriptionEmail;
 use App\Models\NewsletterDelivery;
 use App\Models\NewsletterGeneration;
@@ -143,6 +144,76 @@ class NewsletterDeliveryController extends Controller
             'stripeProductId' => $stripeProductId,
             'subscriptionStatuses' => $statuses,
         ]);
+    }
+
+    public function sendGeneratedNow(Request $request, StripeNewsletterSubscriberService $subscribers): RedirectResponse
+    {
+        $data = $request->validate($this->rules());
+        $template = NewsletterGeneration::TEMPLATE_NYSE_MARKET_ENVIRONMENT;
+        $stripeProductId = $this->stripeProductId($template);
+        $statuses = config("newsletters.templates.{$template}.subscription_statuses", ['active']);
+        $values = NyseNewsletterValues::normalize($data['values']);
+        $disk = config('filesystems.newsletter_image_disk', 'local');
+        $directory = config('filesystems.newsletter_image_directory', 'newsletter-deliveries');
+        $imagePath = $request->file('image')?->store($directory, ['disk' => $disk]);
+
+        if (! is_string($imagePath) || $imagePath === '') {
+            throw ValidationException::withMessages([
+                'image' => 'The generated newsletter image could not be stored.',
+            ]);
+        }
+
+        $delivery = NewsletterDelivery::create([
+            'template' => $template,
+            'user_id' => $request->user()?->id,
+            'stripe_product_id' => $stripeProductId,
+            'subscription_statuses' => $statuses,
+            'subject' => $data['subject'],
+            'preheader' => $data['preheader'] ?? null,
+            'values' => $values,
+            'image_disk' => $disk,
+            'image_path' => $imagePath,
+            'scheduled_for' => now(),
+            'status' => NewsletterDelivery::STATUS_SENDING,
+            'sent_count' => 0,
+            'failed_count' => 0,
+            'skipped_count' => 0,
+            'error' => null,
+        ]);
+
+        NewsletterGeneration::create([
+            'template' => $template,
+            'user_id' => $request->user()?->id,
+            'values' => $values,
+        ]);
+
+        $result = $subscribers->recipientsForProduct($stripeProductId, $statuses);
+
+        $delivery->forceFill([
+            'recipient_count' => $result->count(),
+            'skipped_count' => $result->skippedNoEmail,
+        ])->save();
+
+        foreach ($result->recipients as $recipient) {
+            try {
+                (new SendNewsletterDeliveryEmailJob($delivery->id, $recipient))->handle();
+            } catch (\Throwable $exception) {
+                (new SendNewsletterDeliveryEmailJob($delivery->id, $recipient))->failed($exception);
+            }
+        }
+
+        if ($result->count() === 0) {
+            $delivery->forceFill([
+                'status' => NewsletterDelivery::STATUS_SENT,
+                'sent_at' => now(),
+            ])->save();
+        }
+
+        $delivery->refresh();
+
+        return redirect()
+            ->route('admin.newsletter-generator')
+            ->with('success', "Newsletter sent now to {$delivery->sent_count} recipients.");
     }
 
     public function sendNow(NewsletterDelivery $delivery): RedirectResponse

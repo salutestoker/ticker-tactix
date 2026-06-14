@@ -101,6 +101,7 @@ export default function NewsletterGenerator({
     );
     const [isExporting, setIsExporting] = useState(false);
     const [isScheduling, setIsScheduling] = useState(false);
+    const [isSendingNow, setIsSendingNow] = useState(false);
     const [isSendingTest, setIsSendingTest] = useState(false);
     const [isCountingRecipients, setIsCountingRecipients] = useState(false);
     const [processingDeliveryId, setProcessingDeliveryId] = useState<
@@ -450,6 +451,67 @@ export default function NewsletterGenerator({
                     : 'The test email could not be sent.',
             );
             setIsSendingTest(false);
+        }
+    }
+
+    async function sendGeneratedEmailNow() {
+        if (!generatedEmail) {
+            return;
+        }
+
+        const confirmed = window.confirm(
+            'Send this newsletter to all current Stripe newsletter recipients now?',
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        setIsSendingNow(true);
+        setDeliveryActionError(null);
+
+        try {
+            const image = await dataUrlToFile(
+                generatedEmail.dataUrl,
+                generatedEmail.fileName,
+            );
+            const payload = createDeliveryPayload(generatedEmail, image);
+
+            router.post(
+                route('admin.newsletter-generator.deliveries.send-generated-now'),
+                payload,
+                {
+                    forceFormData: true,
+                    preserveScroll: true,
+                    preserveState: true,
+                    replace: true,
+                    onSuccess: () => {
+                        setSavedDefaultValues(
+                            cloneNewsletterValues(generatedEmail.values),
+                        );
+                        setSavedDefaultGeneratedAt(new Date().toISOString());
+                        setGeneratedEmail(null);
+                    },
+                    onError: (errors) => {
+                        setDeliveryActionError(firstError(errors));
+                    },
+                    onCancel: () => {
+                        setDeliveryActionError(
+                            'The send-now request was cancelled.',
+                        );
+                    },
+                    onFinish: () => {
+                        setIsSendingNow(false);
+                    },
+                },
+            );
+        } catch (error) {
+            setDeliveryActionError(
+                error instanceof Error
+                    ? error.message
+                    : 'The newsletter could not be sent now.',
+            );
+            setIsSendingNow(false);
         }
     }
 
@@ -1020,6 +1082,19 @@ export default function NewsletterGenerator({
                                             {isCountingRecipients
                                                 ? 'Counting'
                                                 : 'Preview Recipients'}
+                                        </HudButton>
+                                        <HudButton
+                                            type="button"
+                                            disabled={isSendingNow}
+                                            onClick={sendGeneratedEmailNow}
+                                        >
+                                            <Send
+                                                className="mr-2 h-4 w-4"
+                                                aria-hidden
+                                            />
+                                            {isSendingNow
+                                                ? 'Sending Now'
+                                                : 'Send Now'}
                                         </HudButton>
                                         <HudButton
                                             type="button"
