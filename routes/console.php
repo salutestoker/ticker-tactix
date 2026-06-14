@@ -1,5 +1,7 @@
 <?php
 
+use App\Jobs\DispatchNewsletterDeliveryJob;
+use App\Models\NewsletterDelivery;
 use App\Services\CatalogSpreadsheetSyncService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -35,12 +37,33 @@ Artisan::command('catalog:spreadsheets:import {--if-changed : Only import when t
     return 0;
 })->purpose('Import trader type, module, and playbook updates from CSV spreadsheets');
 
+Artisan::command('newsletter:dispatch-due', function (): int {
+    $deliveries = NewsletterDelivery::query()
+        ->where('status', NewsletterDelivery::STATUS_SCHEDULED)
+        ->whereNotNull('scheduled_for')
+        ->where('scheduled_for', '<=', now())
+        ->orderBy('scheduled_for')
+        ->orderBy('id')
+        ->get();
+
+    $deliveries->each(fn (NewsletterDelivery $delivery) => DispatchNewsletterDeliveryJob::dispatch($delivery));
+
+    $this->info("Dispatched {$deliveries->count()} due newsletter deliveries.");
+
+    return 0;
+})->purpose('Dispatch due scheduled newsletter deliveries');
+
 if (app()->environment('production') && config('catalog.schedule_spreadsheet_imports')) {
     Schedule::command('catalog:spreadsheets:import --if-changed')
         ->everyMinute()
         ->withoutOverlapping(10)
         ->onOneServer();
 }
+
+Schedule::command('newsletter:dispatch-due')
+    ->everyMinute()
+    ->withoutOverlapping(10)
+    ->onOneServer();
 
 Artisan::command('storage:probe {disk? : Filesystem disk to test}', function (?string $disk = null): int {
     $disk ??= (string) config('filesystems.catalog_media_disk', config('filesystems.default'));

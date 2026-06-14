@@ -1,6 +1,7 @@
 import {
     createDefaultNyseNewsletterValues,
     formatBulletinNumber,
+    formatDateInputValue,
     formatNewsletterDate,
     NYSE_NEWSLETTER_HEIGHT,
     NYSE_NEWSLETTER_WIDTH,
@@ -17,7 +18,17 @@ import AdminLayout from '@/Layouts/AdminLayout';
 import type { FormDataConvertible } from '@inertiajs/core';
 import { Head, router } from '@inertiajs/react';
 import { toPng } from 'html-to-image';
-import { Download, Mail, RotateCcw, Send, Users, X } from 'lucide-react';
+import {
+    Clock3,
+    Download,
+    Mail,
+    Play,
+    RotateCcw,
+    Send,
+    Trash2,
+    Users,
+    X,
+} from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 type NewsletterGeneratorProps = {
@@ -28,6 +39,12 @@ type NewsletterGeneratorProps = {
         subscriptionStatuses?: string[];
         subject?: string | null;
         preheader?: string | null;
+    };
+    scheduledDeliveries: ScheduledDelivery[];
+    schedulerMeta: {
+        appTimezone: string;
+        newsletterTimezone: string;
+        serverNow: string;
     };
 };
 
@@ -44,6 +61,14 @@ type RecipientPreview = {
     subscriptionStatuses: string[];
 };
 
+type ScheduledDelivery = {
+    id: number;
+    subject: string;
+    scheduledFor?: string | null;
+    createdAt?: string | null;
+    userName?: string | null;
+};
+
 const priceFieldLabels: Record<PriceFieldKey, string> = {
     price: 'Current Price',
     s2: 'S2',
@@ -58,9 +83,12 @@ export default function NewsletterGenerator({
     defaultValues = null,
     defaultGeneratedAt = null,
     deliveryDefaults,
+    scheduledDeliveries,
+    schedulerMeta,
 }: NewsletterGeneratorProps) {
     const exportRef = useRef<HTMLDivElement | null>(null);
     const previewViewportRef = useRef<HTMLDivElement | null>(null);
+    const previousScheduledDeliveryIdsRef = useRef<Set<number> | null>(null);
     const [savedDefaultValues, setSavedDefaultValues] =
         useState<NyseNewsletterValues>(() =>
             createNewsletterValues(defaultValues),
@@ -75,6 +103,9 @@ export default function NewsletterGenerator({
     const [isScheduling, setIsScheduling] = useState(false);
     const [isSendingTest, setIsSendingTest] = useState(false);
     const [isCountingRecipients, setIsCountingRecipients] = useState(false);
+    const [processingDeliveryId, setProcessingDeliveryId] = useState<
+        number | null
+    >(null);
     const [exportError, setExportError] = useState<string | null>(null);
     const [deliveryActionError, setDeliveryActionError] = useState<
         string | null
@@ -89,7 +120,7 @@ export default function NewsletterGenerator({
             'Daily market intelligence from Ticker Tactix.',
     );
     const [scheduledFor, setScheduledFor] = useState(
-        createDefaultScheduledFor(),
+        createDefaultScheduledFor(schedulerMeta.newsletterTimezone),
     );
     const [recipientPreview, setRecipientPreview] =
         useState<RecipientPreview | null>(null);
@@ -116,6 +147,45 @@ export default function NewsletterGenerator({
         resizeObserver.observe(viewportElement);
 
         return () => resizeObserver.disconnect();
+    }, []);
+
+    useEffect(() => {
+        const currentIds = new Set(
+            scheduledDeliveries.map((delivery) => delivery.id),
+        );
+        const previousIds = previousScheduledDeliveryIdsRef.current;
+
+        if (previousIds) {
+            const removedCount = [...previousIds].filter(
+                (id) => !currentIds.has(id),
+            ).length;
+
+            if (removedCount > 0) {
+                window.dispatchEvent(
+                    new CustomEvent('ticker-toast', {
+                        detail: {
+                            message:
+                                removedCount === 1
+                                    ? 'Scheduled newsletter email left the queue.'
+                                    : `${removedCount} scheduled newsletter emails left the queue.`,
+                            type: 'success',
+                        },
+                    }),
+                );
+            }
+        }
+
+        previousScheduledDeliveryIdsRef.current = currentIds;
+    }, [scheduledDeliveries]);
+
+    useEffect(() => {
+        const interval = window.setInterval(() => {
+            router.reload({
+                only: ['scheduledDeliveries', 'schedulerMeta'],
+            });
+        }, 15000);
+
+        return () => window.clearInterval(interval);
     }, []);
 
     function updateDate(value: string) {
@@ -234,7 +304,9 @@ export default function NewsletterGenerator({
                 deliveryDefaults.preheader ??
                     'Daily market intelligence from Ticker Tactix.',
             );
-            setScheduledFor(createDefaultScheduledFor());
+            setScheduledFor(
+                createDefaultScheduledFor(schedulerMeta.newsletterTimezone),
+            );
             setRecipientPreview(null);
         } catch (error) {
             setExportError(
@@ -278,9 +350,7 @@ export default function NewsletterGenerator({
             return;
         }
 
-        const scheduledDate = new Date(scheduledFor);
-
-        if (!scheduledFor || Number.isNaN(scheduledDate.getTime())) {
+        if (!scheduledFor || !isDateTimeLocalValue(scheduledFor)) {
             setDeliveryActionError('Choose a valid delivery date and time.');
             return;
         }
@@ -296,7 +366,7 @@ export default function NewsletterGenerator({
             const payload = createDeliveryPayload(
                 generatedEmail,
                 image,
-                scheduledDate.toISOString(),
+                scheduledFor,
             );
 
             router.post(
@@ -352,23 +422,27 @@ export default function NewsletterGenerator({
             );
             const payload = createDeliveryPayload(generatedEmail, image);
 
-            router.post(route('admin.newsletter-generator.test-email'), payload, {
-                forceFormData: true,
-                preserveScroll: true,
-                preserveState: true,
-                replace: true,
-                onError: (errors) => {
-                    setDeliveryActionError(firstError(errors));
+            router.post(
+                route('admin.newsletter-generator.test-email'),
+                payload,
+                {
+                    forceFormData: true,
+                    preserveScroll: true,
+                    preserveState: true,
+                    replace: true,
+                    onError: (errors) => {
+                        setDeliveryActionError(firstError(errors));
+                    },
+                    onCancel: () => {
+                        setDeliveryActionError(
+                            'The test email request was cancelled.',
+                        );
+                    },
+                    onFinish: () => {
+                        setIsSendingTest(false);
+                    },
                 },
-                onCancel: () => {
-                    setDeliveryActionError(
-                        'The test email request was cancelled.',
-                    );
-                },
-                onFinish: () => {
-                    setIsSendingTest(false);
-                },
-            });
+            );
         } catch (error) {
             setDeliveryActionError(
                 error instanceof Error
@@ -426,6 +500,56 @@ export default function NewsletterGenerator({
             preheader: deliveryPreheader,
             ...(scheduledForIso ? { scheduled_for: scheduledForIso } : {}),
         };
+    }
+
+    function sendScheduledDeliveryNow(delivery: ScheduledDelivery) {
+        setDeliveryActionError(null);
+        setProcessingDeliveryId(delivery.id);
+
+        router.post(
+            route(
+                'admin.newsletter-generator.deliveries.send-now',
+                delivery.id,
+            ),
+            {},
+            {
+                preserveScroll: true,
+                replace: true,
+                onError: (errors) => {
+                    setDeliveryActionError(firstError(errors));
+                },
+                onFinish: () => {
+                    setProcessingDeliveryId(null);
+                },
+            },
+        );
+    }
+
+    function deleteScheduledDelivery(delivery: ScheduledDelivery) {
+        const confirmed = window.confirm(
+            `Delete the scheduled newsletter "${delivery.subject}"? This cannot be undone.`,
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        setDeliveryActionError(null);
+        setProcessingDeliveryId(delivery.id);
+
+        router.delete(
+            route('admin.newsletter-generator.deliveries.destroy', delivery.id),
+            {
+                preserveScroll: true,
+                replace: true,
+                onError: (errors) => {
+                    setDeliveryActionError(firstError(errors));
+                },
+                onFinish: () => {
+                    setProcessingDeliveryId(null);
+                },
+            },
+        );
     }
 
     return (
@@ -589,9 +713,7 @@ export default function NewsletterGenerator({
                                 </p>
                                 <p className="font-mono-display mt-2 text-xs text-white/45">
                                     Reset target:{' '}
-                                    {formatGeneratedAt(
-                                        savedDefaultGeneratedAt,
-                                    )}
+                                    {formatGeneratedAt(savedDefaultGeneratedAt)}
                                 </p>
                             </div>
                             <HudButton
@@ -608,6 +730,130 @@ export default function NewsletterGenerator({
                         {exportError ? (
                             <p className="text-violet-light mt-4 text-sm">
                                 {exportError}
+                            </p>
+                        ) : null}
+                    </HudPanel>
+
+                    <HudPanel className="p-5">
+                        <div className="border-main-blue/25 flex flex-wrap items-start justify-between gap-4 border-b pb-4">
+                            <div>
+                                <h3 className="font-heading text-sm tracking-[0.16em] text-white uppercase">
+                                    Scheduled Emails
+                                </h3>
+                                <p className="mt-2 text-xs leading-5 text-white/50">
+                                    Delivery times use Eastern Time. The server
+                                    sweeps due scheduled deliveries every
+                                    minute.
+                                </p>
+                            </div>
+                            <div className="font-mono-display text-xs text-white/45">
+                                <span>
+                                    <strong>Schedule timezone: </strong>
+                                    {schedulerMeta.newsletterTimezone}
+                                </span>
+                                <span>
+                                    App timezone: {schedulerMeta.appTimezone}
+                                </span>
+                                <p className="mt-4 italic">
+                                    Server now:{' '}
+                                    {formatDateTime(
+                                        schedulerMeta.serverNow,
+                                        schedulerMeta.newsletterTimezone,
+                                    )}
+                                </p>
+                            </div>
+                        </div>
+
+                        {scheduledDeliveries.length > 0 ? (
+                            <div className="mt-5 grid gap-3">
+                                {scheduledDeliveries.map((delivery) => {
+                                    const isProcessing =
+                                        processingDeliveryId === delivery.id;
+
+                                    return (
+                                        <div
+                                            key={delivery.id}
+                                            className="border-main-blue/25 bg-panel-deep/55 rounded-sm border p-4"
+                                        >
+                                            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                                                <div className="min-w-0">
+                                                    <p className="font-heading text-sm tracking-[0.12em] text-white uppercase">
+                                                        {delivery.subject}
+                                                    </p>
+                                                    <div className="mt-3 grid gap-2 text-xs text-white/52">
+                                                        <p className="font-mono-display flex items-center gap-2">
+                                                            <Clock3
+                                                                className="text-seafoam-green h-4 w-4"
+                                                                aria-hidden
+                                                            />
+                                                            Scheduled:{' '}
+                                                            {formatDateTime(
+                                                                delivery.scheduledFor,
+                                                                schedulerMeta.newsletterTimezone,
+                                                            )}
+                                                        </p>
+                                                        <p>
+                                                            Created:{' '}
+                                                            {formatDateTime(
+                                                                delivery.createdAt,
+                                                                schedulerMeta.newsletterTimezone,
+                                                            )}
+                                                            {delivery.userName
+                                                                ? ` by ${delivery.userName}`
+                                                                : ''}
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex shrink-0 flex-wrap gap-2">
+                                                    <HudButton
+                                                        type="button"
+                                                        tone="blue"
+                                                        disabled={isProcessing}
+                                                        onClick={() =>
+                                                            sendScheduledDeliveryNow(
+                                                                delivery,
+                                                            )
+                                                        }
+                                                    >
+                                                        <Play
+                                                            className="mr-2 h-4 w-4"
+                                                            aria-hidden
+                                                        />
+                                                        Send Now
+                                                    </HudButton>
+                                                    <HudButton
+                                                        type="button"
+                                                        tone="blue"
+                                                        disabled={isProcessing}
+                                                        onClick={() =>
+                                                            deleteScheduledDelivery(
+                                                                delivery,
+                                                            )
+                                                        }
+                                                    >
+                                                        <Trash2
+                                                            className="mr-2 h-4 w-4"
+                                                            aria-hidden
+                                                        />
+                                                        Delete
+                                                    </HudButton>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                            <p className="mt-5 text-sm text-white/55">
+                                No scheduled newsletter emails are waiting to
+                                send.
+                            </p>
+                        )}
+
+                        {deliveryActionError ? (
+                            <p className="text-violet-light mt-4 text-sm">
+                                {deliveryActionError}
                             </p>
                         ) : null}
                     </HudPanel>
@@ -678,13 +924,13 @@ export default function NewsletterGenerator({
                         </div>
 
                         <div className="grid gap-5 p-5 lg:grid-cols-[220px_minmax(0,1fr)]">
-                            <div className="border-main-blue/25 bg-black/20 rounded-sm border p-3">
+                            <div className="border-main-blue/25 rounded-sm border bg-black/20 p-3">
                                 <img
                                     src={generatedEmail.dataUrl}
                                     alt="Generated newsletter preview"
                                     className="block w-full rounded-sm"
                                 />
-                                <p className="font-mono-display mt-3 break-all text-xs text-white/45">
+                                <p className="font-mono-display mt-3 text-xs break-all text-white/45">
                                     {generatedEmail.fileName}
                                 </p>
                             </div>
@@ -725,6 +971,11 @@ export default function NewsletterGenerator({
                                                     )
                                                 }
                                             />
+                                            <span className="mt-2 block text-xs leading-5 text-white/48 normal-case">
+                                                This field is interpreted as US
+                                                Eastern Time, regardless of your
+                                                browser or server timezone.
+                                            </span>
                                         </Field>
                                     </div>
                                 </HudPanel>
@@ -838,31 +1089,36 @@ function createNewsletterValues(
     const source = defaultValues ?? fallback;
 
     return {
-        date: source.date ?? fallback.date,
-        cards: tickerCards.reduce((accumulator, card) => {
-            const sourceCard = source.cards?.[card.key];
+        date: formatDateInputValue(new Date()),
+        cards: tickerCards.reduce(
+            (accumulator, card) => {
+                const sourceCard = source.cards?.[card.key];
 
-            accumulator[card.key] = priceFieldKeys.reduce(
-                (fieldAccumulator, fieldKey) => ({
-                    ...fieldAccumulator,
-                    [fieldKey]:
-                        sourceCard?.[fieldKey] ??
-                        fallback.cards[card.key][fieldKey],
-                }),
-                {} as Record<PriceFieldKey, string>,
-            );
+                accumulator[card.key] = priceFieldKeys.reduce(
+                    (fieldAccumulator, fieldKey) => ({
+                        ...fieldAccumulator,
+                        [fieldKey]:
+                            sourceCard?.[fieldKey] ??
+                            fallback.cards[card.key][fieldKey],
+                    }),
+                    {} as Record<PriceFieldKey, string>,
+                );
 
-            return accumulator;
-        }, {} as NyseNewsletterValues['cards']),
-        probabilities: probabilityRows.reduce((accumulator, row) => {
-            accumulator[row.key] =
-                source.probabilities?.[row.key] ??
-                fallback.probabilities[row.key];
+                return accumulator;
+            },
+            {} as NyseNewsletterValues['cards'],
+        ),
+        probabilities: probabilityRows.reduce(
+            (accumulator, row) => {
+                accumulator[row.key] =
+                    source.probabilities?.[row.key] ??
+                    fallback.probabilities[row.key];
 
-            return accumulator;
-        }, {} as NyseNewsletterValues['probabilities']),
-        marketCommentary:
-            source.marketCommentary ?? fallback.marketCommentary,
+                return accumulator;
+            },
+            {} as NyseNewsletterValues['probabilities'],
+        ),
+        marketCommentary: source.marketCommentary ?? fallback.marketCommentary,
     };
 }
 
@@ -876,21 +1132,37 @@ function createNewsletterImageFileName(values: NyseNewsletterValues) {
     return `ticker-tactix-nyse-market-environment-${values.date || 'draft'}.png`;
 }
 
-function createDefaultScheduledFor() {
+function createDefaultScheduledFor(timeZone: string) {
     const date = new Date(Date.now() + 15 * 60 * 1000);
     date.setSeconds(0, 0);
 
-    return formatDateTimeLocalValue(date);
+    return formatDateTimeLocalValue(date, timeZone);
 }
 
-function formatDateTimeLocalValue(date: Date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
+function formatDateTimeLocalValue(date: Date, timeZone: string) {
+    const parts = new Intl.DateTimeFormat('en-US', {
+        day: '2-digit',
+        hour: '2-digit',
+        hour12: false,
+        minute: '2-digit',
+        month: '2-digit',
+        timeZone,
+        year: 'numeric',
+    })
+        .formatToParts(date)
+        .reduce(
+            (accumulator, part) => ({
+                ...accumulator,
+                [part.type]: part.value,
+            }),
+            {} as Record<string, string>,
+        );
 
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
+    return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}`;
+}
+
+function isDateTimeLocalValue(value: string) {
+    return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value);
 }
 
 async function dataUrlToFile(dataUrl: string, fileName: string) {
@@ -920,6 +1192,24 @@ function formatGeneratedAt(value: string | null) {
 
     return date.toLocaleString(undefined, {
         dateStyle: 'medium',
+        timeStyle: 'short',
+    });
+}
+
+function formatDateTime(value?: string | null, timeZone?: string) {
+    if (!value) {
+        return 'not set';
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return value;
+    }
+
+    return date.toLocaleString(undefined, {
+        dateStyle: 'medium',
+        ...(timeZone ? { timeZone } : {}),
         timeStyle: 'short',
     });
 }

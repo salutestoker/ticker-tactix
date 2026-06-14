@@ -29,13 +29,23 @@ class DispatchNewsletterDeliveryJob implements ShouldQueue
             return;
         }
 
-        $delivery->forceFill([
-            'status' => NewsletterDelivery::STATUS_SENDING,
-            'sent_count' => 0,
-            'failed_count' => 0,
-            'skipped_count' => 0,
-            'error' => null,
-        ])->save();
+        $claimed = NewsletterDelivery::query()
+            ->whereKey($delivery->id)
+            ->where('status', NewsletterDelivery::STATUS_SCHEDULED)
+            ->update([
+                'status' => NewsletterDelivery::STATUS_SENDING,
+                'sent_count' => 0,
+                'failed_count' => 0,
+                'skipped_count' => 0,
+                'error' => null,
+                'updated_at' => now(),
+            ]);
+
+        if ($claimed !== 1) {
+            return;
+        }
+
+        $delivery->refresh();
 
         $result = $subscribers->recipientsForProduct(
             $delivery->stripe_product_id,

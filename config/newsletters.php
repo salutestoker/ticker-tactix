@@ -6,6 +6,7 @@ return [
     'image_disk' => env('NEWSLETTER_IMAGE_DISK', 'local'),
     'image_directory' => env('NEWSLETTER_IMAGE_DIRECTORY', 'newsletter-deliveries'),
     'test_emails' => env('NEWSLETTER_TEST_EMAILS', ''),
+    'timezone' => env('NEWSLETTER_TIMEZONE', 'America/New_York'),
 
     'templates' => [
         NewsletterGeneration::TEMPLATE_NYSE_MARKET_ENVIRONMENT => [

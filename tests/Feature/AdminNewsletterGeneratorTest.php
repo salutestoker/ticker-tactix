@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Services\Newsletters\NewsletterRecipient;
 use App\Services\Newsletters\NewsletterRecipientResult;
 use App\Services\Newsletters\StripeNewsletterSubscriberService;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Mail;
@@ -46,6 +47,7 @@ class AdminNewsletterGeneratorTest extends TestCase
     public function test_generator_uses_latest_saved_generation_as_default(): void
     {
         $admin = User::factory()->create(['is_admin' => true]);
+        $scheduledBy = User::factory()->create(['name' => 'Scheduler']);
 
         NewsletterGeneration::create([
             'template' => NewsletterGeneration::TEMPLATE_NYSE_MARKET_ENVIRONMENT,
@@ -60,50 +62,167 @@ class AdminNewsletterGeneratorTest extends TestCase
             ]),
         ]);
 
+        NewsletterDelivery::create([
+            'template' => NewsletterGeneration::TEMPLATE_NYSE_MARKET_ENVIRONMENT,
+            'user_id' => $scheduledBy->id,
+            'stripe_product_id' => 'prod_test_newsletter',
+            'subscription_statuses' => ['active'],
+            'subject' => 'Scheduled NYSE ETF Environment',
+            'preheader' => 'Daily market read.',
+            'values' => $this->newsletterValues(),
+            'image_disk' => 'local',
+            'image_path' => 'newsletter.png',
+            'scheduled_for' => now()->addHour(),
+            'status' => NewsletterDelivery::STATUS_SCHEDULED,
+        ]);
+
         $this->actingAs($admin)
             ->get(route('admin.newsletter-generator'))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Admin/Newsletters/Generator')
-                ->where('defaultValues.date', '2026-06-09')
+                ->where('defaultValues.date', now()->toDateString())
                 ->where('defaultValues.marketCommentary', 'Most recent generated commentary.')
-                ->where('deliveryDefaults.subscriptionStatuses', ['active', 'past_due', 'trialing']));
+                ->where('deliveryDefaults.subscriptionStatuses', ['active', 'past_due', 'trialing'])
+                ->where('scheduledDeliveries.0.subject', 'Scheduled NYSE ETF Environment')
+                ->where('scheduledDeliveries.0.userName', 'Scheduler')
+                ->where('schedulerMeta.newsletterTimezone', 'America/New_York')
+                ->where('schedulerMeta.appTimezone', config('app.timezone')));
     }
 
     public function test_admin_can_schedule_newsletter_delivery(): void
     {
+        CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-06-14 19:00:00', 'UTC'));
         config(['newsletters.templates.nyse_market_environment.stripe_product_id' => 'prod_test_newsletter']);
         Storage::fake('local');
         Queue::fake();
 
         $admin = User::factory()->create(['is_admin' => true]);
-        $values = $this->newsletterValues(['date' => '2026-06-12']);
+        $values = $this->newsletterValues(['date' => '2026-06-14']);
+
+        try {
+            $this->actingAs($admin)
+                ->post(route('admin.newsletter-generator.deliveries.store'), [
+                    'values' => $values,
+                    'subject' => 'NYSE ETF Environment',
+                    'preheader' => 'Today&apos;s market read.',
+                    'scheduled_for' => '2026-06-14T15:49',
+                    'image' => $this->pngUpload(),
+                ])
+                ->assertRedirect(route('admin.newsletter-generator'));
+
+            $delivery = NewsletterDelivery::firstOrFail();
+
+            $this->assertSame($admin->id, $delivery->user_id);
+            $this->assertSame('prod_test_newsletter', $delivery->stripe_product_id);
+            $this->assertSame(['active', 'past_due', 'trialing'], $delivery->subscription_statuses);
+            $this->assertSame('NYSE ETF Environment', $delivery->subject);
+            $this->assertSame(NewsletterDelivery::STATUS_SCHEDULED, $delivery->status);
+            $this->assertSame('2026-06-14T19:49:00+00:00', $delivery->scheduled_for->utc()->toIso8601String());
+            $this->assertEquals($values, $delivery->values);
+            Storage::disk('local')->assertExists($delivery->image_path);
+            Queue::assertPushed(DispatchNewsletterDeliveryJob::class);
+
+            $this->assertDatabaseHas('newsletter_generations', [
+                'template' => NewsletterGeneration::TEMPLATE_NYSE_MARKET_ENVIRONMENT,
+                'user_id' => $admin->id,
+            ]);
+        } finally {
+            CarbonImmutable::setTestNow();
+        }
+    }
+
+    public function test_admin_can_delete_scheduled_newsletter_delivery(): void
+    {
+        Storage::fake('local');
+        Storage::disk('local')->put('newsletter.png', 'image');
+
+        $admin = User::factory()->create(['is_admin' => true]);
+        $delivery = NewsletterDelivery::create([
+            'template' => NewsletterGeneration::TEMPLATE_NYSE_MARKET_ENVIRONMENT,
+            'stripe_product_id' => 'prod_test_newsletter',
+            'subscription_statuses' => ['active'],
+            'subject' => 'Scheduled NYSE ETF Environment',
+            'preheader' => 'Daily market read.',
+            'values' => $this->newsletterValues(),
+            'image_disk' => 'local',
+            'image_path' => 'newsletter.png',
+            'scheduled_for' => now()->addHour(),
+            'status' => NewsletterDelivery::STATUS_SCHEDULED,
+        ]);
 
         $this->actingAs($admin)
-            ->post(route('admin.newsletter-generator.deliveries.store'), [
-                'values' => $values,
-                'subject' => 'NYSE ETF Environment',
-                'preheader' => 'Today&apos;s market read.',
-                'scheduled_for' => now()->addHour()->toIso8601String(),
-                'image' => $this->pngUpload(),
-            ])
+            ->delete(route('admin.newsletter-generator.deliveries.destroy', $delivery))
             ->assertRedirect(route('admin.newsletter-generator'));
 
-        $delivery = NewsletterDelivery::firstOrFail();
+        $this->assertDatabaseMissing('newsletter_deliveries', ['id' => $delivery->id]);
+        Storage::disk('local')->assertMissing('newsletter.png');
+    }
 
-        $this->assertSame($admin->id, $delivery->user_id);
-        $this->assertSame('prod_test_newsletter', $delivery->stripe_product_id);
-        $this->assertSame(['active', 'past_due', 'trialing'], $delivery->subscription_statuses);
-        $this->assertSame('NYSE ETF Environment', $delivery->subject);
-        $this->assertSame(NewsletterDelivery::STATUS_SCHEDULED, $delivery->status);
-        $this->assertEquals($values, $delivery->values);
-        Storage::disk('local')->assertExists($delivery->image_path);
-        Queue::assertPushed(DispatchNewsletterDeliveryJob::class);
+    public function test_admin_can_send_scheduled_newsletter_delivery_now(): void
+    {
+        Queue::fake([DispatchNewsletterDeliveryJob::class]);
 
-        $this->assertDatabaseHas('newsletter_generations', [
+        $admin = User::factory()->create(['is_admin' => true]);
+        $delivery = NewsletterDelivery::create([
             'template' => NewsletterGeneration::TEMPLATE_NYSE_MARKET_ENVIRONMENT,
-            'user_id' => $admin->id,
+            'stripe_product_id' => 'prod_test_newsletter',
+            'subscription_statuses' => ['active'],
+            'subject' => 'Scheduled NYSE ETF Environment',
+            'preheader' => 'Daily market read.',
+            'values' => $this->newsletterValues(),
+            'image_disk' => 'local',
+            'image_path' => 'newsletter.png',
+            'scheduled_for' => now()->addHour(),
+            'status' => NewsletterDelivery::STATUS_SCHEDULED,
         ]);
+
+        $this->actingAs($admin)
+            ->post(route('admin.newsletter-generator.deliveries.send-now', $delivery))
+            ->assertRedirect(route('admin.newsletter-generator'));
+
+        $this->assertTrue($delivery->fresh()->scheduled_for->lessThanOrEqualTo(now()));
+        Queue::assertPushed(DispatchNewsletterDeliveryJob::class);
+    }
+
+    public function test_due_newsletter_dispatch_command_dispatches_due_scheduled_deliveries(): void
+    {
+        Queue::fake([DispatchNewsletterDeliveryJob::class]);
+
+        $dueDelivery = NewsletterDelivery::create([
+            'template' => NewsletterGeneration::TEMPLATE_NYSE_MARKET_ENVIRONMENT,
+            'stripe_product_id' => 'prod_test_newsletter',
+            'subscription_statuses' => ['active'],
+            'subject' => 'Due NYSE ETF Environment',
+            'preheader' => 'Daily market read.',
+            'values' => $this->newsletterValues(),
+            'image_disk' => 'local',
+            'image_path' => 'due-newsletter.png',
+            'scheduled_for' => now()->subMinute(),
+            'status' => NewsletterDelivery::STATUS_SCHEDULED,
+        ]);
+        NewsletterDelivery::create([
+            'template' => NewsletterGeneration::TEMPLATE_NYSE_MARKET_ENVIRONMENT,
+            'stripe_product_id' => 'prod_test_newsletter',
+            'subscription_statuses' => ['active'],
+            'subject' => 'Future NYSE ETF Environment',
+            'preheader' => 'Daily market read.',
+            'values' => $this->newsletterValues(),
+            'image_disk' => 'local',
+            'image_path' => 'future-newsletter.png',
+            'scheduled_for' => now()->addMinute(),
+            'status' => NewsletterDelivery::STATUS_SCHEDULED,
+        ]);
+
+        $this->artisan('newsletter:dispatch-due')
+            ->expectsOutput('Dispatched 1 due newsletter deliveries.')
+            ->assertOk();
+
+        Queue::assertPushed(
+            DispatchNewsletterDeliveryJob::class,
+            fn (DispatchNewsletterDeliveryJob $job): bool => true,
+        );
+        Queue::assertPushed(DispatchNewsletterDeliveryJob::class, 1);
     }
 
     public function test_admin_can_send_test_newsletter_email(): void
