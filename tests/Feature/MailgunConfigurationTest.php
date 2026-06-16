@@ -13,12 +13,12 @@ class MailgunConfigurationTest extends TestCase
     public function test_mail_from_address_env_value_overrides_mailgun_domain_fallback(): void
     {
         $config = $this->mailConfigWithEnv([
-            'MAIL_FROM_ADDRESS' => 'tickertactix@mail.ticker-tactix.com',
+            'MAIL_FROM_ADDRESS' => 'tickertactix@ticker-tactix.com',
             'MAIL_FROM_PREFIX' => 'noreply',
-            'MAILGUN_DOMAIN' => 'mail.ticker-tactix.com',
+            'MAILGUN_DOMAIN' => 'ticker-tactix.com',
         ]);
 
-        $this->assertSame('tickertactix@mail.ticker-tactix.com', $config['from']['address']);
+        $this->assertSame('tickertactix@ticker-tactix.com', $config['from']['address']);
     }
 
     public function test_mail_from_address_falls_back_to_prefix_at_mailgun_domain(): void
@@ -26,18 +26,18 @@ class MailgunConfigurationTest extends TestCase
         $config = $this->mailConfigWithEnv([
             'MAIL_FROM_ADDRESS' => '',
             'MAIL_FROM_PREFIX' => 'postmaster',
-            'MAILGUN_DOMAIN' => 'mail.ticker-tactix.com',
+            'MAILGUN_DOMAIN' => 'ticker-tactix.com',
         ]);
 
-        $this->assertSame('postmaster@mail.ticker-tactix.com', $config['from']['address']);
+        $this->assertSame('postmaster@ticker-tactix.com', $config['from']['address']);
     }
 
     public function test_mailgun_diagnostic_reports_masked_ready_configuration(): void
     {
         config([
             'mail.default' => 'mailgun',
-            'mail.from.address' => 'tickertactix@mail.ticker-tactix.com',
-            'services.mailgun.domain' => 'mail.ticker-tactix.com',
+            'mail.from.address' => 'tickertactix@ticker-tactix.com',
+            'services.mailgun.domain' => 'ticker-tactix.com',
             'services.mailgun.endpoint' => 'api.mailgun.net',
             'services.mailgun.secret' => 'secret-test-key',
         ]);
@@ -58,8 +58,8 @@ class MailgunConfigurationTest extends TestCase
     {
         config([
             'mail.default' => 'array',
-            'mail.from.address' => 'tickertactix@ticker-tactix.com',
-            'services.mailgun.domain' => 'mail.ticker-tactix.com',
+            'mail.from.address' => 'tickertactix@example.com',
+            'services.mailgun.domain' => 'ticker-tactix.com',
             'services.mailgun.endpoint' => 'https://api.mailgun.net',
             'services.mailgun.secret' => '',
         ]);

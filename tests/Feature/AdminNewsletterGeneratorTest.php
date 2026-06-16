@@ -329,6 +329,7 @@ class AdminNewsletterGeneratorTest extends TestCase
 
         $this->assertStringContainsString('Mailgun rejected the test newsletter email.', $errors[0]);
         $this->assertStringContainsString('MAIL_FROM_ADDRESS belongs to MAILGUN_DOMAIN', $errors[0]);
+        $this->assertStringContainsString('Mailgun IP Access Management allows this server', $errors[0]);
         $this->assertSame([], Storage::disk('local')->allFiles('newsletter-deliveries/tests'));
     }
 

@@ -316,7 +316,7 @@ class NewsletterDeliveryController extends Controller
     private function mailTransportValidationMessage(TransportExceptionInterface $exception): string
     {
         $base = config('mail.default') === 'mailgun'
-            ? 'Mailgun rejected the test newsletter email. Confirm MAIL_FROM_ADDRESS belongs to MAILGUN_DOMAIN and every NEWSLETTER_TEST_EMAILS recipient is allowed by Mailgun.'
+            ? 'Mailgun rejected the test newsletter email. Confirm MAIL_FROM_ADDRESS belongs to MAILGUN_DOMAIN, every NEWSLETTER_TEST_EMAILS recipient is allowed by Mailgun, and Mailgun IP Access Management allows this server.'
             : 'The configured mail transport rejected the test newsletter email. Check the mail sender and recipient settings.';
 
         $message = trim($exception->getMessage());
