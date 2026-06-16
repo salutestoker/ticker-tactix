@@ -70,20 +70,4 @@ Route::middleware(['auth', 'admin'])
         Route::resource('users', AdminUserController::class)->only(['index', 'create', 'store']);
     });
 
-
-
-
-Route::get('/test-mailgun', function () {
-    try {
-        Mail::raw('Congratulations TICKER-TACTIX, you just sent an email with Mailgun! You are truly awesome!', function ($message) {
-            $message->to('salutestoker@gmail.com')
-                ->subject('Hello TICKER-TACTIX');
-        });
-
-        return 'Test email sent successfully!';
-    } catch (\Exception $e) {
-        return 'Failed to send email. Error: ' . $e->getMessage();
-    }
-});
-
 require __DIR__.'/auth.php';

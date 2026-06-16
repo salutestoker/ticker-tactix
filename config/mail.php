@@ -118,7 +118,7 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_PREFIX', 'noreply') . '@' . env('MAILGUN_DOMAIN'),
+        'address' => env('MAIL_FROM_ADDRESS') ?: env('MAIL_FROM_PREFIX', 'noreply').'@'.env('MAILGUN_DOMAIN', 'example.com'),
         'name' => env('MAIL_FROM_NAME', 'Example App'),
     ],
 

@@ -53,6 +53,65 @@ Artisan::command('newsletter:dispatch-due', function (): int {
     return 0;
 })->purpose('Dispatch due scheduled newsletter deliveries');
 
+Artisan::command('mailgun:diagnose', function (): int {
+    $mailDefault = trim((string) config('mail.default'));
+    $mailgunDomain = trim((string) config('services.mailgun.domain'));
+    $mailgunEndpoint = trim((string) config('services.mailgun.endpoint'));
+    $mailgunSecret = config('services.mailgun.secret');
+    $fromAddress = trim((string) config('mail.from.address'));
+    $secretPresent = is_string($mailgunSecret) && trim($mailgunSecret) !== '';
+
+    $this->table(['Config key', 'Effective value'], [
+        ['mail.default', $mailDefault !== '' ? $mailDefault : '(empty)'],
+        ['services.mailgun.domain', $mailgunDomain !== '' ? $mailgunDomain : '(empty)'],
+        ['services.mailgun.endpoint', $mailgunEndpoint !== '' ? $mailgunEndpoint : '(empty)'],
+        ['services.mailgun.secret', $secretPresent ? 'present' : 'missing'],
+        ['mail.from.address', $fromAddress !== '' ? $fromAddress : '(empty)'],
+    ]);
+
+    $errors = [];
+
+    if ($mailDefault !== 'mailgun') {
+        $errors[] = 'MAIL_MAILER should be set to mailgun before production sends.';
+    }
+
+    if ($mailgunDomain === '') {
+        $errors[] = 'MAILGUN_DOMAIN is missing.';
+    }
+
+    if (! $secretPresent) {
+        $errors[] = 'MAILGUN_SECRET is missing.';
+    }
+
+    if ($mailgunEndpoint === '') {
+        $errors[] = 'MAILGUN_ENDPOINT is missing.';
+    } elseif (str_contains($mailgunEndpoint, '://') || str_contains($mailgunEndpoint, '/')) {
+        $errors[] = 'MAILGUN_ENDPOINT should be a host only, such as api.mailgun.net or api.eu.mailgun.net.';
+    }
+
+    if ($fromAddress === '' || filter_var($fromAddress, FILTER_VALIDATE_EMAIL) === false) {
+        $errors[] = 'MAIL_FROM_ADDRESS must be a valid email address.';
+    } elseif ($mailgunDomain !== '') {
+        $fromDomain = strtolower(substr(strrchr($fromAddress, '@') ?: '', 1));
+
+        if ($fromDomain !== strtolower($mailgunDomain)) {
+            $errors[] = 'MAIL_FROM_ADDRESS should use the MAILGUN_DOMAIN host unless another sending domain is verified in Mailgun.';
+        }
+    }
+
+    if ($errors !== []) {
+        foreach ($errors as $error) {
+            $this->error($error);
+        }
+
+        return 1;
+    }
+
+    $this->info('Mailgun configuration looks ready for a production send.');
+
+    return 0;
+})->purpose('Display masked Mailgun mail configuration for production diagnostics');
+
 if (app()->environment('production') && config('catalog.schedule_spreadsheet_imports')) {
     Schedule::command('catalog:spreadsheets:import --if-changed')
         ->everyMinute()
