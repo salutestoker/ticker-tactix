@@ -22,6 +22,10 @@ type PlaybookForm = {
     average_hold_time: string;
     price: string;
     action_url: string;
+    stripe_product_id: string;
+    stripe_price_id: string;
+    purchase_email_subject: string;
+    purchase_email_body: string;
     is_featured: boolean;
     is_active: boolean;
     published_at: string;
@@ -66,12 +70,27 @@ export default function PlaybookFormPage({
             average_hold_time: playbook?.average_hold_time || '',
             price: playbook?.price || '',
             action_url: playbook?.action_url || '',
+            stripe_product_id: playbook?.stripe_product_id || '',
+            stripe_price_id: playbook?.stripe_price_id || '',
+            purchase_email_subject: playbook?.purchase_email_subject || '',
+            purchase_email_body: playbook?.purchase_email_body || '',
             is_featured: playbook?.is_featured ?? false,
             is_active: playbook?.is_active ?? true,
             published_at: playbook?.published_at?.slice(0, 16) || '',
             meta_title: playbook?.meta_title || '',
             meta_description: playbook?.meta_description || '',
         });
+    const {
+        data: testEmailData,
+        setData: setTestEmailData,
+        post: postTestEmail,
+        processing: testEmailProcessing,
+        errors: testEmailErrors,
+        reset: resetTestEmail,
+        transform: transformTestEmail,
+    } = useForm<{ test_email: string }>({
+        test_email: '',
+    });
     const formErrors = errors as Record<string, string | undefined>;
 
     function submit(event: FormEvent) {
@@ -89,6 +108,27 @@ export default function PlaybookFormPage({
         post(route('admin.playbooks.store'), {
             forceFormData: true,
         });
+    }
+
+    function sendPurchaseEmailTest(event: FormEvent) {
+        event.preventDefault();
+
+        if (! playbook) {
+            return;
+        }
+
+        transformTestEmail((payload) => ({
+            ...payload,
+            purchase_email_subject: data.purchase_email_subject,
+            purchase_email_body: data.purchase_email_body,
+        }));
+        postTestEmail(
+            route('admin.playbooks.purchase-email.test', playbook.id),
+            {
+                preserveScroll: true,
+                onSuccess: () => resetTestEmail(),
+            },
+        );
     }
 
     return (
@@ -220,6 +260,35 @@ export default function PlaybookFormPage({
                                 placeholder="$70/mo, Coming Soon, External / Token-Gated"
                             />
                         </Field>
+                        <Field
+                            label="Stripe Product ID"
+                            error={errors.stripe_product_id}
+                        >
+                            <input
+                                className={input}
+                                value={data.stripe_product_id}
+                                onChange={(e) =>
+                                    setData(
+                                        'stripe_product_id',
+                                        e.target.value,
+                                    )
+                                }
+                                placeholder="prod_..."
+                            />
+                        </Field>
+                        <Field
+                            label="Stripe Price ID"
+                            error={errors.stripe_price_id}
+                        >
+                            <input
+                                className={input}
+                                value={data.stripe_price_id}
+                                onChange={(e) =>
+                                    setData('stripe_price_id', e.target.value)
+                                }
+                                placeholder="price_..."
+                            />
+                        </Field>
                         <Field label="Published At" error={errors.published_at}>
                             <input
                                 className={input}
@@ -276,6 +345,22 @@ export default function PlaybookFormPage({
                                     setData('long_description', e.target.value)
                                 }
                                 placeholder="Use line breaks to create paragraphs."
+                            />
+                        </Field>
+                        <Field
+                            label="Purchase Email Body"
+                            error={errors.purchase_email_body}
+                        >
+                            <textarea
+                                className={textarea}
+                                value={data.purchase_email_body}
+                                onChange={(e) =>
+                                    setData(
+                                        'purchase_email_body',
+                                        e.target.value,
+                                    )
+                                }
+                                placeholder="Add access steps, Discord instructions, TradingView notes, or onboarding links."
                             />
                         </Field>
                         <Field
@@ -378,6 +463,22 @@ export default function PlaybookFormPage({
                                 placeholder="https://..."
                             />
                         </Field>
+                        <Field
+                            label="Purchase Email Subject"
+                            error={errors.purchase_email_subject}
+                        >
+                            <input
+                                className={input}
+                                value={data.purchase_email_subject}
+                                onChange={(e) =>
+                                    setData(
+                                        'purchase_email_subject',
+                                        e.target.value,
+                                    )
+                                }
+                                placeholder="Welcome to Ticker Tactix"
+                            />
+                        </Field>
                         <Field label="Best For" error={errors.best_for}>
                             <textarea
                                 className={textarea}
@@ -404,6 +505,38 @@ export default function PlaybookFormPage({
                     </div>
                 </form>
             </HudPanel>
+
+            {playbook ? (
+                <HudPanel className="mt-5 p-6">
+                    <form
+                        className="grid gap-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-end"
+                        onSubmit={sendPurchaseEmailTest}
+                    >
+                        <Field
+                            label="Test Purchase Emails"
+                            error={testEmailErrors.test_email}
+                        >
+                            <textarea
+                                className={textarea}
+                                value={testEmailData.test_email}
+                                onChange={(e) =>
+                                    setTestEmailData(
+                                        'test_email',
+                                        e.target.value,
+                                    )
+                                }
+                                placeholder="admin@example.com, teammate@example.com"
+                            />
+                        </Field>
+                        <HudButton
+                            type="submit"
+                            disabled={testEmailProcessing}
+                        >
+                            Send Tests
+                        </HudButton>
+                    </form>
+                </HudPanel>
+            ) : null}
         </AdminLayout>
     );
 }

@@ -20,6 +20,10 @@ return Application::configure(basePath: dirname(__DIR__))
             AddLinkHeadersForPreloadedAssets::class,
         ]);
 
+        $middleware->validateCsrfTokens(except: [
+            'webhooks/stripe',
+        ]);
+
         $middleware->alias([
             'admin' => EnsureUserIsAdmin::class,
             'welcome.access' => EnsureWelcomePageAccess::class,

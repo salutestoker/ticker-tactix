@@ -67,6 +67,10 @@ class AdminCatalogTest extends TestCase
                 'version' => '1.0',
                 'access' => AccessLevel::InviteOnlyIndicatorDiscord->value,
                 'action_url' => 'https://example.com/modules/momentum-cycles',
+                'stripe_product_id' => 'prod_module_momentum_cycles',
+                'stripe_price_id' => 'price_module_momentum_cycles',
+                'purchase_email_subject' => 'Welcome to Momentum Cycles',
+                'purchase_email_body' => "Open Discord.\nRequest TradingView access.",
                 'sort_order' => 10,
                 'is_featured' => true,
                 'is_active' => true,
@@ -100,6 +104,10 @@ class AdminCatalogTest extends TestCase
             'market_id' => $market->id,
             'access' => AccessLevel::InviteOnlyIndicatorDiscord->value,
             'action_url' => 'https://example.com/modules/momentum-cycles',
+            'stripe_product_id' => 'prod_module_momentum_cycles',
+            'stripe_price_id' => 'price_module_momentum_cycles',
+            'purchase_email_subject' => 'Welcome to Momentum Cycles',
+            'purchase_email_body' => "Open Discord.\nRequest TradingView access.",
         ]);
         $this->assertDatabaseHas('module_trader_type', [
             'module_id' => $module->id,
@@ -122,6 +130,10 @@ class AdminCatalogTest extends TestCase
                 'average_hold_time' => '1-3 days',
                 'price' => '$70/mo',
                 'action_url' => 'https://example.com/playbooks/market-environment',
+                'stripe_product_id' => 'prod_playbook_market_environment',
+                'stripe_price_id' => 'price_playbook_market_environment',
+                'purchase_email_subject' => 'Welcome to Market Environment',
+                'purchase_email_body' => "Join Discord.\nWatch your inbox for daily delivery.",
                 'sort_order' => 20,
                 'is_featured' => true,
                 'is_active' => true,
@@ -141,6 +153,10 @@ class AdminCatalogTest extends TestCase
             'market_id' => $market->id,
             'price' => '$70/mo',
             'action_url' => 'https://example.com/playbooks/market-environment',
+            'stripe_product_id' => 'prod_playbook_market_environment',
+            'stripe_price_id' => 'price_playbook_market_environment',
+            'purchase_email_subject' => 'Welcome to Market Environment',
+            'purchase_email_body' => "Join Discord.\nWatch your inbox for daily delivery.",
             'long_description' => "Context before execution.\nRepeat the same process every time.",
         ]);
         $this->assertDatabaseHas('playbook_trader_type', [

@@ -8,11 +8,12 @@ use App\Models\Market;
 use App\Models\Module;
 use App\Models\TraderType;
 use App\Services\CatalogSpreadsheetSyncService;
+use App\Services\SubscriptionWelcomeEmailTestService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -131,6 +132,35 @@ class ModuleController extends Controller
         return redirect()->route('admin.modules.index')->with('success', 'Module archived.');
     }
 
+    public function sendPurchaseEmailTest(
+        Request $request,
+        Module $module,
+        SubscriptionWelcomeEmailTestService $testEmails,
+    ): RedirectResponse {
+        $data = $request->validate([
+            'test_email' => ['required', 'string', 'max:4000'],
+            'purchase_email_subject' => ['nullable', 'string', 'max:255'],
+            'purchase_email_body' => ['nullable', 'string'],
+        ]);
+        $emails = $testEmails->parseRecipients($data['test_email']);
+        $purchaseEmailBody = trim((string) ($data['purchase_email_body'] ?? $module->purchase_email_body));
+
+        if ($purchaseEmailBody === '') {
+            return back()
+                ->withErrors(['test_email' => 'Add a purchase email body before sending a test email.'])
+                ->withInput();
+        }
+
+        $module->forceFill([
+            'purchase_email_subject' => $data['purchase_email_subject'] ?? $module->purchase_email_subject,
+            'purchase_email_body' => $purchaseEmailBody,
+        ]);
+
+        $sentCount = $testEmails->sendMany($module, $emails);
+
+        return back()->with('success', $sentCount.' module test purchase '.Str::plural('email', $sentCount).' sent.');
+    }
+
     private function validated(Request $request, ?Module $module = null): array
     {
         $data = $request->validate([
@@ -170,6 +200,10 @@ class ModuleController extends Controller
             'version' => ['nullable', 'numeric', 'min:0'],
             'access' => ['required', Rule::enum(AccessLevel::class)],
             'action_url' => ['nullable', 'url', 'max:2048'],
+            'stripe_product_id' => ['nullable', 'string', 'max:255'],
+            'stripe_price_id' => ['nullable', 'string', 'max:255'],
+            'purchase_email_subject' => ['nullable', 'string', 'max:255'],
+            'purchase_email_body' => ['nullable', 'string'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
             'is_featured' => ['required', 'boolean'],
             'is_active' => ['required', 'boolean'],

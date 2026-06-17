@@ -57,6 +57,7 @@ return [
 
     'stripe' => [
         'secret' => env('STRIPE_SECRET'),
+        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
         'portal_return_url' => env('STRIPE_PORTAL_RETURN_URL', env('APP_URL')),
     ],
 

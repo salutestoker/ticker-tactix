@@ -8,11 +8,12 @@ use App\Models\Market;
 use App\Models\Playbook;
 use App\Models\TraderType;
 use App\Services\CatalogSpreadsheetSyncService;
+use App\Services\SubscriptionWelcomeEmailTestService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -117,6 +118,35 @@ class PlaybookController extends Controller
         return redirect()->route('admin.playbooks.index')->with('success', 'Playbook archived.');
     }
 
+    public function sendPurchaseEmailTest(
+        Request $request,
+        Playbook $playbook,
+        SubscriptionWelcomeEmailTestService $testEmails,
+    ): RedirectResponse {
+        $data = $request->validate([
+            'test_email' => ['required', 'string', 'max:4000'],
+            'purchase_email_subject' => ['nullable', 'string', 'max:255'],
+            'purchase_email_body' => ['nullable', 'string'],
+        ]);
+        $emails = $testEmails->parseRecipients($data['test_email']);
+        $purchaseEmailBody = trim((string) ($data['purchase_email_body'] ?? $playbook->purchase_email_body));
+
+        if ($purchaseEmailBody === '') {
+            return back()
+                ->withErrors(['test_email' => 'Add a purchase email body before sending a test email.'])
+                ->withInput();
+        }
+
+        $playbook->forceFill([
+            'purchase_email_subject' => $data['purchase_email_subject'] ?? $playbook->purchase_email_subject,
+            'purchase_email_body' => $purchaseEmailBody,
+        ]);
+
+        $sentCount = $testEmails->sendMany($playbook, $emails);
+
+        return back()->with('success', $sentCount.' playbook test purchase '.Str::plural('email', $sentCount).' sent.');
+    }
+
     private function validated(Request $request, ?Playbook $playbook = null): array
     {
         $data = $request->validate([
@@ -137,6 +167,10 @@ class PlaybookController extends Controller
             'average_hold_time' => ['nullable', 'string', 'max:255'],
             'price' => ['nullable', 'string', 'max:255'],
             'action_url' => ['nullable', 'url', 'max:2048'],
+            'stripe_product_id' => ['nullable', 'string', 'max:255'],
+            'stripe_price_id' => ['nullable', 'string', 'max:255'],
+            'purchase_email_subject' => ['nullable', 'string', 'max:255'],
+            'purchase_email_body' => ['nullable', 'string'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
             'is_featured' => ['required', 'boolean'],
             'is_active' => ['required', 'boolean'],

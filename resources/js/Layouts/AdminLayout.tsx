@@ -13,6 +13,7 @@ const nav = [
         'admin.newsletter-generator',
         'admin.newsletter-generator',
     ],
+    ['Customers', 'admin.customers.index', 'admin.customers.*'],
     ['Modules', 'admin.modules.index', 'admin.modules.*'],
     ['Playbooks', 'admin.playbooks.index', 'admin.playbooks.*'],
     ['Markets', 'admin.markets.index', 'admin.markets.*'],

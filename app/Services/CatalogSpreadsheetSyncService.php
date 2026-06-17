@@ -7,6 +7,7 @@ use App\Models\Market;
 use App\Models\Module;
 use App\Models\Playbook;
 use App\Models\TraderType;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -30,6 +31,10 @@ class CatalogSpreadsheetSyncService
         'logo_path',
         'banner_image',
         'long_description',
+        'stripe_product_id',
+        'stripe_price_id',
+        'purchase_email_subject',
+        'purchase_email_body',
     ];
 
     private const TRADER_TYPE_HEADERS = [
@@ -68,6 +73,10 @@ class CatalogSpreadsheetSyncService
         'version',
         'access',
         'action_url',
+        'stripe_product_id',
+        'stripe_price_id',
+        'purchase_email_subject',
+        'purchase_email_body',
         'sort_order',
         'is_featured',
         'is_active',
@@ -92,6 +101,10 @@ class CatalogSpreadsheetSyncService
         'average_hold_time',
         'price',
         'action_url',
+        'stripe_product_id',
+        'stripe_price_id',
+        'purchase_email_subject',
+        'purchase_email_body',
         'sort_order',
         'is_featured',
         'is_active',
@@ -206,6 +219,10 @@ class CatalogSpreadsheetSyncService
             'version' => $module->version,
             'access' => $this->accessValue($module->access),
             'action_url' => $module->action_url,
+            'stripe_product_id' => $module->stripe_product_id,
+            'stripe_price_id' => $module->stripe_price_id,
+            'purchase_email_subject' => $module->purchase_email_subject,
+            'purchase_email_body' => $module->purchase_email_body,
             'sort_order' => $module->sort_order,
             'is_featured' => $this->formatBoolean($module->is_featured),
             'is_active' => $this->formatBoolean($module->is_active),
@@ -237,6 +254,10 @@ class CatalogSpreadsheetSyncService
             'average_hold_time' => $playbook->average_hold_time,
             'price' => $playbook->price,
             'action_url' => $playbook->action_url,
+            'stripe_product_id' => $playbook->stripe_product_id,
+            'stripe_price_id' => $playbook->stripe_price_id,
+            'purchase_email_subject' => $playbook->purchase_email_subject,
+            'purchase_email_body' => $playbook->purchase_email_body,
             'sort_order' => $playbook->sort_order,
             'is_featured' => $this->formatBoolean($playbook->is_featured),
             'is_active' => $this->formatBoolean($playbook->is_active),
@@ -303,6 +324,10 @@ class CatalogSpreadsheetSyncService
                 'version' => $this->nullableFloat($row['version']),
                 'access' => $this->validatedAccess($row['access']),
                 'action_url' => $this->nullableString($row['action_url']),
+                'stripe_product_id' => $this->nullableString($row['stripe_product_id']),
+                'stripe_price_id' => $this->nullableString($row['stripe_price_id']),
+                'purchase_email_subject' => $this->nullableString($row['purchase_email_subject']),
+                'purchase_email_body' => $this->nullableString($row['purchase_email_body']),
                 'sort_order' => $this->integer($row['sort_order']),
                 'is_featured' => $this->boolean($row['is_featured']),
                 'is_active' => $this->boolean($row['is_active']),
@@ -350,6 +375,10 @@ class CatalogSpreadsheetSyncService
                 'average_hold_time' => $this->nullableString($row['average_hold_time']),
                 'price' => $this->nullableString($row['price']),
                 'action_url' => $this->nullableString($row['action_url']),
+                'stripe_product_id' => $this->nullableString($row['stripe_product_id']),
+                'stripe_price_id' => $this->nullableString($row['stripe_price_id']),
+                'purchase_email_subject' => $this->nullableString($row['purchase_email_subject']),
+                'purchase_email_body' => $this->nullableString($row['purchase_email_body']),
                 'sort_order' => $this->integer($row['sort_order']),
                 'is_featured' => $this->boolean($row['is_featured']),
                 'is_active' => $this->boolean($row['is_active']),
@@ -906,7 +935,7 @@ class CatalogSpreadsheetSyncService
         return filled(config('catalog.spreadsheet_disk'));
     }
 
-    private function spreadsheetDisk(): \Illuminate\Contracts\Filesystem\Filesystem
+    private function spreadsheetDisk(): Filesystem
     {
         return Storage::disk((string) config('catalog.spreadsheet_disk'));
     }

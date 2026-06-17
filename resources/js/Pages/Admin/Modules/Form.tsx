@@ -37,6 +37,10 @@ type ModuleForm = {
     version: string;
     access: string;
     action_url: string;
+    stripe_product_id: string;
+    stripe_price_id: string;
+    purchase_email_subject: string;
+    purchase_email_body: string;
     is_featured: boolean;
     is_active: boolean;
     published_at: string;
@@ -102,12 +106,27 @@ export default function ModuleFormPage({
                 accessOptions[0]?.value ||
                 'Invite-Only Indicator + Discord',
             action_url: module?.action_url || '',
+            stripe_product_id: module?.stripe_product_id || '',
+            stripe_price_id: module?.stripe_price_id || '',
+            purchase_email_subject: module?.purchase_email_subject || '',
+            purchase_email_body: module?.purchase_email_body || '',
             is_featured: module?.is_featured ?? false,
             is_active: module?.is_active ?? true,
             published_at: module?.published_at?.slice(0, 16) || '',
             meta_title: module?.meta_title || '',
             meta_description: module?.meta_description || '',
         });
+    const {
+        data: testEmailData,
+        setData: setTestEmailData,
+        post: postTestEmail,
+        processing: testEmailProcessing,
+        errors: testEmailErrors,
+        reset: resetTestEmail,
+        transform: transformTestEmail,
+    } = useForm<{ test_email: string }>({
+        test_email: '',
+    });
     const formErrors = errors as Record<string, string | undefined>;
 
     function updateCoreFeature(
@@ -148,6 +167,24 @@ export default function ModuleFormPage({
 
         post(route('admin.modules.store'), {
             forceFormData: true,
+        });
+    }
+
+    function sendPurchaseEmailTest(event: FormEvent) {
+        event.preventDefault();
+
+        if (! module) {
+            return;
+        }
+
+        transformTestEmail((payload) => ({
+            ...payload,
+            purchase_email_subject: data.purchase_email_subject,
+            purchase_email_body: data.purchase_email_body,
+        }));
+        postTestEmail(route('admin.modules.purchase-email.test', module.id), {
+            preserveScroll: true,
+            onSuccess: () => resetTestEmail(),
         });
     }
 
@@ -272,6 +309,35 @@ export default function ModuleFormPage({
                                 placeholder="https://..."
                             />
                         </Field>
+                        <Field
+                            label="Stripe Product ID"
+                            error={errors.stripe_product_id}
+                        >
+                            <input
+                                className={input}
+                                value={data.stripe_product_id}
+                                onChange={(e) =>
+                                    setData(
+                                        'stripe_product_id',
+                                        e.target.value,
+                                    )
+                                }
+                                placeholder="prod_..."
+                            />
+                        </Field>
+                        <Field
+                            label="Stripe Price ID"
+                            error={errors.stripe_price_id}
+                        >
+                            <input
+                                className={input}
+                                value={data.stripe_price_id}
+                                onChange={(e) =>
+                                    setData('stripe_price_id', e.target.value)
+                                }
+                                placeholder="price_..."
+                            />
+                        </Field>
                         <Field label="Layer" error={errors.layer}>
                             <input
                                 className={input}
@@ -297,6 +363,22 @@ export default function ModuleFormPage({
                                 onChange={(e) =>
                                     setData('price', e.target.value)
                                 }
+                            />
+                        </Field>
+                        <Field
+                            label="Purchase Email Subject"
+                            error={errors.purchase_email_subject}
+                        >
+                            <input
+                                className={input}
+                                value={data.purchase_email_subject}
+                                onChange={(e) =>
+                                    setData(
+                                        'purchase_email_subject',
+                                        e.target.value,
+                                    )
+                                }
+                                placeholder="Welcome to Ticker Tactix"
                             />
                         </Field>
                         <div className="flex items-center gap-6">
@@ -546,6 +628,22 @@ export default function ModuleFormPage({
                             />
                         </Field>
                         <Field
+                            label="Purchase Email Body"
+                            error={errors.purchase_email_body}
+                        >
+                            <textarea
+                                className={textarea}
+                                value={data.purchase_email_body}
+                                onChange={(e) =>
+                                    setData(
+                                        'purchase_email_body',
+                                        e.target.value,
+                                    )
+                                }
+                                placeholder="Add access steps, Discord instructions, TradingView notes, or onboarding links."
+                            />
+                        </Field>
+                        <Field
                             label="Meta Description"
                             error={errors.meta_description}
                         >
@@ -565,6 +663,38 @@ export default function ModuleFormPage({
                     </div>
                 </form>
             </HudPanel>
+
+            {module ? (
+                <HudPanel className="mt-5 p-6">
+                    <form
+                        className="grid gap-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-end"
+                        onSubmit={sendPurchaseEmailTest}
+                    >
+                        <Field
+                            label="Test Purchase Emails"
+                            error={testEmailErrors.test_email}
+                        >
+                            <textarea
+                                className={textarea}
+                                value={testEmailData.test_email}
+                                onChange={(e) =>
+                                    setTestEmailData(
+                                        'test_email',
+                                        e.target.value,
+                                    )
+                                }
+                                placeholder="admin@example.com, teammate@example.com"
+                            />
+                        </Field>
+                        <HudButton
+                            type="submit"
+                            disabled={testEmailProcessing}
+                        >
+                            Send Tests
+                        </HudButton>
+                    </form>
+                </HudPanel>
+            ) : null}
         </AdminLayout>
     );
 }
