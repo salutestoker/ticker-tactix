@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Market;
 use App\Models\Playbook;
 use App\Models\TraderType;
+use App\Rules\YouTubeVideoUrl;
 use App\Services\CatalogSpreadsheetSyncService;
 use App\Services\SubscriptionWelcomeEmailTestService;
 use Illuminate\Http\RedirectResponse;
@@ -167,6 +168,7 @@ class PlaybookController extends Controller
             'average_hold_time' => ['nullable', 'string', 'max:255'],
             'price' => ['nullable', 'string', 'max:255'],
             'action_url' => ['nullable', 'url', 'max:2048'],
+            'youtube_url' => ['nullable', 'url', 'max:2048', new YouTubeVideoUrl],
             'stripe_product_id' => ['nullable', 'string', 'max:255'],
             'stripe_price_id' => ['nullable', 'string', 'max:255'],
             'purchase_email_subject' => ['nullable', 'string', 'max:255'],

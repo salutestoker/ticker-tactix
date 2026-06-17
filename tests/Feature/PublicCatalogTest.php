@@ -231,6 +231,7 @@ class PublicCatalogTest extends TestCase
             'title' => 'Momentum Cycles',
             'slug' => 'momentum-cycles',
             'description' => 'Identify momentum phase and trend strength.',
+            'youtube_url' => 'https://youtu.be/dQw4w9WgXcQ',
             'access' => AccessLevel::InviteOnlyIndicatorDiscord,
             'sort_order' => 10,
             'is_featured' => true,
@@ -256,6 +257,7 @@ class PublicCatalogTest extends TestCase
             'slug' => 'market-environment',
             'access' => AccessLevel::DailyNewsletterDiscord,
             'long_description' => "Context before execution.\nRepeat the same process every time.",
+            'youtube_url' => 'https://www.youtube.com/watch?v=oHg5SJYRHA0',
             'price' => '$70/mo',
             'sort_order' => 10,
             'is_featured' => true,
@@ -268,13 +270,15 @@ class PublicCatalogTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Modules/Show')
-                ->where('module.slug', 'momentum-cycles'));
+                ->where('module.slug', 'momentum-cycles')
+                ->where('module.youtube_url', 'https://youtu.be/dQw4w9WgXcQ'));
 
         $this->get('/playbooks/market-environment')
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Playbooks/Show')
-                ->where('playbook.slug', 'market-environment'));
+                ->where('playbook.slug', 'market-environment')
+                ->where('playbook.youtube_url', 'https://www.youtube.com/watch?v=oHg5SJYRHA0'));
 
         $this->get('/trader-types/nyse-core')
             ->assertOk()

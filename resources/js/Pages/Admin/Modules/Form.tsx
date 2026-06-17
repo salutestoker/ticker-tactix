@@ -37,6 +37,7 @@ type ModuleForm = {
     version: string;
     access: string;
     action_url: string;
+    youtube_url: string;
     stripe_product_id: string;
     stripe_price_id: string;
     purchase_email_subject: string;
@@ -106,6 +107,7 @@ export default function ModuleFormPage({
                 accessOptions[0]?.value ||
                 'Invite-Only Indicator + Discord',
             action_url: module?.action_url || '',
+            youtube_url: module?.youtube_url || '',
             stripe_product_id: module?.stripe_product_id || '',
             stripe_price_id: module?.stripe_price_id || '',
             purchase_email_subject: module?.purchase_email_subject || '',
@@ -307,6 +309,20 @@ export default function ModuleFormPage({
                                     setData('action_url', e.target.value)
                                 }
                                 placeholder="https://..."
+                            />
+                        </Field>
+                        <Field
+                            label="YouTube Video URL"
+                            error={errors.youtube_url}
+                        >
+                            <input
+                                className={input}
+                                value={data.youtube_url}
+                                type="url"
+                                onChange={(e) =>
+                                    setData('youtube_url', e.target.value)
+                                }
+                                placeholder="https://www.youtube.com/watch?v=..."
                             />
                         </Field>
                         <Field

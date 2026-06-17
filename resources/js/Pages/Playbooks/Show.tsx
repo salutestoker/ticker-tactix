@@ -8,11 +8,13 @@ import {
 } from '@/Components/UI/Hud';
 import { MobilePurchaseHud } from '@/Components/UI/MobilePurchaseHud';
 import { PublicHeroFrame } from '@/Components/UI/PublicHero';
+import { getYoutubeVideoId, YoutubeEmbed } from '@/Components/UI/YoutubeEmbed';
 import PublicLayout from '@/Layouts/PublicLayout';
 import type { Playbook } from '@/types';
 import { Head } from '@inertiajs/react';
 
 export default function PlaybooksShow({ playbook }: { playbook: Playbook }) {
+    const hasYoutubeVideo = Boolean(getYoutubeVideoId(playbook.youtube_url));
     const actionChildren =
         playbook.slug === 'sigma-pro-engine' ? (
             <>
@@ -44,8 +46,15 @@ export default function PlaybooksShow({ playbook }: { playbook: Playbook }) {
                             actionUrl={playbook.action_url}
                             actionChildren={actionChildren}
                         />
+                        <YoutubeEmbed
+                            url={playbook.youtube_url}
+                            title={`${playbook.title} video`}
+                            className="mt-10"
+                        />
                         {playbook.long_description && (
-                            <HudPanel className="mt-10 p-8">
+                            <HudPanel
+                                className={`${hasYoutubeVideo ? 'mt-6' : 'mt-10'} p-8`}
+                            >
                                 <h2 className="font-heading text-seafoam-green text-xl tracking-[0.14em] uppercase">
                                     Description
                                 </h2>

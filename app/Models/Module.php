@@ -37,6 +37,7 @@ class Module extends Model
         'version',
         'access',
         'action_url',
+        'youtube_url',
         'stripe_product_id',
         'stripe_price_id',
         'purchase_email_subject',

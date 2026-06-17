@@ -6,21 +6,50 @@ import { Eye, PanelLeftClose, PanelLeftOpen, User } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 
-const nav = [
-    ['Dashboard', 'admin.dashboard', 'admin.dashboard'],
-    [
-        'Newsletter Generator',
-        'admin.newsletter-generator',
-        'admin.newsletter-generator',
-    ],
-    ['Customers', 'admin.customers.index', 'admin.customers.*'],
-    ['Modules', 'admin.modules.index', 'admin.modules.*'],
-    ['Playbooks', 'admin.playbooks.index', 'admin.playbooks.*'],
-    ['Markets', 'admin.markets.index', 'admin.markets.*'],
-    ['Trader Types', 'admin.trader-types.index', 'admin.trader-types.*'],
-    ['Users', 'admin.users.index', 'admin.users.*'],
-    ['Components', 'admin.components.index', 'admin.components.*'],
-] as const;
+type AdminNavItem = {
+    label: string;
+    name: string;
+    match: string;
+    children?: AdminNavItem[];
+};
+
+const nav: AdminNavItem[] = [
+    { label: 'Dashboard', name: 'admin.dashboard', match: 'admin.dashboard' },
+    {
+        label: 'Newsletter Generator',
+        name: 'admin.newsletter-generator',
+        match: 'admin.newsletter-generator',
+    },
+    { label: 'Modules', name: 'admin.modules.index', match: 'admin.modules.*' },
+    {
+        label: 'Playbooks',
+        name: 'admin.playbooks.index',
+        match: 'admin.playbooks.*',
+    },
+    { label: 'Markets', name: 'admin.markets.index', match: 'admin.markets.*' },
+    {
+        label: 'Trader Types',
+        name: 'admin.trader-types.index',
+        match: 'admin.trader-types.*',
+    },
+    {
+        label: 'Users',
+        name: 'admin.users.index',
+        match: 'admin.users.*',
+        children: [
+            {
+                label: 'Customers',
+                name: 'admin.customers.index',
+                match: 'admin.customers.*',
+            },
+        ],
+    },
+    {
+        label: 'Components',
+        name: 'admin.components.index',
+        match: 'admin.components.*',
+    },
+];
 
 const navLinkBase =
     'font-heading block rounded-sm border px-4 py-3 text-xs tracking-[0.16em] uppercase transition';
@@ -28,6 +57,12 @@ const navLinkIdle =
     'border-transparent text-white/65 hover:border-seafoam-green/40 hover:bg-seafoam-green/10 hover:text-seafoam-green';
 const navLinkActive =
     'border-seafoam-green/40 bg-seafoam-green/10 text-seafoam-green';
+const navChildLinkBase =
+    'font-heading block rounded-sm border border-transparent px-4 py-2.5 pl-8 text-[0.68rem] tracking-[0.14em] uppercase transition';
+const navChildLinkIdle =
+    'text-white/45 hover:border-main-blue/35 hover:bg-main-blue/10 hover:text-sky-300';
+const navChildLinkActive =
+    'border-main-blue/40 bg-main-blue/10 text-sky-300';
 
 type AdminLayoutProps = PropsWithChildren<{
     publicViewHref?: string;
@@ -78,17 +113,41 @@ export default function AdminLayout({
                     />
                 </Link>
                 <nav className="mt-10 space-y-2">
-                    {nav.map(([label, name, match]) => {
-                        const isActive = route().current(match);
+                    {nav.map((item) => {
+                        const isActive =
+                            route().current(item.match) ||
+                            item.children?.some((child) =>
+                                route().current(child.match),
+                            );
 
                         return (
-                            <Link
-                                key={name}
-                                href={route(name)}
-                                className={`${navLinkBase} ${isActive ? navLinkActive : navLinkIdle}`}
-                            >
-                                {label}
-                            </Link>
+                            <div key={item.name}>
+                                <Link
+                                    href={route(item.name)}
+                                    className={`${navLinkBase} ${isActive ? navLinkActive : navLinkIdle}`}
+                                >
+                                    {item.label}
+                                </Link>
+
+                                {item.children ? (
+                                    <div className="mt-1 space-y-1">
+                                        {item.children.map((child) => {
+                                            const childIsActive =
+                                                route().current(child.match);
+
+                                            return (
+                                                <Link
+                                                    key={child.name}
+                                                    href={route(child.name)}
+                                                    className={`${navChildLinkBase} ${childIsActive ? navChildLinkActive : navChildLinkIdle}`}
+                                                >
+                                                    {child.label}
+                                                </Link>
+                                            );
+                                        })}
+                                    </div>
+                                ) : null}
+                            </div>
                         );
                     })}
                 </nav>

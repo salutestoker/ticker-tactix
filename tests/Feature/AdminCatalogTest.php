@@ -67,6 +67,7 @@ class AdminCatalogTest extends TestCase
                 'version' => '1.0',
                 'access' => AccessLevel::InviteOnlyIndicatorDiscord->value,
                 'action_url' => 'https://example.com/modules/momentum-cycles',
+                'youtube_url' => 'https://youtu.be/dQw4w9WgXcQ',
                 'stripe_product_id' => 'prod_module_momentum_cycles',
                 'stripe_price_id' => 'price_module_momentum_cycles',
                 'purchase_email_subject' => 'Welcome to Momentum Cycles',
@@ -104,6 +105,7 @@ class AdminCatalogTest extends TestCase
             'market_id' => $market->id,
             'access' => AccessLevel::InviteOnlyIndicatorDiscord->value,
             'action_url' => 'https://example.com/modules/momentum-cycles',
+            'youtube_url' => 'https://youtu.be/dQw4w9WgXcQ',
             'stripe_product_id' => 'prod_module_momentum_cycles',
             'stripe_price_id' => 'price_module_momentum_cycles',
             'purchase_email_subject' => 'Welcome to Momentum Cycles',
@@ -130,6 +132,7 @@ class AdminCatalogTest extends TestCase
                 'average_hold_time' => '1-3 days',
                 'price' => '$70/mo',
                 'action_url' => 'https://example.com/playbooks/market-environment',
+                'youtube_url' => 'https://www.youtube.com/watch?v=oHg5SJYRHA0',
                 'stripe_product_id' => 'prod_playbook_market_environment',
                 'stripe_price_id' => 'price_playbook_market_environment',
                 'purchase_email_subject' => 'Welcome to Market Environment',
@@ -153,6 +156,7 @@ class AdminCatalogTest extends TestCase
             'market_id' => $market->id,
             'price' => '$70/mo',
             'action_url' => 'https://example.com/playbooks/market-environment',
+            'youtube_url' => 'https://www.youtube.com/watch?v=oHg5SJYRHA0',
             'stripe_product_id' => 'prod_playbook_market_environment',
             'stripe_price_id' => 'price_playbook_market_environment',
             'purchase_email_subject' => 'Welcome to Market Environment',
@@ -163,6 +167,40 @@ class AdminCatalogTest extends TestCase
             'playbook_id' => $playbook->id,
             'trader_type_id' => $traderType->id,
         ]);
+    }
+
+    public function test_admin_catalog_requires_youtube_video_urls(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        [$market, $traderType] = $this->catalogTaxonomies();
+
+        $this->actingAs($admin)
+            ->from(route('admin.modules.create'))
+            ->post(route('admin.modules.store'), [
+                'market_id' => $market->id,
+                'trader_type_ids' => [$traderType->id],
+                'title' => 'Invalid Video Module',
+                'access' => AccessLevel::InviteOnlyIndicatorDiscord->value,
+                'youtube_url' => 'https://example.com/not-a-youtube-video',
+                'is_featured' => false,
+                'is_active' => true,
+            ])
+            ->assertRedirect(route('admin.modules.create'))
+            ->assertSessionHasErrors('youtube_url');
+
+        $this->actingAs($admin)
+            ->from(route('admin.playbooks.create'))
+            ->post(route('admin.playbooks.store'), [
+                'market_id' => $market->id,
+                'trader_type_ids' => [$traderType->id],
+                'title' => 'Invalid Video Playbook',
+                'access' => AccessLevel::DailyNewsletterDiscord->value,
+                'youtube_url' => 'https://vimeo.com/123456',
+                'is_featured' => false,
+                'is_active' => true,
+            ])
+            ->assertRedirect(route('admin.playbooks.create'))
+            ->assertSessionHasErrors('youtube_url');
     }
 
     public function test_admin_can_reorder_modules_and_playbooks(): void

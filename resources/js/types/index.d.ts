@@ -76,6 +76,7 @@ export interface Module {
     version?: number | string | null;
     access: AccessValue;
     action_url?: string | null;
+    youtube_url?: string | null;
     stripe_product_id?: string | null;
     stripe_price_id?: string | null;
     purchase_email_subject?: string | null;
@@ -110,6 +111,7 @@ export interface Playbook {
     average_hold_time?: string | null;
     price?: string | null;
     action_url?: string | null;
+    youtube_url?: string | null;
     stripe_product_id?: string | null;
     stripe_price_id?: string | null;
     purchase_email_subject?: string | null;

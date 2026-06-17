@@ -22,6 +22,7 @@ type PlaybookForm = {
     average_hold_time: string;
     price: string;
     action_url: string;
+    youtube_url: string;
     stripe_product_id: string;
     stripe_price_id: string;
     purchase_email_subject: string;
@@ -70,6 +71,7 @@ export default function PlaybookFormPage({
             average_hold_time: playbook?.average_hold_time || '',
             price: playbook?.price || '',
             action_url: playbook?.action_url || '',
+            youtube_url: playbook?.youtube_url || '',
             stripe_product_id: playbook?.stripe_product_id || '',
             stripe_price_id: playbook?.stripe_price_id || '',
             purchase_email_subject: playbook?.purchase_email_subject || '',
@@ -461,6 +463,20 @@ export default function PlaybookFormPage({
                                     setData('action_url', e.target.value)
                                 }
                                 placeholder="https://..."
+                            />
+                        </Field>
+                        <Field
+                            label="YouTube Video URL"
+                            error={errors.youtube_url}
+                        >
+                            <input
+                                className={input}
+                                value={data.youtube_url}
+                                type="url"
+                                onChange={(e) =>
+                                    setData('youtube_url', e.target.value)
+                                }
+                                placeholder="https://www.youtube.com/watch?v=..."
                             />
                         </Field>
                         <Field

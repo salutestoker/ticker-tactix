@@ -43,14 +43,20 @@ class CatalogSpreadsheetSyncTest extends TestCase
 
         Storage::disk('catalog_spreadsheets')->put(
             'catalog/playbooks.csv',
-            str_replace('$10/mo', '$15/mo', Storage::disk('catalog_spreadsheets')->get('catalog/playbooks.csv')),
+            str_replace(
+                ['https://www.youtube.com/watch?v=oHg5SJYRHA0', '$10/mo'],
+                ['https://youtu.be/dQw4w9WgXcQ', '$15/mo'],
+                Storage::disk('catalog_spreadsheets')->get('catalog/playbooks.csv'),
+            ),
         );
 
         $result = $sync->importChanged();
 
         $this->assertTrue($result['imported']);
         $this->assertSame('$15/mo', $playbook->refresh()->price);
+        $this->assertSame('https://youtu.be/dQw4w9WgXcQ', $playbook->youtube_url);
         $this->assertSame('$7/mo', $module->refresh()->price);
+        $this->assertSame('https://youtu.be/9bZkp7q19f0', $module->youtube_url);
     }
 
     /**
@@ -77,6 +83,7 @@ class CatalogSpreadsheetSyncTest extends TestCase
             'title' => 'Market Structure',
             'slug' => 'market-structure',
             'price' => '$7/mo',
+            'youtube_url' => 'https://youtu.be/9bZkp7q19f0',
             'access' => AccessLevel::InviteOnlyIndicatorDiscord,
             'sort_order' => 10,
             'stripe_product_id' => 'prod_module_market_structure',
@@ -95,6 +102,7 @@ class CatalogSpreadsheetSyncTest extends TestCase
             'slug' => 'opening-range',
             'access' => AccessLevel::DailyNewsletterDiscord,
             'price' => '$10/mo',
+            'youtube_url' => 'https://www.youtube.com/watch?v=oHg5SJYRHA0',
             'sort_order' => 10,
             'stripe_product_id' => 'prod_playbook_opening_range',
             'stripe_price_id' => 'price_playbook_opening_range',

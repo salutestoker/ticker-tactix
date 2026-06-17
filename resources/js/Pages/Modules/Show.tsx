@@ -8,6 +8,7 @@ import {
 } from '@/Components/UI/Hud';
 import { MobilePurchaseHud } from '@/Components/UI/MobilePurchaseHud';
 import { PublicHeroFrame } from '@/Components/UI/PublicHero';
+import { getYoutubeVideoId, YoutubeEmbed } from '@/Components/UI/YoutubeEmbed';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { formatVersion } from '@/lib/format';
 import type { Module, ModuleFeature } from '@/types';
@@ -35,6 +36,7 @@ export default function ModulesShow({
     const coreFeatures = module.core_features ?? [];
     const customizationOptions = module.customization_options ?? [];
     const bestUsedFor = module.best_used_for ?? [];
+    const hasYoutubeVideo = Boolean(getYoutubeVideoId(module.youtube_url));
 
     return (
         <PublicLayout adminEditHref={route('admin.modules.edit', module.id)}>
@@ -66,7 +68,15 @@ export default function ModulesShow({
                                 actionUrl={module.action_url}
                             />
 
-                            <HudPanel className="mt-8 overflow-hidden rounded-[14px]">
+                            <YoutubeEmbed
+                                url={module.youtube_url}
+                                title={`${module.title} video`}
+                                className="mt-8"
+                            />
+
+                            <HudPanel
+                                className={`${hasYoutubeVideo ? 'mt-6' : 'mt-8'} overflow-hidden rounded-[14px]`}
+                            >
                                 <DetailRow
                                     icon="direction-target"
                                     title="What It Does"
