@@ -1,5 +1,6 @@
 import { GradientHeading, HudButton, HudPanel } from '@/Components/UI/Hud';
 import { PublicHeroFrame } from '@/Components/UI/PublicHero';
+import { YoutubeEmbed } from '@/Components/UI/YoutubeEmbed';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { Head } from '@inertiajs/react';
 import {
@@ -17,6 +18,8 @@ const supportItems = [
     'Date of subscription',
     'Short description of the issue',
 ];
+
+const welcomeVideoUrl = 'https://youtu.be/_Rit_BcwYu8';
 
 export default function Welcome() {
     return (
@@ -38,6 +41,11 @@ export default function Welcome() {
                                 the invite-only TradingView indicator is granted
                                 manually after verification.
                             </p>
+                            <YoutubeEmbed
+                                url={welcomeVideoUrl}
+                                title="Ticker-Tactix welcome video"
+                                className="mx-auto mt-8 max-w-3xl"
+                            />
                             <HudButton
                                 className="mt-6"
                                 href="https://discord.gg/HEkSTdxWjW"

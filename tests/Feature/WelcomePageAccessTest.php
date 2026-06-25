@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -10,25 +9,14 @@ class WelcomePageAccessTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_direct_guest_access_is_not_found(): void
+    public function test_direct_guest_access_is_allowed(): void
     {
-        $this->get(route('welcome'))->assertNotFound();
-    }
-
-    public function test_stripe_referrer_can_view_welcome_page_and_refresh(): void
-    {
-        $this->withHeader('referer', 'https://checkout.stripe.com/c/pay/cs_test_example')
-            ->get(route('welcome'))
-            ->assertOk();
-
         $this->get(route('welcome'))->assertOk();
     }
 
-    public function test_admin_can_view_welcome_page_without_stripe_referrer(): void
+    public function test_stripe_referrer_can_still_view_welcome_page(): void
     {
-        $admin = User::factory()->create(['is_admin' => true]);
-
-        $this->actingAs($admin)
+        $this->withHeader('referer', 'https://checkout.stripe.com/c/pay/cs_test_example')
             ->get(route('welcome'))
             ->assertOk();
     }
