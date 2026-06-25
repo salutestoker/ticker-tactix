@@ -1,7 +1,8 @@
 <?php
 
-use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\FaqController as AdminFaqController;
 use App\Http\Controllers\Admin\MarketController as AdminMarketController;
 use App\Http\Controllers\Admin\ModuleController as AdminModuleController;
 use App\Http\Controllers\Admin\NewsletterDeliveryController as AdminNewsletterDeliveryController;
@@ -28,6 +29,7 @@ Route::get('/trader-types', [PageController::class, 'traderTypes'])->name('trade
 Route::get('/trader-types/{traderType:slug}', [TraderTypeController::class, 'show'])->name('trader-types.show');
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
 Route::post('/contact', [PageController::class, 'sendContact'])->name('contact.send');
+Route::get('/faq', [PageController::class, 'faq'])->name('faq');
 Route::get('/welcome', [PageController::class, 'welcome'])->name('welcome');
 Route::get('/modules', [ModuleController::class, 'index'])->name('modules.index');
 Route::get('/modules/{module:slug}', [ModuleController::class, 'show'])->name('modules.show');
@@ -70,6 +72,11 @@ Route::middleware(['auth', 'admin'])
         Route::delete('newsletter-generator/deliveries/{delivery}', [AdminNewsletterDeliveryController::class, 'destroy'])->name('newsletter-generator.deliveries.destroy');
         Route::post('newsletter-generator/test-email', [AdminNewsletterDeliveryController::class, 'test'])->name('newsletter-generator.test-email');
         Route::get('newsletter-generator/recipient-count', [AdminNewsletterDeliveryController::class, 'recipientCount'])->name('newsletter-generator.recipient-count');
+        Route::get('faqs', [AdminFaqController::class, 'index'])->name('faqs.index');
+        Route::post('faqs', [AdminFaqController::class, 'store'])->name('faqs.store');
+        Route::patch('faqs/{faq}', [AdminFaqController::class, 'update'])->name('faqs.update');
+        Route::delete('faqs/{faq}', [AdminFaqController::class, 'destroy'])->name('faqs.destroy');
+        Route::post('faqs/reorder', [AdminFaqController::class, 'reorder'])->name('faqs.reorder');
         Route::resource('modules', AdminModuleController::class)->except(['show']);
         Route::post('modules/{module}/purchase-email/test', [AdminModuleController::class, 'sendPurchaseEmailTest'])->name('modules.purchase-email.test');
         Route::post('modules/reorder', [AdminModuleController::class, 'reorder'])->name('modules.reorder');

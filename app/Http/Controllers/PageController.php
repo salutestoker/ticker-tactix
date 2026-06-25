@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\SupportContactRequestMail;
+use App\Models\Faq;
 use App\Models\Module;
 use App\Models\Playbook;
 use App\Models\TraderType;
@@ -10,11 +11,12 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
-use Inertia\Response;
+use Inertia\Response as InertiaResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class PageController extends Controller
 {
-    public function home(): Response
+    public function home(): InertiaResponse
     {
         return Inertia::render('Home', [
             'modules' => Module::public()->with(['market', 'traderTypes'])->ordered()->get(),
@@ -24,21 +26,34 @@ class PageController extends Controller
         ]);
     }
 
-    public function system(): Response
+    public function system(): InertiaResponse
     {
         return Inertia::render('System');
     }
 
-    public function traderTypes(): Response
+    public function traderTypes(): InertiaResponse
     {
         return Inertia::render('TraderTypes', [
             'traderTypes' => $this->activeTraderTypes(),
         ]);
     }
 
-    public function contact(): Response
+    public function contact(): InertiaResponse
     {
         return Inertia::render('Contact');
+    }
+
+    public function faq(Request $request): Response
+    {
+        $response = Inertia::render('Faq', [
+            'faqs' => Faq::ordered()->get(),
+        ])
+            ->withViewData('seoRobots', 'noindex, nofollow, noarchive')
+            ->toResponse($request);
+
+        $response->headers->set('X-Robots-Tag', 'noindex, nofollow, noarchive');
+
+        return $response;
     }
 
     public function sendContact(Request $request): RedirectResponse
@@ -56,12 +71,12 @@ class PageController extends Controller
         return back()->with('success', 'Support request sent. We will review your onboarding details.');
     }
 
-    public function welcome(): Response
+    public function welcome(): InertiaResponse
     {
         return Inertia::render('Welcome');
     }
 
-    public function legal(string $page): Response
+    public function legal(string $page): InertiaResponse
     {
         $pages = [
             'terms-of-service' => 'Terms of Service',

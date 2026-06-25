@@ -17,6 +17,15 @@ export interface User {
     created_at?: string | null;
 }
 
+export interface Faq {
+    id: number;
+    question: string;
+    answer: string;
+    sort_order: number;
+    created_at?: string | null;
+    updated_at?: string | null;
+}
+
 export interface Market {
     id: number;
     name: string;

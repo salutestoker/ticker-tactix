@@ -20,6 +20,7 @@ const nav: AdminNavItem[] = [
         name: 'admin.newsletter-generator',
         match: 'admin.newsletter-generator',
     },
+    { label: 'FAQs', name: 'admin.faqs.index', match: 'admin.faqs.*' },
     { label: 'Modules', name: 'admin.modules.index', match: 'admin.modules.*' },
     {
         label: 'Playbooks',

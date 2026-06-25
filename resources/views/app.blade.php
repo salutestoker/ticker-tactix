@@ -7,12 +7,14 @@
         $seoCanonicalUrl = request()->fullUrl();
         $seoImageUrl = url('/design/assets/images/open-graph/ticker-tactix-2026--compressed.jpg');
         $seoImageAlt = 'Ticker-Tactix hero artwork with the headline Trade with Structure Not Emotion.';
+        $seoRobots = $seoRobots ?? 'index, follow';
         $googleAnalyticsMeasurementId = config('services.google_analytics.measurement_id');
     @endphp
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="description" content="{{ $seoDescription }}">
+        <meta name="robots" content="{{ $seoRobots }}">
 
         <title inertia>{{ $seoTitle }}</title>
         <link rel="canonical" href="{{ $seoCanonicalUrl }}">
