@@ -16,6 +16,8 @@ class SubscriptionWelcomeEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    private const DEFAULT_WELCOME_VIDEO_URL = 'https://youtu.be/_Rit_BcwYu8';
+
     public function __construct(
         public readonly StripeWebhookEvent $event,
         public readonly Module|Playbook $catalogItem,
@@ -41,7 +43,8 @@ class SubscriptionWelcomeEmail extends Mailable
 
     public function content(): Content
     {
-        $youtubeVideoId = YouTubeVideo::videoId($this->catalogItem->youtube_url);
+        $youtubeVideoId = YouTubeVideo::videoId($this->catalogItem->youtube_url)
+            ?? YouTubeVideo::videoId(self::DEFAULT_WELCOME_VIDEO_URL);
 
         return new Content(
             view: 'emails.subscriptions.welcome',
@@ -51,7 +54,6 @@ class SubscriptionWelcomeEmail extends Mailable
                 'productUrl' => $this->productUrl,
                 'manageUrl' => $this->manageUrl,
                 'accessInstructions' => trim((string) $this->catalogItem->purchase_email_body),
-                'welcomeVideoUrl' => asset('design/assets/videos/email-welcome-intro.mp4'),
                 'youtubeVideoId' => $youtubeVideoId,
                 'youtubeVideoUrl' => $youtubeVideoId ? YouTubeVideo::watchUrl($youtubeVideoId) : null,
                 'youtubeThumbnailUrl' => $youtubeVideoId ? YouTubeVideo::thumbnailUrl($youtubeVideoId) : null,

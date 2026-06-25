@@ -253,7 +253,7 @@ class StripeSubscriptionWelcomeEmailWebhookTest extends TestCase
         ]);
     }
 
-    public function test_queued_job_sends_renderable_welcome_email(): void
+    public function test_queued_job_sends_renderable_welcome_email_with_default_youtube_video(): void
     {
         Mail::fake();
 
@@ -288,9 +288,11 @@ class StripeSubscriptionWelcomeEmailWebhookTest extends TestCase
                 && str_contains($html, 'Join Discord.')
                 && str_contains($html, 'Review the onboarding checklist.')
                 && str_contains($html, 'Manage your subscription')
-                && str_contains($html, '<video controls')
-                && str_contains($html, 'design/assets/videos/email-welcome-intro.mp4')
-                && ! str_contains($html, 'i.ytimg.com/vi/');
+                && str_contains($html, 'https://www.youtube.com/watch?v=_Rit_BcwYu8')
+                && str_contains($html, 'https://i.ytimg.com/vi/_Rit_BcwYu8/hqdefault.jpg')
+                && str_contains($html, 'Watch welcome video')
+                && ! str_contains($html, '<video controls')
+                && ! str_contains($html, 'design/assets/videos/email-welcome-intro.mp4');
         });
 
         $this->assertDatabaseHas(StripeWebhookEvent::class, [
