@@ -213,9 +213,9 @@ function Footer() {
                     external: false,
                 },
                 {
-                    label: 'Email Support',
-                    href: 'mailto:tickertactix@gmail.com',
-                    external: true,
+                    label: 'Contact Support',
+                    href: route('contact'),
+                    external: false,
                 },
             ],
         },

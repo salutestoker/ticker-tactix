@@ -14,8 +14,7 @@ import {
 const supportItems = [
     'Full name used at checkout',
     'Subscription email address',
-    'TradingView username',
-    'Date of subscription',
+    'Discord/TradingView usernames',
     'Short description of the issue',
 ];
 
@@ -38,8 +37,8 @@ export default function Welcome() {
                             <p className="mx-auto mt-6 max-w-3xl text-lg leading-8 text-white/76">
                                 Thank you for subscribing to Ticker-Tactix. Your
                                 payment was received successfully, and access to
-                                the invite-only TradingView indicator is granted
-                                manually after verification.
+                                Discord/TradingView is granted after
+                                verification.
                             </p>
                             <YoutubeEmbed
                                 url={welcomeVideoUrl}
@@ -92,8 +91,8 @@ export default function Welcome() {
                                         <p className="mt-4 leading-7 text-white/70">
                                             The Ticker-Tactix team will review
                                             your subscription details and
-                                            complete manual TradingView access
-                                            setup.
+                                            approve access to appropriate
+                                            Discord/TradingView channels.
                                         </p>
                                         <div className="border-main-blue/20 mt-6 border-t pt-6">
                                             <div className="flex items-center gap-3">
@@ -102,7 +101,7 @@ export default function Welcome() {
                                                     aria-hidden
                                                 />
                                                 <p className="font-heading text-xs tracking-[0.16em] text-white/58 uppercase">
-                                                    Manual Verification
+                                                    Pending Verification
                                                 </p>
                                             </div>
                                             <p className="mt-3 text-sm leading-6 text-white/68">
@@ -146,8 +145,7 @@ export default function Welcome() {
                                         </ul>
                                         <div className="mt-7">
                                             <HudButton
-                                                href="mailto:tickertactix@gmail.com"
-                                                external
+                                                href={route('contact')}
                                                 tone="green"
                                             >
                                                 <Mail
@@ -165,7 +163,7 @@ export default function Welcome() {
 
                     <p className="mt-10 text-center text-sm leading-7 text-white/60">
                         Thank you again for joining Ticker-Tactix. We appreciate
-                        your support and look forward to having you inside.
+                        your support and will catch you on the flipside.
                     </p>
                 </div>
             </PublicHeroFrame>

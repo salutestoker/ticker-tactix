@@ -122,4 +122,9 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example App'),
     ],
 
+    'support' => [
+        'address' => env('MAIL_SUPPORT_ADDRESS', 'tickertactix@gmail.com'),
+        'name' => env('MAIL_SUPPORT_NAME', 'Ticker-Tactix Support'),
+    ],
+
 ];

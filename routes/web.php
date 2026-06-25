@@ -27,6 +27,7 @@ Route::get('/system', [PageController::class, 'system'])->name('system');
 Route::get('/trader-types', [PageController::class, 'traderTypes'])->name('trader-types');
 Route::get('/trader-types/{traderType:slug}', [TraderTypeController::class, 'show'])->name('trader-types.show');
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
+Route::post('/contact', [PageController::class, 'sendContact'])->name('contact.send');
 Route::get('/welcome', [PageController::class, 'welcome'])->name('welcome');
 Route::get('/modules', [ModuleController::class, 'index'])->name('modules.index');
 Route::get('/modules/{module:slug}', [ModuleController::class, 'show'])->name('modules.show');

@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\SupportContactRequestMail;
 use App\Models\Module;
 use App\Models\Playbook;
 use App\Models\TraderType;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -35,6 +39,21 @@ class PageController extends Controller
     public function contact(): Response
     {
         return Inertia::render('Contact');
+    }
+
+    public function sendContact(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'checkout_name' => ['required', 'string', 'max:255'],
+            'subscription_email' => ['required', 'string', 'email', 'max:255'],
+            'tradingview_username' => ['required', 'string', 'max:255'],
+            'subscription_date' => ['required', 'date'],
+            'issue' => ['required', 'string', 'max:4000'],
+        ]);
+
+        Mail::to($this->supportRecipients())->send(new SupportContactRequestMail($data));
+
+        return back()->with('success', 'Support request sent. We will review your onboarding details.');
     }
 
     public function welcome(): Response
@@ -74,5 +93,30 @@ class PageController extends Controller
             ])
             ->ordered()
             ->get();
+    }
+
+    /**
+     * @return non-empty-list<array{email: string, name?: string}>
+     */
+    private function supportRecipients(): array
+    {
+        $addresses = collect(preg_split('/[\s,;]+/', (string) config('mail.support.address', '')) ?: [])
+            ->map(fn (string $email): string => trim($email))
+            ->filter(fn (string $email): bool => filter_var($email, FILTER_VALIDATE_EMAIL) !== false)
+            ->unique(fn (string $email): string => strtolower($email))
+            ->values();
+
+        if ($addresses->isEmpty()) {
+            $addresses = collect(['tickertactix@gmail.com']);
+        }
+
+        $supportName = trim((string) config('mail.support.name', 'Ticker-Tactix Support'));
+
+        return $addresses
+            ->map(fn (string $email, int $index): array => [
+                'email' => $email,
+                ...($index === 0 && $supportName !== '' ? ['name' => $supportName] : []),
+            ])
+            ->all();
     }
 }
