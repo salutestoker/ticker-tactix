@@ -101,9 +101,16 @@ class StripeSubscriptionWelcomeEmailService
             'catalog_id' => $catalogItem->id,
             'customer_email' => $customerEmail,
             'customer_name' => trim((string) $invoice->customer_name) ?: null,
-            'status' => StripeWebhookEvent::STATUS_QUEUED,
             'skip_reason' => null,
             'error' => null,
+        ])->save();
+
+        if ($this->customerAlreadyWelcomed($webhookEvent)) {
+            return $this->skip($webhookEvent, 'Customer has already received a subscription welcome email.');
+        }
+
+        $webhookEvent->forceFill([
+            'status' => StripeWebhookEvent::STATUS_QUEUED,
         ])->save();
 
         SendSubscriptionWelcomeEmailJob::dispatch($webhookEvent->id);
@@ -194,6 +201,33 @@ class StripeSubscriptionWelcomeEmailService
             ?? Playbook::withTrashed()->where($column, $value)->first();
     }
 
+    private function customerAlreadyWelcomed(StripeWebhookEvent $webhookEvent): bool
+    {
+        $query = StripeWebhookEvent::query()
+            ->whereKeyNot($webhookEvent->id)
+            ->where('stripe_event_type', 'invoice.paid')
+            ->whereIn('status', [
+                StripeWebhookEvent::STATUS_QUEUED,
+                StripeWebhookEvent::STATUS_SENT,
+            ]);
+
+        $customerId = trim((string) $webhookEvent->stripe_customer_id);
+
+        if ($customerId !== '') {
+            return $query->where('stripe_customer_id', $customerId)->exists();
+        }
+
+        $customerEmail = $this->normalizedEmail($webhookEvent->customer_email);
+
+        if ($customerEmail === null) {
+            return false;
+        }
+
+        return $query
+            ->whereRaw('LOWER(TRIM(customer_email)) = ?', [$customerEmail])
+            ->exists();
+    }
+
     private function skip(StripeWebhookEvent $webhookEvent, string $reason): StripeWebhookEvent
     {
         $webhookEvent->forceFill([
@@ -255,6 +289,13 @@ class StripeSubscriptionWelcomeEmailService
         }
 
         return null;
+    }
+
+    private function normalizedEmail(?string $email): ?string
+    {
+        $value = strtolower(trim((string) $email));
+
+        return $value !== '' ? $value : null;
     }
 
     private function timestamp(mixed $value): ?CarbonImmutable

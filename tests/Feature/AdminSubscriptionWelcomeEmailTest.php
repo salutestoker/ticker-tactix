@@ -7,6 +7,7 @@ use App\Mail\SubscriptionWelcomeEmail;
 use App\Models\Market;
 use App\Models\Module;
 use App\Models\Playbook;
+use App\Models\StripeWebhookEvent;
 use App\Models\TraderType;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -29,6 +30,14 @@ class AdminSubscriptionWelcomeEmailTest extends TestCase
         $playbook = $this->playbook([
             'purchase_email_subject' => 'Welcome to Opening Range',
             'purchase_email_body' => "Join Discord.\nReview the onboarding checklist.",
+        ]);
+        StripeWebhookEvent::create([
+            'stripe_event_id' => 'evt_existing_admin_test_recipient',
+            'stripe_event_type' => 'invoice.paid',
+            'stripe_customer_id' => null,
+            'customer_email' => 'module-test@example.com',
+            'status' => StripeWebhookEvent::STATUS_SENT,
+            'sent_at' => now(),
         ]);
 
         $this->actingAs($admin)
@@ -64,7 +73,11 @@ class AdminSubscriptionWelcomeEmailTest extends TestCase
                 && str_contains($mail->render(), 'Review the onboarding checklist.');
         });
 
-        $this->assertDatabaseCount('stripe_webhook_events', 0);
+        $this->assertDatabaseCount('stripe_webhook_events', 1);
+        $this->assertDatabaseHas('stripe_webhook_events', [
+            'stripe_event_id' => 'evt_existing_admin_test_recipient',
+            'status' => StripeWebhookEvent::STATUS_SENT,
+        ]);
     }
 
     public function test_admin_test_purchase_email_requires_saved_email_body(): void

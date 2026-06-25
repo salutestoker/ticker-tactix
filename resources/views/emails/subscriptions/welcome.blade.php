@@ -37,6 +37,32 @@
                                 Thanks for subscribing. Your access instructions are below.
                             </p>
 
+                            @if ($youtubeVideoId && $youtubeVideoUrl && $youtubeThumbnailUrl)
+                                <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="width: 100%; margin: 0 0 20px;">
+                                    <tr>
+                                        <td style="background-color: #020831; border-radius: 2px; overflow: hidden; text-align: center;">
+                                            <a href="{{ $youtubeVideoUrl }}" target="_blank" style="display: block; color: #ffffff; text-decoration: none;">
+                                                <img src="{{ $youtubeThumbnailUrl }}" alt="Watch the {{ $catalogItem->title }} welcome video" width="506" style="display: block; width: 100%; max-width: 506px; height: auto; border: 0; outline: none; text-decoration: none;">
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="center" style="padding-top: 12px;">
+                                            <a href="{{ $youtubeVideoUrl }}" target="_blank" style="display: inline-block; padding: 12px 18px; background-color: #020831; color: #ffffff; font-size: 14px; font-weight: bold; line-height: 1; text-decoration: none; border-radius: 2px;">
+                                                Watch welcome video
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            @else
+                                <div style="margin: 0 0 20px; background-color: #020831;">
+                                    <video controls playsinline preload="metadata" width="506" style="display: block; width: 100%; max-width: 506px; height: auto; background-color: #020831;">
+                                        <source src="{{ $welcomeVideoUrl }}" type="video/mp4">
+                                        <a href="{{ $welcomeVideoUrl }}" target="_blank" style="color: #ffffff;">Watch the welcome video</a>
+                                    </video>
+                                </div>
+                            @endif
+
                             <div style="margin: 0 0 20px; padding: 18px; background-color: #f5f7fb; border: 1px solid #e3e9f4; color: #26313d; font-size: 16px; line-height: 1.6; text-align: left;">
                                 {!! nl2br(e($accessInstructions)) !!}
                             </div>

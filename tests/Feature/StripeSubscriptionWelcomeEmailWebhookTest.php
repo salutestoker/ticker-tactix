@@ -107,6 +107,89 @@ class StripeSubscriptionWelcomeEmailWebhookTest extends TestCase
         ]);
     }
 
+    public function test_second_product_for_same_stripe_customer_is_skipped(): void
+    {
+        config(['services.stripe.webhook_secret' => 'whsec_test_secret']);
+        Queue::fake();
+
+        $this->module([
+            'stripe_product_id' => 'prod_module',
+            'stripe_price_id' => 'price_module',
+            'purchase_email_body' => 'Request TradingView access in Discord.',
+        ]);
+        $playbook = $this->playbook([
+            'stripe_product_id' => 'prod_playbook',
+            'stripe_price_id' => 'price_playbook',
+            'purchase_email_body' => 'Review the onboarding checklist.',
+        ]);
+
+        $this->postStripeWebhook($this->invoicePaidPayload(
+            eventId: 'evt_first_customer_product',
+            priceId: 'price_module',
+            productId: 'prod_module',
+            customerId: 'cus_shared_customer',
+        ))->assertOk();
+
+        $this->postStripeWebhook($this->invoicePaidPayload(
+            eventId: 'evt_second_customer_product',
+            priceId: 'price_playbook',
+            productId: 'prod_playbook',
+            customerId: 'cus_shared_customer',
+        ))->assertOk();
+
+        Queue::assertPushed(SendSubscriptionWelcomeEmailJob::class, 1);
+        $this->assertDatabaseHas(StripeWebhookEvent::class, [
+            'stripe_event_id' => 'evt_second_customer_product',
+            'stripe_customer_id' => 'cus_shared_customer',
+            'catalog_type' => Playbook::class,
+            'catalog_id' => $playbook->id,
+            'status' => StripeWebhookEvent::STATUS_SKIPPED,
+            'skip_reason' => 'Customer has already received a subscription welcome email.',
+        ]);
+    }
+
+    public function test_customer_email_fallback_skips_second_product_when_stripe_customer_id_is_missing(): void
+    {
+        config(['services.stripe.webhook_secret' => 'whsec_test_secret']);
+        Queue::fake();
+
+        $this->module([
+            'stripe_product_id' => 'prod_module',
+            'stripe_price_id' => 'price_module',
+            'purchase_email_body' => 'Request TradingView access in Discord.',
+        ]);
+        $this->playbook([
+            'stripe_product_id' => 'prod_playbook',
+            'stripe_price_id' => 'price_playbook',
+            'purchase_email_body' => 'Review the onboarding checklist.',
+        ]);
+
+        $this->postStripeWebhook($this->invoicePaidPayload(
+            eventId: 'evt_first_email_product',
+            priceId: 'price_module',
+            productId: 'prod_module',
+            customerId: null,
+            customerEmail: 'subscriber@example.com',
+        ))->assertOk();
+
+        $this->postStripeWebhook($this->invoicePaidPayload(
+            eventId: 'evt_second_email_product',
+            priceId: 'price_playbook',
+            productId: 'prod_playbook',
+            customerId: null,
+            customerEmail: 'SUBSCRIBER@example.com',
+        ))->assertOk();
+
+        Queue::assertPushed(SendSubscriptionWelcomeEmailJob::class, 1);
+        $this->assertDatabaseHas(StripeWebhookEvent::class, [
+            'stripe_event_id' => 'evt_second_email_product',
+            'stripe_customer_id' => null,
+            'customer_email' => 'SUBSCRIBER@example.com',
+            'status' => StripeWebhookEvent::STATUS_SKIPPED,
+            'skip_reason' => 'Customer has already received a subscription welcome email.',
+        ]);
+    }
+
     public function test_invalid_stripe_signature_is_rejected(): void
     {
         config(['services.stripe.webhook_secret' => 'whsec_test_secret']);
@@ -204,7 +287,54 @@ class StripeSubscriptionWelcomeEmailWebhookTest extends TestCase
             return str_contains($html, 'Welcome to Opening Range')
                 && str_contains($html, 'Join Discord.')
                 && str_contains($html, 'Review the onboarding checklist.')
-                && str_contains($html, 'Manage your subscription');
+                && str_contains($html, 'Manage your subscription')
+                && str_contains($html, '<video controls')
+                && str_contains($html, 'design/assets/videos/email-welcome-intro.mp4')
+                && ! str_contains($html, 'i.ytimg.com/vi/');
+        });
+
+        $this->assertDatabaseHas(StripeWebhookEvent::class, [
+            'id' => $event->id,
+            'status' => StripeWebhookEvent::STATUS_SENT,
+        ]);
+    }
+
+    public function test_queued_job_uses_youtube_video_override_when_catalog_item_has_youtube_url(): void
+    {
+        Mail::fake();
+
+        $module = $this->module([
+            'stripe_product_id' => 'prod_module',
+            'stripe_price_id' => 'price_module',
+            'purchase_email_body' => 'Request TradingView access in Discord.',
+            'youtube_url' => 'https://youtu.be/dQw4w9WgXcQ',
+        ]);
+
+        $event = StripeWebhookEvent::create([
+            'stripe_event_id' => 'evt_youtube_email',
+            'stripe_event_type' => 'invoice.paid',
+            'stripe_invoice_id' => 'in_youtube_email',
+            'stripe_customer_id' => 'cus_youtube_email',
+            'stripe_subscription_id' => 'sub_youtube_email',
+            'stripe_product_id' => 'prod_module',
+            'stripe_price_id' => 'price_module',
+            'catalog_type' => Module::class,
+            'catalog_id' => $module->id,
+            'customer_email' => 'subscriber@example.com',
+            'customer_name' => 'Subscriber Name',
+            'status' => StripeWebhookEvent::STATUS_QUEUED,
+        ]);
+
+        (new SendSubscriptionWelcomeEmailJob($event->id))->handle();
+
+        Mail::assertSent(SubscriptionWelcomeEmail::class, function (SubscriptionWelcomeEmail $mail): bool {
+            $html = $mail->render();
+
+            return str_contains($html, 'https://www.youtube.com/watch?v=dQw4w9WgXcQ')
+                && str_contains($html, 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg')
+                && str_contains($html, 'Watch welcome video')
+                && ! str_contains($html, '<video controls')
+                && ! str_contains($html, 'design/assets/videos/email-welcome-intro.mp4');
         });
 
         $this->assertDatabaseHas(StripeWebhookEvent::class, [
@@ -238,8 +368,12 @@ class StripeSubscriptionWelcomeEmailWebhookTest extends TestCase
         string $priceId,
         string $productId,
         string $billingReason = 'subscription_create',
+        ?string $customerId = '',
+        ?string $customerEmail = 'subscriber@example.com',
+        ?string $customerName = 'Subscriber Name',
     ): array {
         $suffix = str($eventId)->after('evt_')->value();
+        $resolvedCustomerId = $customerId === '' ? 'cus_'.$suffix : $customerId;
 
         return [
             'id' => $eventId,
@@ -252,9 +386,9 @@ class StripeSubscriptionWelcomeEmailWebhookTest extends TestCase
                     'object' => 'invoice',
                     'billing_reason' => $billingReason,
                     'status' => 'paid',
-                    'customer' => 'cus_'.$suffix,
-                    'customer_email' => 'subscriber@example.com',
-                    'customer_name' => 'Subscriber Name',
+                    'customer' => $resolvedCustomerId,
+                    'customer_email' => $customerEmail,
+                    'customer_name' => $customerName,
                     'parent' => [
                         'type' => 'subscription_details',
                         'subscription_details' => [

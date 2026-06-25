@@ -5,6 +5,7 @@ namespace App\Mail;
 use App\Models\Module;
 use App\Models\Playbook;
 use App\Models\StripeWebhookEvent;
+use App\Support\YouTubeVideo;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -40,6 +41,8 @@ class SubscriptionWelcomeEmail extends Mailable
 
     public function content(): Content
     {
+        $youtubeVideoId = YouTubeVideo::videoId($this->catalogItem->youtube_url);
+
         return new Content(
             view: 'emails.subscriptions.welcome',
             with: [
@@ -48,6 +51,10 @@ class SubscriptionWelcomeEmail extends Mailable
                 'productUrl' => $this->productUrl,
                 'manageUrl' => $this->manageUrl,
                 'accessInstructions' => trim((string) $this->catalogItem->purchase_email_body),
+                'welcomeVideoUrl' => asset('design/assets/videos/email-welcome-intro.mp4'),
+                'youtubeVideoId' => $youtubeVideoId,
+                'youtubeVideoUrl' => $youtubeVideoId ? YouTubeVideo::watchUrl($youtubeVideoId) : null,
+                'youtubeThumbnailUrl' => $youtubeVideoId ? YouTubeVideo::thumbnailUrl($youtubeVideoId) : null,
             ],
         );
     }
