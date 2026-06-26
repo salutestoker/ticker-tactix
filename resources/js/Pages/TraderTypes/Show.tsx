@@ -6,6 +6,7 @@ import {
     TaxonomyBadge,
 } from '@/Components/UI/Hud';
 import { PublicHeroFrame } from '@/Components/UI/PublicHero';
+import { RichTextContent } from '@/Components/UI/RichTextContent';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { formatVersion } from '@/lib/format';
 import type { Module, Playbook, TraderType } from '@/types';
@@ -310,9 +311,11 @@ function ModuleCard({ module }: { module: Module }) {
                     title={module.title}
                     tone="green"
                 />
-                <p className="mt-4 line-clamp-3 text-sm leading-6 text-white/70">
-                    {module.description}
-                </p>
+                <RichTextContent
+                    html={module.description}
+                    compact
+                    className="mt-4 line-clamp-3 text-sm leading-6"
+                />
                 <div className="mt-5 flex flex-wrap gap-2">
                     {module.market ? (
                         <TaxonomyBadge

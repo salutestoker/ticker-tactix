@@ -3,6 +3,7 @@ import TraderFitButton from '@/Components/TraderFit/TraderFitButton';
 import { Eyebrow, HudPanel, TaxonomyBadge } from '@/Components/UI/Hud';
 import { ModuleCarouselCard } from '@/Components/UI/ModuleCardsCarousel';
 import { PublicHeroFrame } from '@/Components/UI/PublicHero';
+import { RichTextContent } from '@/Components/UI/RichTextContent';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { formatVersion } from '@/lib/format';
 import type { Module, PageProps, TraderType } from '@/types';
@@ -141,8 +142,12 @@ export default function ModulesIndex({
                                                     </span>
                                                 </div>
                                             </td>
-                                            <td className="hidden w-full min-w-[300px] px-6 py-5 text-white/75 md:table-cell">
-                                                {module.description}
+                                            <td className="hidden w-full min-w-[300px] px-6 py-5 md:table-cell">
+                                                <RichTextContent
+                                                    html={module.description}
+                                                    compact
+                                                    className="text-sm leading-6"
+                                                />
                                             </td>
                                             <td className="px-3 py-4 align-middle sm:px-6 sm:py-5 md:min-w-[300px]">
                                                 <TaxonomyList

@@ -1,5 +1,6 @@
 import { IconRenderer } from '@/Components/Icons/IconRenderer';
 import { AccessBadge, TaxonomyBadge } from '@/Components/UI/Hud';
+import { RichTextContent } from '@/Components/UI/RichTextContent';
 import { formatVersion } from '@/lib/format';
 import type { Module } from '@/types';
 import { useGSAP } from '@gsap/react';
@@ -507,9 +508,11 @@ function ModuleCarouselCard({
                             {formatVersion(module.version)}
                         </span>
                     </h3>
-                    <p className="min-w-[260px] text-sm leading-6 text-white">
-                        {module.description}
-                    </p>
+                    <RichTextContent
+                        html={module.description}
+                        compact
+                        className="min-w-[260px] text-sm leading-6"
+                    />
                 </div>
                 <div className="absolute -top-2 right-[-16px] h-20 w-20 sm:top-[-25px]">
                     {iconSrc ? (

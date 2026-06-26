@@ -34,6 +34,11 @@ const nav: AdminNavItem[] = [
         match: 'admin.trader-types.*',
     },
     {
+        label: 'Products',
+        name: 'admin.products.index',
+        match: 'admin.products.*',
+    },
+    {
         label: 'Users',
         name: 'admin.users.index',
         match: 'admin.users.*',

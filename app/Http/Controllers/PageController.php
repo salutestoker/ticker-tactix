@@ -7,6 +7,7 @@ use App\Models\Faq;
 use App\Models\Module;
 use App\Models\Playbook;
 use App\Models\TraderType;
+use App\Support\CatalogRichText;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -18,10 +19,18 @@ class PageController extends Controller
 {
     public function home(): InertiaResponse
     {
+        $modules = Module::public()->with(['market', 'traderTypes'])->ordered()->get();
+        $playbooks = Playbook::public()->with(['market', 'traderTypes'])->ordered()->get();
+        $featuredPlaybooks = Playbook::public()->with(['market', 'traderTypes'])->where('is_featured', true)->ordered()->get();
+
+        CatalogRichText::renderModules($modules);
+        CatalogRichText::renderPlaybooks($playbooks);
+        CatalogRichText::renderPlaybooks($featuredPlaybooks);
+
         return Inertia::render('Home', [
-            'modules' => Module::public()->with(['market', 'traderTypes'])->ordered()->get(),
-            'playbooks' => Playbook::public()->with(['market', 'traderTypes'])->ordered()->get(),
-            'featuredPlaybooks' => Playbook::public()->with(['market', 'traderTypes'])->where('is_featured', true)->ordered()->get(),
+            'modules' => $modules,
+            'playbooks' => $playbooks,
+            'featuredPlaybooks' => $featuredPlaybooks,
             'traderTypes' => $this->activeTraderTypes(),
         ]);
     }
@@ -95,7 +104,7 @@ class PageController extends Controller
 
     private function activeTraderTypes()
     {
-        return TraderType::active()
+        $traderTypes = TraderType::active()
             ->with([
                 'modules' => fn ($query) => $query
                     ->where('modules.is_active', true)
@@ -108,6 +117,10 @@ class PageController extends Controller
             ])
             ->ordered()
             ->get();
+
+        CatalogRichText::renderTraderTypeCatalog($traderTypes);
+
+        return $traderTypes;
     }
 
     /**

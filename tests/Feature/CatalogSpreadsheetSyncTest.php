@@ -44,9 +44,25 @@ class CatalogSpreadsheetSyncTest extends TestCase
         Storage::disk('catalog_spreadsheets')->put(
             'catalog/playbooks.csv',
             str_replace(
-                ['https://www.youtube.com/watch?v=oHg5SJYRHA0', '$10/mo'],
-                ['https://youtu.be/dQw4w9WgXcQ', '$15/mo'],
+                [
+                    'https://www.youtube.com/watch?v=oHg5SJYRHA0',
+                    '$10/mo',
+                    'Check your Discord onboarding steps.',
+                ],
+                [
+                    'https://youtu.be/dQw4w9WgXcQ',
+                    '$15/mo',
+                    '<p>Check <strong>Discord</strong><script>alert(1)</script><a href="javascript:alert(1)">bad link</a>.</p>',
+                ],
                 Storage::disk('catalog_spreadsheets')->get('catalog/playbooks.csv'),
+            ),
+        );
+        Storage::disk('catalog_spreadsheets')->put(
+            'catalog/modules.csv',
+            str_replace(
+                'Request TradingView access.',
+                '<p>Request <strong>TradingView</strong><script>alert(1)</script>.</p>',
+                Storage::disk('catalog_spreadsheets')->get('catalog/modules.csv'),
             ),
         );
 
@@ -57,6 +73,13 @@ class CatalogSpreadsheetSyncTest extends TestCase
         $this->assertSame('https://youtu.be/dQw4w9WgXcQ', $playbook->youtube_url);
         $this->assertSame('$7/mo', $module->refresh()->price);
         $this->assertSame('https://youtu.be/9bZkp7q19f0', $module->youtube_url);
+        $this->assertStringContainsString('<strong>Discord</strong>', (string) $playbook->purchase_email_body);
+        $this->assertStringContainsString('<a>bad link</a>', (string) $playbook->purchase_email_body);
+        $this->assertStringContainsString('<strong>TradingView</strong>', (string) $module->purchase_email_body);
+        $this->assertStringNotContainsString('script', (string) $playbook->purchase_email_body);
+        $this->assertStringNotContainsString('alert(1)', (string) $playbook->purchase_email_body);
+        $this->assertStringNotContainsString('javascript:', (string) $playbook->purchase_email_body);
+        $this->assertStringNotContainsString('script', (string) $module->purchase_email_body);
     }
 
     /**

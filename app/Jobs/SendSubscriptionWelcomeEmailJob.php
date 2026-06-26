@@ -58,14 +58,6 @@ class SendSubscriptionWelcomeEmailJob implements ShouldQueue
             return;
         }
 
-        $purchaseEmailBody = trim((string) $catalogItem->purchase_email_body);
-
-        if ($purchaseEmailBody === '') {
-            $this->skip($event, 'Matched catalog item has no purchase email body.');
-
-            return;
-        }
-
         $productUrl = $this->productUrl($catalogItem);
         $manageUrl = $event->stripe_customer_id
             ? URL::signedRoute('subscription-welcome.portal', ['event' => $event])

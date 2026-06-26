@@ -12,6 +12,7 @@ use App\Models\TraderType;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
+use Symfony\Component\Mailer\Exception\TransportException;
 use Tests\TestCase;
 
 class AdminSubscriptionWelcomeEmailTest extends TestCase
@@ -80,7 +81,7 @@ class AdminSubscriptionWelcomeEmailTest extends TestCase
         ]);
     }
 
-    public function test_admin_test_purchase_email_requires_saved_email_body(): void
+    public function test_admin_can_send_test_purchase_email_without_saved_email_body(): void
     {
         Mail::fake();
 
@@ -92,9 +93,15 @@ class AdminSubscriptionWelcomeEmailTest extends TestCase
                 'test_email' => 'module-test@example.com',
             ])
             ->assertRedirect()
-            ->assertSessionHasErrors('test_email');
+            ->assertSessionHasNoErrors();
 
-        Mail::assertNothingSent();
+        Mail::assertSent(SubscriptionWelcomeEmail::class, function (SubscriptionWelcomeEmail $mail): bool {
+            $html = $mail->render();
+
+            return $mail->hasTo('module-test@example.com')
+                && str_contains($html, 'Welcome to Momentum Cycles')
+                && ! str_contains($html, 'Momentum Cycles Specific Information');
+        });
     }
 
     public function test_admin_can_send_test_purchase_email_with_unsaved_email_body(): void
@@ -129,6 +136,66 @@ class AdminSubscriptionWelcomeEmailTest extends TestCase
         ]);
     }
 
+    public function test_admin_can_preview_module_and_playbook_purchase_emails_in_browser(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $module = $this->module([
+            'purchase_email_subject' => 'Welcome to Momentum Cycles',
+            'purchase_email_body' => "Open Discord.\nRequest TradingView access.",
+        ]);
+        $playbook = $this->playbook([
+            'purchase_email_subject' => 'Welcome to Opening Range',
+            'purchase_email_body' => "Join Discord.\nReview the onboarding checklist.",
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('dev.emails.modules.welcome', $module))
+            ->assertOk()
+            ->assertSee('Welcome to Momentum Cycles')
+            ->assertSee('Hi Preview Customer')
+            ->assertSee('Open Discord.')
+            ->assertSee('Request TradingView access.');
+
+        $this->actingAs($admin)
+            ->get(route('dev.emails.playbooks.welcome', $playbook))
+            ->assertOk()
+            ->assertSee('Welcome to Opening Range')
+            ->assertSee('Hi Preview Customer')
+            ->assertSee('Join Discord.')
+            ->assertSee('Review the onboarding checklist.');
+    }
+
+    public function test_purchase_email_preview_renders_sanitized_rich_text_body(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $module = $this->module([
+            'purchase_email_subject' => 'Welcome to Momentum Cycles',
+            'purchase_email_body' => '<p>Open <strong>Discord</strong><script>alert(1)</script>.</p><p><a href="https://example.com/checklist" onclick="bad()">Read checklist</a></p>',
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('dev.emails.modules.welcome', $module))
+            ->assertOk()
+            ->assertSee('<strong>Discord</strong>', false)
+            ->assertSee('href="https://example.com/checklist"', false)
+            ->assertSee('Read checklist')
+            ->assertDontSee('alert(1)', false)
+            ->assertDontSee('onclick', false)
+            ->assertDontSee('<script', false);
+    }
+
+    public function test_non_admin_cannot_preview_purchase_emails(): void
+    {
+        $user = User::factory()->create(['is_admin' => false]);
+        $module = $this->module([
+            'purchase_email_body' => 'Open Discord.',
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('dev.emails.modules.welcome', $module))
+            ->assertForbidden();
+    }
+
     public function test_admin_test_purchase_email_rejects_invalid_recipient_lists(): void
     {
         Mail::fake();
@@ -146,6 +213,34 @@ class AdminSubscriptionWelcomeEmailTest extends TestCase
             ->assertSessionHasErrors('test_email');
 
         Mail::assertNothingSent();
+    }
+
+    public function test_admin_test_purchase_email_mail_transport_errors_are_returned_to_admin(): void
+    {
+        config(['mail.default' => 'mailgun']);
+        Mail::shouldReceive('to')
+            ->once()
+            ->with('module-test@example.com')
+            ->andThrow(new TransportException('Unable to send an email: Forbidden (code 401).'));
+
+        $admin = User::factory()->create(['is_admin' => true]);
+        $module = $this->module([
+            'purchase_email_body' => 'Open Discord.',
+        ]);
+
+        $this->actingAs($admin)
+            ->from(route('admin.modules.edit', $module))
+            ->post(route('admin.modules.purchase-email.test', $module), [
+                'test_email' => 'module-test@example.com',
+            ])
+            ->assertRedirect(route('admin.modules.edit', $module))
+            ->assertSessionHasErrors('test_email');
+
+        $errors = session('errors')->getBag('default')->get('test_email');
+
+        $this->assertStringContainsString('Mailgun rejected the test purchase email.', $errors[0]);
+        $this->assertStringContainsString('MAILGUN_SECRET and MAILGUN_DOMAIN are correct', $errors[0]);
+        $this->assertStringContainsString('Forbidden (code 401)', $errors[0]);
     }
 
     private function module(array $attributes = []): Module

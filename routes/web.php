@@ -8,8 +8,10 @@ use App\Http\Controllers\Admin\ModuleController as AdminModuleController;
 use App\Http\Controllers\Admin\NewsletterDeliveryController as AdminNewsletterDeliveryController;
 use App\Http\Controllers\Admin\NewsletterGeneratorController as AdminNewsletterGeneratorController;
 use App\Http\Controllers\Admin\PlaybookController as AdminPlaybookController;
+use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\TraderTypeController as AdminTraderTypeController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Dev\SubscriptionWelcomeEmailPreviewController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\NewsletterSubscriptionPortalController;
 use App\Http\Controllers\PageController;
@@ -63,6 +65,7 @@ Route::middleware(['auth', 'admin'])
     ->group(function (): void {
         Route::get('/', AdminDashboardController::class)->name('dashboard');
         Route::get('customers', AdminCustomerController::class)->name('customers.index');
+        Route::get('products', AdminProductController::class)->name('products.index');
         Route::get('components', fn () => Inertia::render('Admin/Components/Index'))->name('components.index');
         Route::get('newsletter-generator', AdminNewsletterGeneratorController::class)->name('newsletter-generator');
         Route::post('newsletter-generator', [AdminNewsletterGeneratorController::class, 'store'])->name('newsletter-generator.store');
@@ -87,5 +90,17 @@ Route::middleware(['auth', 'admin'])
         Route::resource('trader-types', AdminTraderTypeController::class)->except(['show']);
         Route::resource('users', AdminUserController::class)->only(['index', 'create', 'store']);
     });
+
+if (app()->isLocal() || app()->runningUnitTests()) {
+    Route::middleware(['auth', 'admin'])
+        ->prefix('dev/emails')
+        ->name('dev.emails.')
+        ->group(function (): void {
+            Route::get('modules/{module}/welcome', [SubscriptionWelcomeEmailPreviewController::class, 'module'])
+                ->name('modules.welcome');
+            Route::get('playbooks/{playbook}/welcome', [SubscriptionWelcomeEmailPreviewController::class, 'playbook'])
+                ->name('playbooks.welcome');
+        });
+}
 
 require __DIR__.'/auth.php';

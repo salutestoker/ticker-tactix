@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\TraderType;
+use App\Support\CatalogRichText;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -12,17 +13,21 @@ class TraderTypeController extends Controller
     {
         abort_unless($traderType->is_active, 404);
 
+        $traderType->load([
+            'modules' => fn ($query) => $query
+                ->public()
+                ->with(['market', 'traderTypes'])
+                ->ordered(),
+            'playbooks' => fn ($query) => $query
+                ->public()
+                ->with(['market', 'traderTypes'])
+                ->ordered(),
+        ]);
+
+        CatalogRichText::renderTraderTypeCatalog([$traderType]);
+
         return Inertia::render('TraderTypes/Show', [
-            'traderType' => $traderType->load([
-                'modules' => fn ($query) => $query
-                    ->public()
-                    ->with(['market', 'traderTypes'])
-                    ->ordered(),
-                'playbooks' => fn ($query) => $query
-                    ->public()
-                    ->with(['market', 'traderTypes'])
-                    ->ordered(),
-            ]),
+            'traderType' => $traderType,
         ]);
     }
 }

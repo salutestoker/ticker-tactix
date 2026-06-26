@@ -299,6 +299,56 @@ class PublicCatalogTest extends TestCase
         $this->get('/trader-types/'.$inactiveTraderType->slug)->assertNotFound();
     }
 
+    public function test_public_detail_pages_receive_safe_rich_text_html(): void
+    {
+        [$market, $traderType] = $this->catalogTaxonomies();
+
+        $module = Module::create([
+            'market_id' => $market->id,
+            'title' => 'Momentum Cycles',
+            'slug' => 'momentum-cycles',
+            'description' => '<p>Trade with <strong>structure</strong><script>alert(1)</script><a href="javascript:alert(1)">bad link</a>.</p>',
+            'module_overview' => "Overview line one\nOverview line two.",
+            'access' => AccessLevel::InviteOnlyIndicatorDiscord,
+            'sort_order' => 10,
+            'is_featured' => true,
+            'is_active' => true,
+            'published_at' => now(),
+        ]);
+        $module->traderTypes()->attach($traderType);
+
+        $playbook = Playbook::create([
+            'market_id' => $market->id,
+            'title' => 'Market Environment',
+            'slug' => 'market-environment',
+            'access' => AccessLevel::DailyNewsletterDiscord,
+            'long_description' => "Context before execution.\nRepeat the same process every time.",
+            'sort_order' => 10,
+            'is_featured' => true,
+            'is_active' => true,
+            'published_at' => now(),
+        ]);
+        $playbook->traderTypes()->attach($traderType);
+
+        $this->get('/modules/momentum-cycles')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Modules/Show')
+                ->where('module.description', fn (string $description): bool => str_contains($description, '<strong>structure</strong>')
+                    && str_contains($description, '<a>bad link</a>')
+                    && ! str_contains($description, 'alert(1)')
+                    && ! str_contains($description, 'javascript:'))
+                ->where('module.module_overview', fn (string $overview): bool => str_contains($overview, '<p>Overview line one<br>')
+                    && str_contains($overview, 'Overview line two.</p>')));
+
+        $this->get('/playbooks/market-environment')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Playbooks/Show')
+                ->where('playbook.long_description', fn (string $description): bool => str_contains($description, '<p>Context before execution.<br>')
+                    && str_contains($description, 'Repeat the same process every time.</p>')));
+    }
+
     /**
      * @return array{Market, TraderType}
      */

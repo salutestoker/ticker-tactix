@@ -1,4 +1,5 @@
 import { IconSelector } from '@/Components/Admin/IconSelector';
+import { RichTextEditor } from '@/Components/Admin/RichTextEditor';
 import { HudButton, HudPanel, TaxonomyBadge } from '@/Components/UI/Hud';
 import AdminLayout from '@/Layouts/AdminLayout';
 import type {
@@ -62,12 +63,14 @@ export default function ModuleFormPage({
     traderTypes,
     modules,
     accessOptions,
+    purchaseEmailPreviewUrl,
 }: {
     module: Module | null;
     markets: Market[];
     traderTypes: TraderType[];
     modules: Pick<Module, 'id' | 'title' | 'slug'>[];
     accessOptions: SelectOption[];
+    purchaseEmailPreviewUrl: string | null;
 }) {
     const isEdit = Boolean(module);
     const attachedTraderTypes =
@@ -433,12 +436,12 @@ export default function ModuleFormPage({
                             />
                         </Field>
                         <Field label="Description" error={errors.description}>
-                            <textarea
-                                className={textarea}
+                            <RichTextEditor
                                 value={data.description}
-                                onChange={(e) =>
-                                    setData('description', e.target.value)
+                                onChange={(value) =>
+                                    setData('description', value)
                                 }
+                                placeholder="Add the public module description."
                             />
                         </Field>
                         <Field
@@ -611,12 +614,12 @@ export default function ModuleFormPage({
                             label="Module Overview"
                             error={errors.module_overview}
                         >
-                            <textarea
-                                className={textarea}
+                            <RichTextEditor
                                 value={data.module_overview}
-                                onChange={(e) =>
-                                    setData('module_overview', e.target.value)
+                                onChange={(value) =>
+                                    setData('module_overview', value)
                                 }
+                                placeholder="Add the detailed module overview."
                             />
                         </Field>
                         <Field
@@ -647,14 +650,10 @@ export default function ModuleFormPage({
                             label="Purchase Email Body"
                             error={errors.purchase_email_body}
                         >
-                            <textarea
-                                className={textarea}
+                            <RichTextEditor
                                 value={data.purchase_email_body}
-                                onChange={(e) =>
-                                    setData(
-                                        'purchase_email_body',
-                                        e.target.value,
-                                    )
+                                onChange={(value) =>
+                                    setData('purchase_email_body', value)
                                 }
                                 placeholder="Add access steps, Discord instructions, TradingView notes, or onboarding links."
                             />
@@ -702,12 +701,25 @@ export default function ModuleFormPage({
                                 placeholder="admin@example.com, teammate@example.com"
                             />
                         </Field>
-                        <HudButton
-                            type="submit"
-                            disabled={testEmailProcessing}
-                        >
-                            Send Tests
-                        </HudButton>
+                        <div className="flex flex-wrap gap-3 md:justify-end">
+                            {purchaseEmailPreviewUrl ? (
+                                <HudButton
+                                    href={purchaseEmailPreviewUrl}
+                                    external
+                                    tone="blue"
+                                    className="w-full md:w-auto"
+                                >
+                                    Preview Email
+                                </HudButton>
+                            ) : null}
+                            <HudButton
+                                type="submit"
+                                disabled={testEmailProcessing}
+                                className="w-full md:w-auto"
+                            >
+                                Send Tests
+                            </HudButton>
+                        </div>
                     </form>
                 </HudPanel>
             ) : null}

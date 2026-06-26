@@ -5,6 +5,7 @@ namespace App\Mail;
 use App\Models\Module;
 use App\Models\Playbook;
 use App\Models\StripeWebhookEvent;
+use App\Support\RichText;
 use App\Support\YouTubeVideo;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -17,6 +18,7 @@ class SubscriptionWelcomeEmail extends Mailable
     use Queueable, SerializesModels;
 
     private const DEFAULT_WELCOME_VIDEO_URL = 'https://youtu.be/_Rit_BcwYu8';
+    private const WELCOME_VIDEO_THUMBNAIL_PATH = 'design/assets/images/welcome-video-thumbnail.jpg';
 
     public function __construct(
         public readonly StripeWebhookEvent $event,
@@ -43,8 +45,8 @@ class SubscriptionWelcomeEmail extends Mailable
 
     public function content(): Content
     {
-        $youtubeVideoId = YouTubeVideo::videoId($this->catalogItem->youtube_url)
-            ?? YouTubeVideo::videoId(self::DEFAULT_WELCOME_VIDEO_URL);
+        $youtubeVideoId = YouTubeVideo::videoId($this->catalogItem->youtube_url);
+        $welcomeVideoId = YouTubeVideo::videoId(self::DEFAULT_WELCOME_VIDEO_URL);
 
         return new Content(
             view: 'emails.subscriptions.welcome',
@@ -53,10 +55,12 @@ class SubscriptionWelcomeEmail extends Mailable
                 'catalogItem' => $this->catalogItem,
                 'productUrl' => $this->productUrl,
                 'manageUrl' => $this->manageUrl,
-                'accessInstructions' => trim((string) $this->catalogItem->purchase_email_body),
+                'accessInstructions' => RichText::render($this->catalogItem->purchase_email_body),
                 'youtubeVideoId' => $youtubeVideoId,
                 'youtubeVideoUrl' => $youtubeVideoId ? YouTubeVideo::watchUrl($youtubeVideoId) : null,
                 'youtubeThumbnailUrl' => $youtubeVideoId ? YouTubeVideo::thumbnailUrl($youtubeVideoId) : null,
+                'welcomeVideoUrl' => $welcomeVideoId ? YouTubeVideo::watchUrl($welcomeVideoId) : null,
+                'welcomeVideoThumbnailUrl' => $welcomeVideoId ? asset(self::WELCOME_VIDEO_THUMBNAIL_PATH) : null,
             ],
         );
     }

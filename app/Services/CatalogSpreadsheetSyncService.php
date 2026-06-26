@@ -7,6 +7,7 @@ use App\Models\Market;
 use App\Models\Module;
 use App\Models\Playbook;
 use App\Models\TraderType;
+use App\Support\RichText;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
@@ -285,7 +286,7 @@ class CatalogSpreadsheetSyncService
             $traderType->fill([
                 'name' => $this->requiredString($row['name'], 'trader_types.name'),
                 'slug' => $this->slug($row['slug'], $row['name']),
-                'description' => $this->nullableString($row['description']),
+                'description' => $this->richTextString($row['description']),
                 'color' => $this->nullableString($row['color']),
                 'icon' => $this->nullableString($row['icon']),
                 'sort_order' => $this->integer($row['sort_order']),
@@ -321,7 +322,7 @@ class CatalogSpreadsheetSyncService
                 'trading_pace' => $this->nullableString($row['trading_pace']),
                 'short_name' => $this->nullableString($row['short_name']),
                 'price' => $this->nullableString($row['price']),
-                'module_overview' => $this->nullableString($row['module_overview']),
+                'module_overview' => $this->richTextString($row['module_overview']),
                 'core_features' => $this->parseCoreFeatures($row['core_features']),
                 'customization_options' => $this->parseLines($row['customization_options']),
                 'best_used_for' => $this->parseLines($row['best_used_for']),
@@ -333,7 +334,7 @@ class CatalogSpreadsheetSyncService
                 'stripe_product_id' => $this->nullableString($row['stripe_product_id']),
                 'stripe_price_id' => $this->nullableString($row['stripe_price_id']),
                 'purchase_email_subject' => $this->nullableString($row['purchase_email_subject']),
-                'purchase_email_body' => $this->nullableString($row['purchase_email_body']),
+                'purchase_email_body' => $this->richTextString($row['purchase_email_body']),
                 'sort_order' => $this->integer($row['sort_order']),
                 'is_featured' => $this->boolean($row['is_featured']),
                 'is_active' => $this->boolean($row['is_active']),
@@ -376,7 +377,7 @@ class CatalogSpreadsheetSyncService
                 'slug' => $this->slug($row['slug'], $row['title']),
                 'access' => $this->validatedAccess($row['access']),
                 'best_for' => $this->nullableString($row['best_for']),
-                'long_description' => $this->nullableString($row['long_description']),
+                'long_description' => $this->richTextString($row['long_description']),
                 'trading_pace' => $this->nullableString($row['trading_pace']),
                 'average_hold_time' => $this->nullableString($row['average_hold_time']),
                 'price' => $this->nullableString($row['price']),
@@ -385,7 +386,7 @@ class CatalogSpreadsheetSyncService
                 'stripe_product_id' => $this->nullableString($row['stripe_product_id']),
                 'stripe_price_id' => $this->nullableString($row['stripe_price_id']),
                 'purchase_email_subject' => $this->nullableString($row['purchase_email_subject']),
-                'purchase_email_body' => $this->nullableString($row['purchase_email_body']),
+                'purchase_email_body' => $this->richTextString($row['purchase_email_body']),
                 'sort_order' => $this->integer($row['sort_order']),
                 'is_featured' => $this->boolean($row['is_featured']),
                 'is_active' => $this->boolean($row['is_active']),
@@ -736,6 +737,11 @@ class CatalogSpreadsheetSyncService
         $value = trim($value);
 
         return $value === '' ? null : $value;
+    }
+
+    private function richTextString(string $value): ?string
+    {
+        return RichText::sanitize($value);
     }
 
     private function requiredString(string $value, string $field): string

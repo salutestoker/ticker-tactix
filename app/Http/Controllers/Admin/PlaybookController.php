@@ -10,6 +10,7 @@ use App\Models\TraderType;
 use App\Rules\YouTubeVideoUrl;
 use App\Services\CatalogSpreadsheetSyncService;
 use App\Services\SubscriptionWelcomeEmailTestService;
+use App\Support\RichText;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -37,6 +38,7 @@ class PlaybookController extends Controller
             'markets' => Market::active()->ordered()->get(),
             'traderTypes' => TraderType::active()->ordered()->get(),
             'accessOptions' => AccessLevel::options(),
+            'purchaseEmailPreviewUrl' => null,
         ]);
     }
 
@@ -75,6 +77,7 @@ class PlaybookController extends Controller
             'markets' => Market::active()->ordered()->get(),
             'traderTypes' => TraderType::active()->ordered()->get(),
             'accessOptions' => AccessLevel::options(),
+            'purchaseEmailPreviewUrl' => $this->purchaseEmailPreviewUrl($playbook),
         ]);
     }
 
@@ -130,13 +133,7 @@ class PlaybookController extends Controller
             'purchase_email_body' => ['nullable', 'string'],
         ]);
         $emails = $testEmails->parseRecipients($data['test_email']);
-        $purchaseEmailBody = trim((string) ($data['purchase_email_body'] ?? $playbook->purchase_email_body));
-
-        if ($purchaseEmailBody === '') {
-            return back()
-                ->withErrors(['test_email' => 'Add a purchase email body before sending a test email.'])
-                ->withInput();
-        }
+        $purchaseEmailBody = RichText::sanitize($data['purchase_email_body'] ?? $playbook->purchase_email_body);
 
         $playbook->forceFill([
             'purchase_email_subject' => $data['purchase_email_subject'] ?? $playbook->purchase_email_subject,
@@ -182,6 +179,8 @@ class PlaybookController extends Controller
         ]);
 
         $data['slug'] = $data['slug'] ?: Str::slug($data['title']);
+        $data['long_description'] = RichText::sanitize($data['long_description'] ?? null);
+        $data['purchase_email_body'] = RichText::sanitize($data['purchase_email_body'] ?? null);
 
         return $data;
     }
@@ -268,6 +267,15 @@ class PlaybookController extends Controller
     private function exportCatalogSpreadsheets(): void
     {
         app(CatalogSpreadsheetSyncService::class)->exportAll();
+    }
+
+    private function purchaseEmailPreviewUrl(Playbook $playbook): ?string
+    {
+        if (! app()->isLocal() && ! app()->runningUnitTests()) {
+            return null;
+        }
+
+        return route('dev.emails.playbooks.welcome', $playbook);
     }
 
     private function nextSortOrder(): int

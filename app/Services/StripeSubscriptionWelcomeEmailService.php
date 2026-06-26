@@ -88,11 +88,6 @@ class StripeSubscriptionWelcomeEmailService
 
         /** @var Module|Playbook $catalogItem */
         $catalogItem = $match['catalogItem'];
-        $purchaseEmailBody = trim((string) $catalogItem->purchase_email_body);
-
-        if ($purchaseEmailBody === '') {
-            return $this->skip($webhookEvent, 'Matched catalog item has no purchase email body.');
-        }
 
         $webhookEvent->forceFill([
             'stripe_product_id' => $match['stripeProductId'],

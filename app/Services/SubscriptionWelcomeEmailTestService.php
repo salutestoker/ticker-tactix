@@ -9,6 +9,7 @@ use App\Models\StripeWebhookEvent;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 class SubscriptionWelcomeEmailTestService
 {
@@ -19,8 +20,14 @@ class SubscriptionWelcomeEmailTestService
      */
     public function sendMany(Module|Playbook $catalogItem, array $emails): int
     {
-        foreach ($emails as $email) {
-            $this->send($catalogItem, $email);
+        try {
+            foreach ($emails as $email) {
+                $this->send($catalogItem, $email);
+            }
+        } catch (TransportExceptionInterface $exception) {
+            throw ValidationException::withMessages([
+                'test_email' => $this->mailTransportValidationMessage($exception),
+            ]);
         }
 
         return count($emails);
@@ -89,5 +96,16 @@ class SubscriptionWelcomeEmailTestService
             Module::class => route('modules.show', $catalogItem->slug),
             Playbook::class => route('playbooks.show', $catalogItem->slug),
         };
+    }
+
+    private function mailTransportValidationMessage(TransportExceptionInterface $exception): string
+    {
+        $base = config('mail.default') === 'mailgun'
+            ? 'Mailgun rejected the test purchase email. Confirm MAILGUN_SECRET and MAILGUN_DOMAIN are correct, MAIL_FROM_ADDRESS belongs to MAILGUN_DOMAIN, the recipient is allowed by Mailgun, and Mailgun IP Access Management allows this server.'
+            : 'The configured mail transport rejected the test purchase email. Check the mail sender and recipient settings.';
+
+        $message = trim($exception->getMessage());
+
+        return $message === '' ? $base : $base.' Mail transport response: '.$message;
     }
 }

@@ -8,6 +8,7 @@ import {
 } from '@/Components/UI/Hud';
 import { MobilePurchaseHud } from '@/Components/UI/MobilePurchaseHud';
 import { PublicHeroFrame } from '@/Components/UI/PublicHero';
+import { RichTextContent } from '@/Components/UI/RichTextContent';
 import { getYoutubeVideoId, YoutubeEmbed } from '@/Components/UI/YoutubeEmbed';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { formatVersion } from '@/lib/format';
@@ -59,9 +60,11 @@ export default function ModulesShow({
                             <GradientHeading className="max-w-4xl">
                                 {module.title}
                             </GradientHeading>
-                            <p className="mt-4 max-w-3xl text-lg leading-7 text-white/76 sm:text-xl sm:leading-8">
-                                {module.description}
-                            </p>
+                            <RichTextContent
+                                html={module.description}
+                                compact
+                                className="mt-4 max-w-3xl text-lg leading-7 sm:text-xl sm:leading-8"
+                            />
 
                             <MobilePurchaseHud
                                 price={module.price}
@@ -82,7 +85,10 @@ export default function ModulesShow({
                                     title="What It Does"
                                     tone="green"
                                 >
-                                    <p>{module.description}</p>
+                                    <RichTextContent
+                                        html={module.description}
+                                        compact
+                                    />
                                 </DetailRow>
 
                                 <DetailRow
@@ -90,10 +96,13 @@ export default function ModulesShow({
                                     title="Module Overview"
                                     tone="violet"
                                 >
-                                    <p>
-                                        {module.module_overview ||
-                                            module.description}
-                                    </p>
+                                    <RichTextContent
+                                        html={
+                                            module.module_overview ||
+                                            module.description
+                                        }
+                                        compact
+                                    />
                                 </DetailRow>
 
                                 <DetailRow
@@ -133,11 +142,17 @@ export default function ModulesShow({
                                     tone="green"
                                     isLast
                                 >
-                                    <p>
-                                        {module.summary ||
-                                            module.module_overview ||
-                                            module.description}
-                                    </p>
+                                    {module.summary ? (
+                                        <p>{module.summary}</p>
+                                    ) : (
+                                        <RichTextContent
+                                            html={
+                                                module.module_overview ||
+                                                module.description
+                                            }
+                                            compact
+                                        />
+                                    )}
                                 </DetailRow>
                             </HudPanel>
                         </main>

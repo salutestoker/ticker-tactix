@@ -10,6 +10,7 @@ use App\Models\TraderType;
 use App\Rules\YouTubeVideoUrl;
 use App\Services\CatalogSpreadsheetSyncService;
 use App\Services\SubscriptionWelcomeEmailTestService;
+use App\Support\RichText;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -38,6 +39,7 @@ class ModuleController extends Controller
             'traderTypes' => TraderType::active()->ordered()->get(),
             'modules' => Module::ordered()->get(['id', 'title', 'slug']),
             'accessOptions' => AccessLevel::options(),
+            'purchaseEmailPreviewUrl' => null,
         ]);
     }
 
@@ -83,6 +85,7 @@ class ModuleController extends Controller
             'traderTypes' => TraderType::active()->ordered()->get(),
             'modules' => Module::whereKeyNot($module->id)->ordered()->get(['id', 'title', 'slug']),
             'accessOptions' => AccessLevel::options(),
+            'purchaseEmailPreviewUrl' => $this->purchaseEmailPreviewUrl($module),
         ]);
     }
 
@@ -144,13 +147,7 @@ class ModuleController extends Controller
             'purchase_email_body' => ['nullable', 'string'],
         ]);
         $emails = $testEmails->parseRecipients($data['test_email']);
-        $purchaseEmailBody = trim((string) ($data['purchase_email_body'] ?? $module->purchase_email_body));
-
-        if ($purchaseEmailBody === '') {
-            return back()
-                ->withErrors(['test_email' => 'Add a purchase email body before sending a test email.'])
-                ->withInput();
-        }
+        $purchaseEmailBody = RichText::sanitize($data['purchase_email_body'] ?? $module->purchase_email_body);
 
         $module->forceFill([
             'purchase_email_subject' => $data['purchase_email_subject'] ?? $module->purchase_email_subject,
@@ -219,6 +216,9 @@ class ModuleController extends Controller
         $data['core_features'] = $this->normalizeCoreFeatures($data['core_features'] ?? []);
         $data['customization_options'] = $this->parseLines($data['customization_options_text'] ?? '');
         $data['best_used_for'] = $this->parseLines($data['best_used_for_text'] ?? '');
+        $data['description'] = RichText::sanitize($data['description'] ?? null);
+        $data['module_overview'] = RichText::sanitize($data['module_overview'] ?? null);
+        $data['purchase_email_body'] = RichText::sanitize($data['purchase_email_body'] ?? null);
 
         return $data;
     }
@@ -279,6 +279,15 @@ class ModuleController extends Controller
     private function exportCatalogSpreadsheets(): void
     {
         app(CatalogSpreadsheetSyncService::class)->exportAll();
+    }
+
+    private function purchaseEmailPreviewUrl(Module $module): ?string
+    {
+        if (! app()->isLocal() && ! app()->runningUnitTests()) {
+            return null;
+        }
+
+        return route('dev.emails.modules.welcome', $module);
     }
 
     private function storeImage(UploadedFile $image): string

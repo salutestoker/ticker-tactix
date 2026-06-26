@@ -1,4 +1,5 @@
 import { IconSelector } from '@/Components/Admin/IconSelector';
+import { RichTextEditor } from '@/Components/Admin/RichTextEditor';
 import { HudButton, HudPanel, TaxonomyBadge } from '@/Components/UI/Hud';
 import AdminLayout from '@/Layouts/AdminLayout';
 import type { Market, Playbook, SelectOption, TraderType } from '@/types';
@@ -39,11 +40,13 @@ export default function PlaybookFormPage({
     markets,
     traderTypes,
     accessOptions,
+    purchaseEmailPreviewUrl,
 }: {
     playbook: Playbook | null;
     markets: Market[];
     traderTypes: TraderType[];
     accessOptions: SelectOption[];
+    purchaseEmailPreviewUrl: string | null;
 }) {
     const attachedTraderTypes =
         playbook?.trader_types ?? playbook?.traderTypes ?? [];
@@ -340,27 +343,22 @@ export default function PlaybookFormPage({
                             label="Long Description"
                             error={errors.long_description}
                         >
-                            <textarea
-                                className={textarea}
+                            <RichTextEditor
                                 value={data.long_description}
-                                onChange={(e) =>
-                                    setData('long_description', e.target.value)
+                                onChange={(value) =>
+                                    setData('long_description', value)
                                 }
-                                placeholder="Use line breaks to create paragraphs."
+                                placeholder="Add the full playbook description."
                             />
                         </Field>
                         <Field
                             label="Purchase Email Body"
                             error={errors.purchase_email_body}
                         >
-                            <textarea
-                                className={textarea}
+                            <RichTextEditor
                                 value={data.purchase_email_body}
-                                onChange={(e) =>
-                                    setData(
-                                        'purchase_email_body',
-                                        e.target.value,
-                                    )
+                                onChange={(value) =>
+                                    setData('purchase_email_body', value)
                                 }
                                 placeholder="Add access steps, Discord instructions, TradingView notes, or onboarding links."
                             />
@@ -544,12 +542,25 @@ export default function PlaybookFormPage({
                                 placeholder="admin@example.com, teammate@example.com"
                             />
                         </Field>
-                        <HudButton
-                            type="submit"
-                            disabled={testEmailProcessing}
-                        >
-                            Send Tests
-                        </HudButton>
+                        <div className="flex flex-wrap gap-3 md:justify-end">
+                            {purchaseEmailPreviewUrl ? (
+                                <HudButton
+                                    href={purchaseEmailPreviewUrl}
+                                    external
+                                    tone="blue"
+                                    className="w-full md:w-auto"
+                                >
+                                    Preview Email
+                                </HudButton>
+                            ) : null}
+                            <HudButton
+                                type="submit"
+                                disabled={testEmailProcessing}
+                                className="w-full md:w-auto"
+                            >
+                                Send Tests
+                            </HudButton>
+                        </div>
                     </form>
                 </HudPanel>
             ) : null}

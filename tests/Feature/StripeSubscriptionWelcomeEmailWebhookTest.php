@@ -20,7 +20,7 @@ class StripeSubscriptionWelcomeEmailWebhookTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_signed_initial_subscription_invoice_queues_welcome_email(): void
+    public function test_signed_initial_subscription_invoice_queues_welcome_email_without_purchase_email_body(): void
     {
         config(['services.stripe.webhook_secret' => 'whsec_test_secret']);
         Queue::fake();
@@ -28,7 +28,7 @@ class StripeSubscriptionWelcomeEmailWebhookTest extends TestCase
         $module = $this->module([
             'stripe_product_id' => 'prod_module',
             'stripe_price_id' => 'price_module',
-            'purchase_email_body' => 'Request TradingView access in Discord.',
+            'purchase_email_body' => null,
         ]);
 
         $payload = $this->invoicePaidPayload(
@@ -289,8 +289,14 @@ class StripeSubscriptionWelcomeEmailWebhookTest extends TestCase
                 && str_contains($html, 'Review the onboarding checklist.')
                 && str_contains($html, 'Manage your subscription')
                 && str_contains($html, 'https://www.youtube.com/watch?v=_Rit_BcwYu8')
-                && str_contains($html, 'https://i.ytimg.com/vi/_Rit_BcwYu8/hqdefault.jpg')
-                && str_contains($html, 'Watch welcome video')
+                && str_contains($html, asset('design/assets/images/welcome-video-thumbnail.jpg'))
+                && ! str_contains($html, 'https://i.ytimg.com/vi/_Rit_BcwYu8/hqdefault.jpg')
+                && str_contains($html, 'Watch Welcome Video')
+                && str_contains($html, 'View Product')
+                && str_contains($html, 'Join Discord')
+                && str_contains($html, 'font-family: Orbitron')
+                && str_contains($html, 'border-style: solid')
+                && ! str_contains($html, 'Product Overview Video')
                 && ! str_contains($html, '<video controls')
                 && ! str_contains($html, 'design/assets/videos/email-welcome-intro.mp4');
         });
@@ -298,6 +304,49 @@ class StripeSubscriptionWelcomeEmailWebhookTest extends TestCase
         $this->assertDatabaseHas(StripeWebhookEvent::class, [
             'id' => $event->id,
             'status' => StripeWebhookEvent::STATUS_SENT,
+        ]);
+    }
+
+    public function test_queued_job_sends_welcome_email_without_purchase_email_body(): void
+    {
+        Mail::fake();
+
+        $module = $this->module([
+            'stripe_product_id' => 'prod_module',
+            'stripe_price_id' => 'price_module',
+            'purchase_email_subject' => 'Welcome to Momentum Cycles',
+            'purchase_email_body' => null,
+        ]);
+
+        $event = StripeWebhookEvent::create([
+            'stripe_event_id' => 'evt_send_email_without_body',
+            'stripe_event_type' => 'invoice.paid',
+            'stripe_invoice_id' => 'in_send_email_without_body',
+            'stripe_customer_id' => 'cus_send_email_without_body',
+            'stripe_subscription_id' => 'sub_send_email_without_body',
+            'stripe_product_id' => 'prod_module',
+            'stripe_price_id' => 'price_module',
+            'catalog_type' => Module::class,
+            'catalog_id' => $module->id,
+            'customer_email' => 'subscriber@example.com',
+            'customer_name' => 'Subscriber Name',
+            'status' => StripeWebhookEvent::STATUS_QUEUED,
+        ]);
+
+        (new SendSubscriptionWelcomeEmailJob($event->id))->handle();
+
+        Mail::assertSent(SubscriptionWelcomeEmail::class, function (SubscriptionWelcomeEmail $mail): bool {
+            $html = $mail->render();
+
+            return str_contains($html, 'Welcome to Momentum Cycles')
+                && str_contains($html, 'Watch Welcome Video')
+                && ! str_contains($html, 'Momentum Cycles Specific Information');
+        });
+
+        $this->assertDatabaseHas(StripeWebhookEvent::class, [
+            'id' => $event->id,
+            'status' => StripeWebhookEvent::STATUS_SENT,
+            'skip_reason' => null,
         ]);
     }
 
@@ -331,10 +380,14 @@ class StripeSubscriptionWelcomeEmailWebhookTest extends TestCase
 
         Mail::assertSent(SubscriptionWelcomeEmail::class, function (SubscriptionWelcomeEmail $mail): bool {
             $html = $mail->render();
+            $viewData = $mail->content()->with;
 
-            return str_contains($html, 'https://www.youtube.com/watch?v=dQw4w9WgXcQ')
-                && str_contains($html, 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg')
-                && str_contains($html, 'Watch welcome video')
+            return str_contains($html, 'https://www.youtube.com/watch?v=_Rit_BcwYu8')
+                && str_contains($html, asset('design/assets/images/welcome-video-thumbnail.jpg'))
+                && str_contains($html, 'https://www.youtube.com/watch?v=dQw4w9WgXcQ')
+                && str_contains($html, 'Product Overview Video')
+                && ($viewData['youtubeThumbnailUrl'] ?? null) === 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg'
+                && ($viewData['welcomeVideoThumbnailUrl'] ?? null) === asset('design/assets/images/welcome-video-thumbnail.jpg')
                 && ! str_contains($html, '<video controls')
                 && ! str_contains($html, 'design/assets/videos/email-welcome-intro.mp4');
         });

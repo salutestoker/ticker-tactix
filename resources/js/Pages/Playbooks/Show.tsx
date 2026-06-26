@@ -8,6 +8,7 @@ import {
 } from '@/Components/UI/Hud';
 import { MobilePurchaseHud } from '@/Components/UI/MobilePurchaseHud';
 import { PublicHeroFrame } from '@/Components/UI/PublicHero';
+import { RichTextContent } from '@/Components/UI/RichTextContent';
 import { getYoutubeVideoId, YoutubeEmbed } from '@/Components/UI/YoutubeEmbed';
 import PublicLayout from '@/Layouts/PublicLayout';
 import type { Playbook } from '@/types';
@@ -58,11 +59,9 @@ export default function PlaybooksShow({ playbook }: { playbook: Playbook }) {
                                 <h2 className="font-heading text-seafoam-green text-xl tracking-[0.14em] uppercase">
                                     Description
                                 </h2>
-                                <ParagraphCopy
-                                    className="mt-5 text-sm leading-8 text-white/70"
-                                    text={
-                                        playbook.long_description?.trim() ?? ''
-                                    }
+                                <RichTextContent
+                                    html={playbook.long_description}
+                                    className="mt-5 text-sm leading-8"
                                 />
                             </HudPanel>
                         )}

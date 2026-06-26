@@ -169,6 +169,64 @@ class AdminCatalogTest extends TestCase
         ]);
     }
 
+    public function test_admin_catalog_rich_text_fields_are_sanitized(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        [$market, $traderType] = $this->catalogTaxonomies();
+
+        $this->actingAs($admin)
+            ->post(route('admin.modules.store'), [
+                'market_id' => $market->id,
+                'trader_type_ids' => [$traderType->id],
+                'title' => 'Rich Text Module',
+                'slug' => '',
+                'access' => AccessLevel::InviteOnlyIndicatorDiscord->value,
+                'description' => '<h2>Setup</h2><p>Use <strong>structure</strong><script>alert(1)</script><a href="javascript:alert(1)" onclick="bad()">bad link</a><a href="https://example.com" onclick="bad()">safe link</a></p>',
+                'module_overview' => '<p><u>Overview</u> with <em>timing</em>.</p>',
+                'purchase_email_body' => '<p>Join <a href="mailto:support@example.com">support</a>.</p>',
+                'is_featured' => false,
+                'is_active' => true,
+            ])
+            ->assertRedirect(route('admin.modules.index'));
+
+        $module = Module::where('slug', 'rich-text-module')->firstOrFail();
+
+        $this->assertStringContainsString('<h2>Setup</h2>', (string) $module->description);
+        $this->assertStringContainsString('<strong>structure</strong>', (string) $module->description);
+        $this->assertStringContainsString('<a>bad link</a>', (string) $module->description);
+        $this->assertStringContainsString('<a href="https://example.com">safe link</a>', (string) $module->description);
+        $this->assertStringContainsString('<u>Overview</u>', (string) $module->module_overview);
+        $this->assertStringContainsString('<em>timing</em>', (string) $module->module_overview);
+        $this->assertStringContainsString('mailto:support&#64;example.com', (string) $module->purchase_email_body);
+        $this->assertStringNotContainsString('script', (string) $module->description);
+        $this->assertStringNotContainsString('alert(1)', (string) $module->description);
+        $this->assertStringNotContainsString('onclick', (string) $module->description);
+        $this->assertStringNotContainsString('javascript:', (string) $module->description);
+
+        $this->actingAs($admin)
+            ->post(route('admin.playbooks.store'), [
+                'market_id' => $market->id,
+                'trader_type_ids' => [$traderType->id],
+                'title' => 'Rich Text Playbook',
+                'slug' => '',
+                'access' => AccessLevel::DailyNewsletterDiscord->value,
+                'long_description' => '<h3>Routine</h3><p>Review <strong>context</strong><script>alert(1)</script>.</p>',
+                'purchase_email_body' => '<p>Read the <a href="https://example.com/checklist" onclick="bad()">checklist</a>.</p>',
+                'is_featured' => false,
+                'is_active' => true,
+            ])
+            ->assertRedirect(route('admin.playbooks.index'));
+
+        $playbook = Playbook::where('slug', 'rich-text-playbook')->firstOrFail();
+
+        $this->assertStringContainsString('<h3>Routine</h3>', (string) $playbook->long_description);
+        $this->assertStringContainsString('<strong>context</strong>', (string) $playbook->long_description);
+        $this->assertStringContainsString('href="https://example.com/checklist"', (string) $playbook->purchase_email_body);
+        $this->assertStringNotContainsString('script', (string) $playbook->long_description);
+        $this->assertStringNotContainsString('alert(1)', (string) $playbook->long_description);
+        $this->assertStringNotContainsString('onclick', (string) $playbook->purchase_email_body);
+    }
+
     public function test_admin_catalog_requires_youtube_video_urls(): void
     {
         $admin = User::factory()->create(['is_admin' => true]);
