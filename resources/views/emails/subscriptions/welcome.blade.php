@@ -101,7 +101,7 @@
 
     <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="width: 100%; margin: 0; padding: 0; background-color: #010929; font-family: Corbel, 'Segoe UI', Arial, sans-serif;">
         <tr>
-            <td align="center" style="padding: 28px 16px 14px;">
+            <td align="center" style="padding: 128px 16px 14px; background-image: url({{ asset('design/assets/images/bg-hero.jpg') }}); background-size: cover; background-position: bottom;">
                 <a href="{{ route('home') }}" target="_blank" style="display: inline-block; text-decoration: none;">
                     <img src="https://ticker-tactix.com/design/assets/images/logo-ticker-tactix-2026--smaller.png" alt="Ticker-Tactix homepage" width="176" style="display: block; width: 176px; max-width: 176px; height: auto;">
                 </a>
@@ -126,7 +126,7 @@
                                 Subscription Confirmed
                             </p>
 
-                            <h1 style="margin: 0 0 18px; color: #ffffff; font-family: Orbitron, 'Segoe UI', Arial, sans-serif; font-size: 22px; letter-spacing: 0.06em; line-height: 1.15; text-align: left; text-transform: uppercase;">
+                            <h1 style="margin: 0 0 38px; color: #ffffff; font-family: Orbitron, 'Segoe UI', Arial, sans-serif; font-size: 22px; letter-spacing: 0.06em; line-height: 1.15; text-align: left; text-transform: uppercase;">
                                 You've subscribed to the {{ $catalogItem->title }}
                             </h1>
 
@@ -138,7 +138,7 @@
                                 Your payment was received successfully and the onboarding has started. Use the welcome video and action links below while the team verifies your subscription access.
                             </p>
 
-                            <p style="margin: 0 0 24px; color: #d9e2ff; font-size: 14px; line-height: 1.6; text-align: left;">
+                            <p style="margin: 0 0 34px; color: #d9e2ff; font-size: 14px; line-height: 1.6; text-align: left;">
                                 Regards,<br>
                                 Ticker-Tactix
                             </p>

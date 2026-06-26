@@ -18,7 +18,7 @@ class SubscriptionWelcomeEmail extends Mailable
     use Queueable, SerializesModels;
 
     private const DEFAULT_WELCOME_VIDEO_URL = 'https://youtu.be/_Rit_BcwYu8';
-    private const WELCOME_VIDEO_THUMBNAIL_PATH = 'design/assets/images/welcome-video-thumbnail.jpg';
+    private const WELCOME_VIDEO_THUMBNAIL_PATH = 'https://ticker-tactix.com/design/assets/images/welcome-video-thumbnail.jpg';
 
     public function __construct(
         public readonly StripeWebhookEvent $event,
@@ -60,7 +60,7 @@ class SubscriptionWelcomeEmail extends Mailable
                 'youtubeVideoUrl' => $youtubeVideoId ? YouTubeVideo::watchUrl($youtubeVideoId) : null,
                 'youtubeThumbnailUrl' => $youtubeVideoId ? YouTubeVideo::thumbnailUrl($youtubeVideoId) : null,
                 'welcomeVideoUrl' => $welcomeVideoId ? YouTubeVideo::watchUrl($welcomeVideoId) : null,
-                'welcomeVideoThumbnailUrl' => $welcomeVideoId ? asset(self::WELCOME_VIDEO_THUMBNAIL_PATH) : null,
+                'welcomeVideoThumbnailUrl' => $welcomeVideoId ? self::WELCOME_VIDEO_THUMBNAIL_URL : null,
             ],
         );
     }
