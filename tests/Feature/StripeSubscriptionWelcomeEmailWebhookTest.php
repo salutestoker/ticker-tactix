@@ -20,6 +20,8 @@ class StripeSubscriptionWelcomeEmailWebhookTest extends TestCase
 {
     use RefreshDatabase;
 
+    private const WELCOME_VIDEO_THUMBNAIL_URL = 'https://ticker-tactix.com/design/assets/images/welcome-video-thumbnail.jpg';
+
     public function test_signed_initial_subscription_invoice_queues_welcome_email_without_purchase_email_body(): void
     {
         config(['services.stripe.webhook_secret' => 'whsec_test_secret']);
@@ -289,7 +291,7 @@ class StripeSubscriptionWelcomeEmailWebhookTest extends TestCase
                 && str_contains($html, 'Review the onboarding checklist.')
                 && str_contains($html, 'Manage your subscription')
                 && str_contains($html, 'https://www.youtube.com/watch?v=_Rit_BcwYu8')
-                && str_contains($html, asset('design/assets/images/welcome-video-thumbnail.jpg'))
+                && str_contains($html, self::WELCOME_VIDEO_THUMBNAIL_URL)
                 && ! str_contains($html, 'https://i.ytimg.com/vi/_Rit_BcwYu8/hqdefault.jpg')
                 && str_contains($html, 'Watch Welcome Video')
                 && str_contains($html, 'View Product')
@@ -383,11 +385,11 @@ class StripeSubscriptionWelcomeEmailWebhookTest extends TestCase
             $viewData = $mail->content()->with;
 
             return str_contains($html, 'https://www.youtube.com/watch?v=_Rit_BcwYu8')
-                && str_contains($html, asset('design/assets/images/welcome-video-thumbnail.jpg'))
+                && str_contains($html, self::WELCOME_VIDEO_THUMBNAIL_URL)
                 && str_contains($html, 'https://www.youtube.com/watch?v=dQw4w9WgXcQ')
                 && str_contains($html, 'Product Overview Video')
                 && ($viewData['youtubeThumbnailUrl'] ?? null) === 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg'
-                && ($viewData['welcomeVideoThumbnailUrl'] ?? null) === asset('design/assets/images/welcome-video-thumbnail.jpg')
+                && ($viewData['welcomeVideoThumbnailUrl'] ?? null) === self::WELCOME_VIDEO_THUMBNAIL_URL
                 && ! str_contains($html, '<video controls')
                 && ! str_contains($html, 'design/assets/videos/email-welcome-intro.mp4');
         });

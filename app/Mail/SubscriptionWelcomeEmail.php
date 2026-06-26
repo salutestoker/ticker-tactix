@@ -18,7 +18,7 @@ class SubscriptionWelcomeEmail extends Mailable
     use Queueable, SerializesModels;
 
     private const DEFAULT_WELCOME_VIDEO_URL = 'https://youtu.be/_Rit_BcwYu8';
-    private const WELCOME_VIDEO_THUMBNAIL_PATH = 'https://ticker-tactix.com/design/assets/images/welcome-video-thumbnail.jpg';
+    private const WELCOME_VIDEO_THUMBNAIL_URL = 'https://ticker-tactix.com/design/assets/images/welcome-video-thumbnail.jpg';
 
     public function __construct(
         public readonly StripeWebhookEvent $event,

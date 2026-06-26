@@ -101,7 +101,7 @@
 
     <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="width: 100%; margin: 0; padding: 0; background-color: #010929; font-family: Corbel, 'Segoe UI', Arial, sans-serif;">
         <tr>
-            <td align="center" style="padding: 128px 16px 14px; background-image: url({{ asset('design/assets/images/bg-hero.jpg') }}); background-size: cover; background-position: bottom;">
+            <td align="center" style="padding: 128px 16px 14px; background-color: #010929; background-image: url(https://ticker-tactix.com/design/assets/images/bg-hero.jpg); background-size: cover; background-position: bottom;">
                 <a href="{{ route('home') }}" target="_blank" style="display: inline-block; text-decoration: none;">
                     <img src="https://ticker-tactix.com/design/assets/images/logo-ticker-tactix-2026--smaller.png" alt="Ticker-Tactix homepage" width="176" style="display: block; width: 176px; max-width: 176px; height: auto;">
                 </a>
