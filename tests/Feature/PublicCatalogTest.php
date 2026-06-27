@@ -8,6 +8,7 @@ use App\Models\Module;
 use App\Models\Playbook;
 use App\Models\TraderType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\TestResponse;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -18,27 +19,123 @@ class PublicCatalogTest extends TestCase
     public function test_homepage_renders_social_metadata(): void
     {
         $description = 'Trade with structure not emotion. A rules-based market operating system for traders who value structure over signals.';
-        $imageUrl = url('/design/assets/images/open-graph/ticker-tactix-2026--compressed.jpg');
 
-        $this->get('/')
-            ->assertOk()
-            ->assertSee('<title inertia>Ticker-Tactix</title>', false)
-            ->assertSee('<meta name="description" content="'.$description.'">', false)
-            ->assertSee('<link rel="canonical" href="'.url('/').'">', false)
-            ->assertSee('<meta property="og:type" content="website">', false)
-            ->assertSee('<meta property="og:site_name" content="Ticker-Tactix">', false)
-            ->assertSee('<meta property="og:title" content="Ticker-Tactix">', false)
-            ->assertSee('<meta property="og:description" content="'.$description.'">', false)
-            ->assertSee('<meta property="og:url" content="'.url('/').'">', false)
-            ->assertSee('<meta property="og:image" content="'.$imageUrl.'">', false)
-            ->assertSee('<meta property="og:image:width" content="3024">', false)
-            ->assertSee('<meta property="og:image:height" content="1722">', false)
-            ->assertSee('<meta property="og:image:alt" content="Ticker-Tactix hero artwork with the headline Trade with Structure Not Emotion.">', false)
-            ->assertSee('<meta name="twitter:card" content="summary_large_image">', false)
-            ->assertSee('<meta name="twitter:title" content="Ticker-Tactix">', false)
-            ->assertSee('<meta name="twitter:description" content="'.$description.'">', false)
-            ->assertSee('<meta name="twitter:image" content="'.$imageUrl.'">', false)
-            ->assertSee('<meta name="twitter:image:alt" content="Ticker-Tactix hero artwork with the headline Trade with Structure Not Emotion.">', false);
+        $this->assertSocialMetadata(
+            response: $this->get('/')->assertOk(),
+            title: 'Ticker-Tactix',
+            description: $description,
+            canonicalUrl: url('/'),
+            imageUrl: url('/design/assets/images/open-graph/ticker-tactix-2026--compressed.jpg'),
+            imageAlt: 'Ticker-Tactix hero artwork with the headline Trade with Structure Not Emotion.',
+            imageWidth: 1200,
+            imageHeight: 630,
+        );
+    }
+
+    public function test_public_pages_render_unique_social_metadata(): void
+    {
+        [$market, $traderType] = $this->catalogTaxonomies();
+
+        $module = Module::create([
+            'market_id' => $market->id,
+            'title' => 'Sequence Pressure',
+            'slug' => 'sequence-pressure',
+            'description' => 'Track exhaustion and pressure buildup.',
+            'access' => AccessLevel::InviteOnlyIndicatorDiscord,
+            'sort_order' => 10,
+            'is_featured' => true,
+            'is_active' => true,
+            'published_at' => now(),
+            'meta_title' => 'Sequence Pressure Timing Module',
+            'meta_description' => 'Spot directional exhaustion and pressure buildup before a move becomes vulnerable to recoil.',
+        ]);
+        $module->traderTypes()->attach($traderType);
+
+        $playbook = Playbook::create([
+            'market_id' => $market->id,
+            'title' => 'Market Environment',
+            'slug' => 'market-environment',
+            'access' => AccessLevel::DailyNewsletterDiscord,
+            'best_for' => 'Context before execution.',
+            'long_description' => "Context before execution.\nRepeat the same process every time.",
+            'banner_image' => 'playbook-banner-images/market-environment.jpg',
+            'price' => '$70/mo',
+            'sort_order' => 10,
+            'is_featured' => true,
+            'is_active' => true,
+            'published_at' => now(),
+            'meta_title' => 'Market Environment Briefing',
+            'meta_description' => 'Daily context and volatility guidance for traders who want structure before execution.',
+        ]);
+        $playbook->traderTypes()->attach($traderType);
+
+        $this->assertSocialMetadata(
+            response: $this->get('/contact')->assertOk(),
+            title: 'Contact Support - Ticker-Tactix',
+            description: 'Send onboarding details needed to investigate subscription access, TradingView setup, or Discord membership issues.',
+            canonicalUrl: url('/contact'),
+            imageUrl: url('/design/assets/images/bg-testimonials.jpg'),
+            imageAlt: 'Ticker-Tactix contact support hero artwork.',
+            imageWidth: 1672,
+            imageHeight: 941,
+        );
+
+        $this->assertSocialMetadata(
+            response: $this->get('/modules')->assertOk(),
+            title: 'Modules - Ticker-Tactix',
+            description: 'Specialized components that power the Ticker-Tactix system by organizing market context, trend, participation, and structure.',
+            canonicalUrl: url('/modules'),
+            imageUrl: url('/design/assets/images/bg-modules.jpg'),
+            imageAlt: 'Ticker-Tactix module matrix hero artwork.',
+            imageWidth: 1672,
+            imageHeight: 941,
+        );
+
+        $this->assertSocialMetadata(
+            response: $this->get('/playbooks')->assertOk(),
+            title: 'Playbooks - Ticker-Tactix',
+            description: 'Deployable trading frameworks that convert module output into repeatable structure for market execution.',
+            canonicalUrl: url('/playbooks'),
+            imageUrl: url('/design/assets/images/bg-playbooks.jpg'),
+            imageAlt: 'Ticker-Tactix playbook matrix hero artwork.',
+            imageWidth: 1672,
+            imageHeight: 941,
+        );
+
+        $this->assertSocialMetadata(
+            response: $this->get('/modules/sequence-pressure')->assertOk(),
+            title: 'Sequence Pressure Timing Module',
+            description: 'Spot directional exhaustion and pressure buildup before a move becomes vulnerable to recoil.',
+            canonicalUrl: url('/modules/sequence-pressure'),
+            imageUrl: url('/design/assets/images/modules/module-banner--sequence-pressure.jpg'),
+            imageAlt: 'Sequence Pressure module preview from Ticker-Tactix.',
+            imageWidth: 1448,
+            imageHeight: 699,
+        );
+
+        $playbookResponse = $this->get('/playbooks/market-environment')->assertOk();
+        $this->assertSocialMetadata(
+            response: $playbookResponse,
+            title: 'Market Environment Briefing',
+            description: 'Daily context and volatility guidance for traders who want structure before execution.',
+            canonicalUrl: url('/playbooks/market-environment'),
+            imageUrl: url('/storage/playbook-banner-images/market-environment.jpg'),
+            imageAlt: 'Market Environment playbook preview from Ticker-Tactix.',
+        );
+        $playbookResponse
+            ->assertDontSee('<meta property="og:image:width"', false)
+            ->assertDontSee('<meta property="og:image:height"', false);
+
+        $this->assertSocialMetadata(
+            response: $this->get('/trader-types/nyse-core')->assertOk(),
+            title: 'NYSE CORE - Ticker-Tactix',
+            description: 'Core-level trader type for NYSE market products.',
+            canonicalUrl: url('/trader-types/nyse-core'),
+            imageUrl: url('/design/assets/images/open-graph/ticker-tactix-2026--compressed.jpg'),
+            imageAlt: 'Ticker-Tactix hero artwork with the headline Trade with Structure Not Emotion.',
+            imageWidth: 1200,
+            imageHeight: 630,
+        );
     }
 
     public function test_home_and_catalog_pages_render_public_records(): void
@@ -374,5 +471,44 @@ class PublicCatalogTest extends TestCase
         ]);
 
         return [$market, $traderType];
+    }
+
+    private function assertSocialMetadata(
+        TestResponse $response,
+        string $title,
+        string $description,
+        string $canonicalUrl,
+        string $imageUrl,
+        string $imageAlt,
+        string $imageType = 'image/jpeg',
+        ?int $imageWidth = null,
+        ?int $imageHeight = null,
+    ): void {
+        $response
+            ->assertSee('<title inertia>'.$title.'</title>', false)
+            ->assertSee('<meta name="description" content="'.$description.'">', false)
+            ->assertSee('<link rel="canonical" href="'.$canonicalUrl.'">', false)
+            ->assertSee('<meta property="og:type" content="website">', false)
+            ->assertSee('<meta property="og:site_name" content="Ticker-Tactix">', false)
+            ->assertSee('<meta property="og:title" content="'.$title.'">', false)
+            ->assertSee('<meta property="og:description" content="'.$description.'">', false)
+            ->assertSee('<meta property="og:url" content="'.$canonicalUrl.'">', false)
+            ->assertSee('<meta property="og:image" content="'.$imageUrl.'">', false)
+            ->assertSee('<meta property="og:image:secure_url" content="'.$imageUrl.'">', false)
+            ->assertSee('<meta property="og:image:type" content="'.$imageType.'">', false)
+            ->assertSee('<meta property="og:image:alt" content="'.$imageAlt.'">', false)
+            ->assertSee('<meta name="twitter:card" content="summary_large_image">', false)
+            ->assertSee('<meta name="twitter:title" content="'.$title.'">', false)
+            ->assertSee('<meta name="twitter:description" content="'.$description.'">', false)
+            ->assertSee('<meta name="twitter:image" content="'.$imageUrl.'">', false)
+            ->assertSee('<meta name="twitter:image:alt" content="'.$imageAlt.'">', false);
+
+        if ($imageWidth !== null) {
+            $response->assertSee('<meta property="og:image:width" content="'.$imageWidth.'">', false);
+        }
+
+        if ($imageHeight !== null) {
+            $response->assertSee('<meta property="og:image:height" content="'.$imageHeight.'">', false);
+        }
     }
 }

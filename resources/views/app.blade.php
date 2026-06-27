@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     @php
-        $seoTitle = 'Ticker-Tactix';
-        $seoDescription = 'Trade with structure not emotion. A rules-based market operating system for traders who value structure over signals.';
-        $seoSiteName = 'Ticker-Tactix';
-        $seoCanonicalUrl = request()->fullUrl();
-        $seoImageUrl = url('/design/assets/images/open-graph/ticker-tactix-2026--compressed.jpg');
-        $seoImageAlt = 'Ticker-Tactix hero artwork with the headline Trade with Structure Not Emotion.';
-        $seoRobots = $seoRobots ?? 'index, follow';
+        $seoViewData = get_defined_vars();
+        $seoTitle = $seoViewData['seoTitle'] ?? App\Support\SeoMetadata::DEFAULT_TITLE;
+        $seoDescription = $seoViewData['seoDescription'] ?? App\Support\SeoMetadata::DEFAULT_DESCRIPTION;
+        $seoSiteName = $seoViewData['seoSiteName'] ?? 'Ticker-Tactix';
+        $seoCanonicalUrl = $seoViewData['seoCanonicalUrl'] ?? request()->fullUrl();
+        $seoImageUrl = $seoViewData['seoImageUrl'] ?? url(App\Support\SeoMetadata::DEFAULT_IMAGE_PATH);
+        $seoImageType = array_key_exists('seoImageType', $seoViewData) ? $seoImageType : 'image/jpeg';
+        $seoImageWidth = array_key_exists('seoImageWidth', $seoViewData) ? $seoImageWidth : 1200;
+        $seoImageHeight = array_key_exists('seoImageHeight', $seoViewData) ? $seoImageHeight : 630;
+        $seoImageAlt = $seoViewData['seoImageAlt'] ?? App\Support\SeoMetadata::DEFAULT_IMAGE_ALT;
+        $seoRobots = $seoViewData['seoRobots'] ?? 'index, follow';
         $googleAnalyticsMeasurementId = config('services.google_analytics.measurement_id');
     @endphp
     <head>
@@ -26,9 +30,15 @@
         <meta property="og:url" content="{{ $seoCanonicalUrl }}">
         <meta property="og:image" content="{{ $seoImageUrl }}">
         <meta property="og:image:secure_url" content="{{ $seoImageUrl }}">
-        <meta property="og:image:type" content="image/png">
-        <meta property="og:image:width" content="3024">
-        <meta property="og:image:height" content="1722">
+        @if (filled($seoImageType))
+            <meta property="og:image:type" content="{{ $seoImageType }}">
+        @endif
+        @if (filled($seoImageWidth))
+            <meta property="og:image:width" content="{{ $seoImageWidth }}">
+        @endif
+        @if (filled($seoImageHeight))
+            <meta property="og:image:height" content="{{ $seoImageHeight }}">
+        @endif
         <meta property="og:image:alt" content="{{ $seoImageAlt }}">
 
         <meta name="twitter:card" content="summary_large_image">

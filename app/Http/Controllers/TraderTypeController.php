@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\TraderType;
 use App\Support\CatalogRichText;
+use App\Support\SeoMetadata;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -28,6 +29,6 @@ class TraderTypeController extends Controller
 
         return Inertia::render('TraderTypes/Show', [
             'traderType' => $traderType,
-        ]);
+        ])->withViewData(SeoMetadata::forTraderType($traderType)->toViewData());
     }
 }

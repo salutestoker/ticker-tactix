@@ -8,6 +8,7 @@ use App\Models\Module;
 use App\Models\Playbook;
 use App\Models\TraderType;
 use App\Support\CatalogRichText;
+use App\Support\SeoMetadata;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -32,24 +33,41 @@ class PageController extends Controller
             'playbooks' => $playbooks,
             'featuredPlaybooks' => $featuredPlaybooks,
             'traderTypes' => $this->activeTraderTypes(),
-        ]);
+        ])->withViewData(SeoMetadata::default()->toViewData());
     }
 
     public function system(): InertiaResponse
     {
-        return Inertia::render('System');
+        return Inertia::render('System')
+            ->withViewData(SeoMetadata::staticPage(
+                title: 'Ticker-Tactix System',
+                description: 'Rules-based market operations that organize modules, playbooks, and decision structure before execution is considered.',
+                imagePath: '/design/assets/images/bg-methodology.jpg',
+                imageAlt: 'Ticker-Tactix system methodology hero artwork.',
+            )->toViewData());
     }
 
     public function traderTypes(): InertiaResponse
     {
         return Inertia::render('TraderTypes', [
             'traderTypes' => $this->activeTraderTypes(),
-        ]);
+        ])->withViewData(SeoMetadata::staticPage(
+            title: 'Trader Types - Ticker-Tactix',
+            description: 'Find the Ticker-Tactix framework that fits how you trade by market, structure level, and trading style.',
+            imagePath: '/design/assets/images/bg-what-type-of-trader-are-you.jpg',
+            imageAlt: 'Ticker-Tactix trader type framework hero artwork.',
+        )->toViewData());
     }
 
     public function contact(): InertiaResponse
     {
-        return Inertia::render('Contact');
+        return Inertia::render('Contact')
+            ->withViewData(SeoMetadata::staticPage(
+                title: 'Contact Support - Ticker-Tactix',
+                description: 'Send onboarding details needed to investigate subscription access, TradingView setup, or Discord membership issues.',
+                imagePath: '/design/assets/images/bg-testimonials.jpg',
+                imageAlt: 'Ticker-Tactix contact support hero artwork.',
+            )->toViewData());
     }
 
     public function faq(Request $request): Response
@@ -57,7 +75,11 @@ class PageController extends Controller
         $response = Inertia::render('Faq', [
             'faqs' => Faq::ordered()->get(),
         ])
-            ->withViewData('seoRobots', 'noindex, nofollow, noarchive')
+            ->withViewData(SeoMetadata::staticPage(
+                title: 'FAQ - Ticker-Tactix',
+                description: 'Quick answers for Ticker-Tactix access, product setup, and membership workflows.',
+                robots: 'noindex, nofollow, noarchive',
+            )->toViewData())
             ->toResponse($request);
 
         $response->headers->set('X-Robots-Tag', 'noindex, nofollow, noarchive');
@@ -82,24 +104,43 @@ class PageController extends Controller
 
     public function welcome(): InertiaResponse
     {
-        return Inertia::render('Welcome');
+        return Inertia::render('Welcome')
+            ->withViewData(SeoMetadata::staticPage(
+                title: 'Welcome - Ticker-Tactix',
+                description: 'Subscription confirmation details for Ticker-Tactix members, including Discord and TradingView access expectations.',
+            )->toViewData());
     }
 
     public function legal(string $page): InertiaResponse
     {
         $pages = [
-            'terms-of-service' => 'Terms of Service',
-            'membership-agreement' => 'Membership Agreement',
-            'privacy-policy' => 'Privacy Policy',
-            'financial-disclaimer' => 'Financial Disclaimer',
+            'terms-of-service' => [
+                'title' => 'Terms of Service',
+                'description' => 'Review the terms that govern use of Ticker-Tactix products, services, and member access.',
+            ],
+            'membership-agreement' => [
+                'title' => 'Membership Agreement',
+                'description' => 'Review the Ticker-Tactix membership agreement for subscription access and member responsibilities.',
+            ],
+            'privacy-policy' => [
+                'title' => 'Privacy Policy',
+                'description' => 'Learn how Ticker-Tactix handles privacy, personal information, and member account data.',
+            ],
+            'financial-disclaimer' => [
+                'title' => 'Financial Disclaimer',
+                'description' => 'Read the Ticker-Tactix financial disclaimer for market education, trading risk, and decision responsibility.',
+            ],
         ];
 
         abort_unless(isset($pages[$page]), 404);
 
         return Inertia::render('Legal/Show', [
-            'title' => $pages[$page],
+            'title' => $pages[$page]['title'],
             'slug' => $page,
-        ]);
+        ])->withViewData(SeoMetadata::staticPage(
+            title: "{$pages[$page]['title']} - Ticker-Tactix",
+            description: $pages[$page]['description'],
+        )->toViewData());
     }
 
     private function activeTraderTypes()
