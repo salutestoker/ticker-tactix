@@ -157,6 +157,26 @@ export function TaxonomyBadge({
     );
 }
 
+export function PriceTag({
+    price,
+    className = '',
+}: {
+    price?: string | null;
+    className?: string;
+}) {
+    if (!price) {
+        return null;
+    }
+
+    return (
+        <span
+            className={`font-heading bg-seafoam-green text-midnight-blue absolute top-0 right-0 z-10 inline-flex max-w-32 items-center justify-center rounded-bl-md px-4 py-2 text-center text-[0.68rem] leading-none font-bold break-words shadow-[0_0_24px_rgba(0,250,146,0.24)] ${className}`}
+        >
+            <span className="min-w-0">{price}</span>
+        </span>
+    );
+}
+
 export function StatusBadge({
     active,
     published,
