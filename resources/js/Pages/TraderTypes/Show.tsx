@@ -99,33 +99,33 @@ export default function TraderTypesShow({ traderType }: Props) {
                                     tone={tone}
                                 >
                                     <p>
-                                        This path groups the modules and
-                                        playbooks designed for traders who share
+                                        This path groups the playbooks and
+                                        modules designed for traders who share
                                         this market, structure level, and
                                         execution rhythm.
-                                    </p>
-                                </DetailRow>
-                                <DetailRow
-                                    icon="composite-engine"
-                                    title="Modules"
-                                    tone="green"
-                                >
-                                    <p>
-                                        Modules organize the market information
-                                        this trader type needs before execution
-                                        is considered.
                                     </p>
                                 </DetailRow>
                                 <DetailRow
                                     icon="playbooks-book-open"
                                     title="Playbooks"
                                     tone="violet"
-                                    isLast
                                 >
                                     <p>
                                         Playbooks convert module output into
                                         structured execution guidance matched to
                                         the trader profile.
+                                    </p>
+                                </DetailRow>
+                                <DetailRow
+                                    icon="composite-engine"
+                                    title="Modules"
+                                    tone="green"
+                                    isLast
+                                >
+                                    <p>
+                                        Modules organize the market information
+                                        this trader type needs before execution
+                                        is considered.
                                     </p>
                                 </DetailRow>
                             </HudPanel>
@@ -139,12 +139,12 @@ export default function TraderTypesShow({ traderType }: Props) {
                                         value={traderType.name}
                                     />
                                     <Meta
-                                        label="Published Modules"
-                                        value={String(modules.length)}
-                                    />
-                                    <Meta
                                         label="Published Playbooks"
                                         value={String(playbooks.length)}
+                                    />
+                                    <Meta
+                                        label="Published Modules"
+                                        value={String(modules.length)}
                                     />
                                 </dl>
                             </HudPanel>
@@ -160,20 +160,6 @@ export default function TraderTypesShow({ traderType }: Props) {
                         <>
                             <CatalogSection
                                 className="mt-12"
-                                eyebrow="Decision Tools"
-                                title="Modules"
-                                emptyCopy="No published modules are currently assigned to this trader type."
-                            >
-                                {modules.map((module) => (
-                                    <ModuleCard
-                                        key={module.id}
-                                        module={module}
-                                    />
-                                ))}
-                            </CatalogSection>
-
-                            <CatalogSection
-                                className="mt-12"
                                 eyebrow="Execution Frameworks"
                                 title="Playbooks"
                                 emptyCopy="No published playbooks are currently assigned to this trader type."
@@ -182,6 +168,20 @@ export default function TraderTypesShow({ traderType }: Props) {
                                     <PlaybookCard
                                         key={playbook.id}
                                         playbook={playbook}
+                                    />
+                                ))}
+                            </CatalogSection>
+
+                            <CatalogSection
+                                className="mt-12"
+                                eyebrow="Decision Tools"
+                                title="Modules"
+                                emptyCopy="No published modules are currently assigned to this trader type."
+                            >
+                                {modules.map((module) => (
+                                    <ModuleCard
+                                        key={module.id}
+                                        module={module}
                                     />
                                 ))}
                             </CatalogSection>
@@ -255,11 +255,11 @@ function PairedCatalogSection({
                 Recommended Stack
             </p>
             <h2 className="font-heading mt-2 text-2xl tracking-[0.08em] text-white uppercase">
-                Module + Playbook
+                Playbook + Module
             </h2>
             <div className="mt-5 grid gap-4 lg:grid-cols-2">
-                <ModuleCard module={module} />
                 <PlaybookCard playbook={playbook} />
+                <ModuleCard module={module} />
             </div>
         </section>
     );
@@ -345,13 +345,16 @@ function PlaybookCard({ playbook }: { playbook: Playbook }) {
             href={route('playbooks.show', playbook.slug)}
             className="group block"
         >
-            <HudPanel className="hover:border-violet-light/60 flex h-full flex-col rounded-[14px] p-5 transition hover:shadow-[0_0_36px_rgba(181,67,215,0.14)]">
-                <CatalogCardHeader
-                    imageUrl={playbook.logo_url}
-                    icon={playbook.icon}
-                    title={playbook.title}
-                    tone="violet"
-                />
+            <HudPanel className="hover:border-violet-light/60 relative flex h-full flex-col overflow-hidden rounded-[14px] p-5 transition hover:shadow-[0_0_36px_rgba(181,67,215,0.14)]">
+                <PriceTag price={playbook.price} />
+                <div className={playbook.price ? 'pr-24' : undefined}>
+                    <CatalogCardHeader
+                        imageUrl={playbook.logo_url}
+                        icon={playbook.icon}
+                        title={playbook.title}
+                        tone="violet"
+                    />
+                </div>
                 <p className="mt-4 line-clamp-3 text-sm leading-6 text-white/70">
                     {playbook.best_for}
                 </p>
@@ -373,6 +376,18 @@ function PlaybookCard({ playbook }: { playbook: Playbook }) {
                 </span>
             </HudPanel>
         </Link>
+    );
+}
+
+function PriceTag({ price }: { price?: string | null }) {
+    if (!price) {
+        return null;
+    }
+
+    return (
+        <span className="font-heading bg-seafoam-green text-midnight-blue absolute top-0 right-0 z-10 inline-flex max-w-32 items-center justify-center rounded-bl-md px-4 py-2 text-center text-[0.68rem] leading-none font-bold break-words shadow-[0_0_24px_rgba(0,250,146,0.24)]">
+            <span className="min-w-0">{price}</span>
+        </span>
     );
 }
 
