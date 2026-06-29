@@ -1,5 +1,5 @@
 import { IconRenderer } from '@/Components/Icons/IconRenderer';
-import { AccessBadge, TaxonomyBadge } from '@/Components/UI/Hud';
+import { AccessBadge, PriceTag, TaxonomyBadge } from '@/Components/UI/Hud';
 import { RichTextContent } from '@/Components/UI/RichTextContent';
 import { formatVersion } from '@/lib/format';
 import type { Module } from '@/types';
@@ -495,8 +495,9 @@ function ModuleCarouselCard({
         <div
             draggable={false}
             tabIndex={inert ? -1 : undefined}
-            className={`group border-main-blue/45 to-panel-deep hover:border-seafoam-green/70 focus-visible:ring-seafoam-green/70 flex h-[30rem] ${layout === 'grid' ? 'w-full' : 'w-[min(82vw,23.5rem)] shrink-0 cursor-grab active:cursor-grabbing'} flex-col overflow-hidden rounded-[14px] border bg-gradient-to-b from-[#0e1f4b] p-5 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_0_24px_rgba(55,100,245,0.16)] transition hover:-translate-y-1 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.09),0_0_30px_rgba(0,250,146,0.15)] focus-visible:ring-2 focus-visible:outline-none`}
+            className={`group border-main-blue/45 to-panel-deep hover:border-seafoam-green/70 focus-visible:ring-seafoam-green/70 relative flex h-[30rem] ${layout === 'grid' ? 'w-full' : 'w-[min(82vw,23.5rem)] shrink-0 cursor-grab active:cursor-grabbing'} flex-col overflow-hidden rounded-[14px] border bg-gradient-to-b from-[#0e1f4b] p-5 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_0_24px_rgba(55,100,245,0.16)] transition hover:-translate-y-1 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.09),0_0_30px_rgba(0,250,146,0.15)] focus-visible:ring-2 focus-visible:outline-none`}
         >
+            <PriceTag price={module.price} />
             <div className="relative flex gap-5">
                 <div className="w-2/3 min-w-0">
                     <p className="font-heading text-seafoam-green text-[0.66rem] font-semibold tracking-[0.18em] uppercase">
@@ -514,7 +515,9 @@ function ModuleCarouselCard({
                         className="min-w-[260px] text-sm leading-6"
                     />
                 </div>
-                <div className="absolute -top-2 right-[-16px] h-20 w-20 sm:top-[-25px]">
+                <div
+                    className={`absolute right-[-16px] h-20 w-20 ${module.price ? 'top-9 sm:top-9' : '-top-2 sm:top-[-25px]'}`}
+                >
                     {iconSrc ? (
                         <img
                             className="h-full w-full object-contain mix-blend-lighten transition duration-300 group-hover:scale-105"

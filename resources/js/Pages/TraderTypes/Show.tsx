@@ -305,13 +305,16 @@ function CatalogSection({
 function ModuleCard({ module }: { module: Module }) {
     return (
         <Link href={route('modules.show', module.slug)} className="group block">
-            <HudPanel className="hover:border-seafoam-green/60 flex h-full flex-col rounded-[14px] p-5 transition hover:shadow-[0_0_36px_rgba(0,250,146,0.14)]">
-                <CatalogCardHeader
-                    imageUrl={module.image_url}
-                    icon={module.icon}
-                    title={module.title}
-                    tone="green"
-                />
+            <HudPanel className="hover:border-seafoam-green/60 relative flex h-full flex-col overflow-hidden rounded-[14px] p-5 transition hover:shadow-[0_0_36px_rgba(0,250,146,0.14)]">
+                <PriceTag price={module.price} />
+                <div className={module.price ? 'pr-24' : undefined}>
+                    <CatalogCardHeader
+                        imageUrl={module.image_url}
+                        icon={module.icon}
+                        title={module.title}
+                        tone="green"
+                    />
+                </div>
                 <RichTextContent
                     html={module.description}
                     compact
